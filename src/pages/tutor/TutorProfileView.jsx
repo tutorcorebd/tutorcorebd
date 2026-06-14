@@ -34,12 +34,22 @@ const TutorProfileView = () => {
           </div>
           
           <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+            <Link 
+              to={`/tutor/${profile?.id}`}
+              className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+            >
               <Eye className="w-4 h-4" /> View As Parent
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#86c240] hover:bg-[#6a9c31] text-white rounded-lg text-xs font-bold transition-colors shadow-sm">
-              <Download className="w-4 h-4" /> Download CV
-            </button>
+            </Link>
+            {profile?.tutor_profile?.cv_url && (
+              <a 
+                href={profile.tutor_profile.cv_url} 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex items-center gap-2 px-4 py-2 bg-[#86c240] hover:bg-[#6a9c31] text-white rounded-lg text-xs font-bold transition-colors shadow-sm"
+              >
+                <Download className="w-4 h-4" /> Download CV
+              </a>
+            )}
           </div>
         </div>
 

@@ -16,6 +16,9 @@ import TermsOfUse from './pages/public/TermsOfUse';
 import PrivacyPolicy from './pages/public/PrivacyPolicy';
 import FAQ from './pages/public/FAQ';
 import JobBoard from './pages/public/JobBoard';
+import FindTutors from './pages/public/FindTutors';
+import PublicTutorProfile from './pages/public/PublicTutorProfile';
+import TuitionDetails from './pages/public/TuitionDetails';
 
 // Tutor Pages
 import TutorDashboard from './pages/tutor/TutorDashboard';
@@ -42,6 +45,7 @@ import EditRequest from './pages/guardian/EditRequest';
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminAssignmentHub from './pages/admin/AdminAssignmentHub';
+import AdminTutorials from './pages/admin/AdminTutorials';
 
 function App() {
   const { initialize } = useAuthStore();
@@ -64,6 +68,9 @@ function App() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/job-board" element={<JobBoard />} />
+          <Route path="/find-tutors" element={<FindTutors />} />
+          <Route path="/tutor/:id" element={<PublicTutorProfile />} />
+          <Route path="/tuition/:id" element={<TuitionDetails />} />
         </Route>
 
         {/* Standalone Admin Login Route (No Header/Footer) */}
@@ -102,6 +109,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/requests" element={<AdminAssignmentHub />} />
+            <Route path="/admin/tutorials" element={<AdminTutorials />} />
           </Route>
         </Route>
       </Routes>

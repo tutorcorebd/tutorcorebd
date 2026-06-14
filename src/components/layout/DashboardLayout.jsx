@@ -54,7 +54,7 @@ const DashboardLayout = () => {
   const menuItems = {
     tutor: [
       { name: 'Dashboard', path: '/tutor/dashboard', icon: Home },
-      { name: 'Tuition Jobs', path: '/tutor/tuitions', icon: LayoutGrid },
+      { name: 'Find Tuitions', path: '/tutor/tuitions', icon: LayoutGrid },
       { 
         name: 'My Profile', 
         path: '/tutor/profile', 
@@ -78,12 +78,14 @@ const DashboardLayout = () => {
     guardian: [
       { name: 'Dashboard', path: '/guardian/dashboard', icon: LayoutDashboard },
       { name: 'Post A Tuition', path: '/guardian/post-request', icon: PlusCircle },
+      { name: 'Find Tutors', path: '/find-tutors', icon: Search },
       { name: 'My Profile', path: '/guardian/profile', icon: User },
       { name: 'Settings', path: '/guardian/settings', icon: Settings },
     ],
     admin: [
       { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
       { name: 'Assignment Hub', path: '/admin/requests', icon: Shield },
+      { name: 'Tutorial Management', path: '/admin/tutorials', icon: Video },
       { name: 'Settings', path: '/admin/settings', icon: Settings },
     ]
   };

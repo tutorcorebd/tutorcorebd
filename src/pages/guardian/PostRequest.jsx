@@ -60,6 +60,12 @@ const PostRequest = () => {
   const [salaryRange, setSalaryRange] = useState('');
   const [daysPerWeek, setDaysPerWeek] = useState('3');
   
+  // Requirements matching fields
+  const [preferredGender, setPreferredGender] = useState('Any');
+  const [preferredUniversity, setPreferredUniversity] = useState('Any');
+  const [tutoringMode, setTutoringMode] = useState('Home Tutoring');
+  const [tutoringTime, setTutoringTime] = useState('Negotiable');
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -157,7 +163,11 @@ const PostRequest = () => {
         location: locationStr,
         guardian_whatsapp: guardianWhatsapp,
         salary_range: salaryRange,
-        days_per_week: parseInt(daysPerWeek) || 3
+        days_per_week: parseInt(daysPerWeek) || 3,
+        preferred_gender: preferredGender,
+        preferred_university: preferredUniversity,
+        tutoring_mode: tutoringMode,
+        tutoring_time: tutoringTime
       }]);
 
       if (insertError) {
@@ -412,6 +422,75 @@ const PostRequest = () => {
                 {[1, 2, 3, 4, 5, 6, 7].map(num => (
                   <option key={num} value={num}>{num} Days</option>
                 ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Tutor Preferences Section */}
+        <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-6">
+          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tutor Preferences & Mode</h4>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
+                <Users className="w-4 h-4 text-[#86c240]" />
+                Preferred Tutor Gender
+              </label>
+              <select 
+                value={preferredGender}
+                onChange={e => setPreferredGender(e.target.value)}
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium"
+              >
+                <option value="Any">Any</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
+                <GraduationCap className="w-4 h-4 text-[#86c240]" />
+                Preferred University
+              </label>
+              <input 
+                type="text"
+                placeholder="e.g. BUET, DU, Any"
+                value={preferredUniversity}
+                onChange={e => setPreferredUniversity(e.target.value)}
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium"
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
+                <Clock className="w-4 h-4 text-[#86c240]" />
+                Tutoring Time
+              </label>
+              <input 
+                type="text"
+                placeholder="e.g. 4:00 PM, Negotiable"
+                value={tutoringTime}
+                onChange={e => setTutoringTime(e.target.value)}
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium"
+              />
+            </div>
+            
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
+                <Users className="w-4 h-4 text-[#86c240]" />
+                Tutoring Mode
+              </label>
+              <select 
+                value={tutoringMode}
+                onChange={e => setTutoringMode(e.target.value)}
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium"
+              >
+                <option value="Home Tutoring">Home Tutoring</option>
+                <option value="Online Tutoring">Online Tutoring</option>
+                <option value="Group Tutoring">Group Tutoring</option>
               </select>
             </div>
           </div>

@@ -28,7 +28,8 @@ const Layout = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8 items-center">
               <Link to="/" className="text-slate-600 hover:text-primary font-medium">Home</Link>
-              <Link to="/job-board" className="text-slate-600 hover:text-primary font-medium">Job Board</Link>
+              <Link to="/job-board" className="text-slate-600 hover:text-primary font-medium">Find Tuitions</Link>
+              <Link to="/find-tutors" className="text-slate-600 hover:text-primary font-medium">Find Tutors</Link>
               <Link to="/faq" className="text-slate-600 hover:text-primary font-medium">FAQ</Link>
               
               {!session ? (
@@ -70,7 +71,8 @@ const Layout = () => {
           <div className="md:hidden border-t border-slate-100 bg-white">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
               <Link to="/" className="block px-3 py-2 text-slate-700 font-medium hover:bg-slate-50 hover:text-primary rounded-md">Home</Link>
-              <Link to="/job-board" className="block px-3 py-2 text-slate-700 font-medium hover:bg-slate-50 hover:text-primary rounded-md">Job Board</Link>
+              <Link to="/job-board" className="block px-3 py-2 text-slate-700 font-medium hover:bg-slate-50 hover:text-primary rounded-md">Find Tuitions</Link>
+              <Link to="/find-tutors" className="block px-3 py-2 text-slate-700 font-medium hover:bg-slate-50 hover:text-primary rounded-md">Find Tutors</Link>
               <Link to="/faq" className="block px-3 py-2 text-slate-700 font-medium hover:bg-slate-50 hover:text-primary rounded-md">FAQ</Link>
               
               {!session ? (
@@ -193,7 +195,8 @@ const Layout = () => {
               <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">For Tutors</h4>
               <ul className="space-y-2.5 text-sm font-medium">
                 <li><Link to="/register" className="hover:text-[#86c240] transition-colors">Become a Tutor</Link></li>
-                <li><Link to="/job-board" className="hover:text-[#86c240] transition-colors">Job Board</Link></li>
+                <li><Link to="/job-board" className="hover:text-[#86c240] transition-colors">Find Tuitions</Link></li>
+                <li><Link to="/find-tutors" className="hover:text-[#86c240] transition-colors">Find Tutors</Link></li>
                 <li><Link to="/faq" className="hover:text-[#86c240] transition-colors">Tutor FAQ</Link></li>
                 <li><a href="#" className="hover:text-[#86c240] transition-colors">Guidelines</a></li>
               </ul>

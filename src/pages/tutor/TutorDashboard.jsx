@@ -2,17 +2,17 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import useAuthStore from '../../store/useAuthStore';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  Bell, 
-  Users, 
-  MapPin, 
-  BookOpen, 
-  Clock, 
-  DollarSign, 
-  Briefcase, 
-  CheckCircle, 
-  Award, 
-  XCircle, 
+import {
+  Bell,
+  Users,
+  MapPin,
+  BookOpen,
+  Clock,
+  DollarSign,
+  Briefcase,
+  CheckCircle,
+  Award,
+  XCircle,
   HelpCircle,
   ArrowRight,
   TrendingUp,
@@ -24,6 +24,7 @@ const TutorDashboard = () => {
   const { profile } = useAuthStore();
   const [applications, setApplications] = useState([]);
   const [recommendedJobs, setRecommendedJobs] = useState([]);
+  const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -67,6 +68,16 @@ const TutorDashboard = () => {
         if (!jobsError && jobsData) {
           setRecommendedJobs(jobsData);
         }
+
+        // Fetch tutor's bookmarks
+        const { data: bookmarksData, error: bookmarksError } = await supabase
+          .from('bookmarks')
+          .select('*, tuition_requests(*, guardian:users(full_name))')
+          .eq('tutor_id', profile.id);
+
+        if (!bookmarksError && bookmarksData) {
+          setBookmarks(bookmarksData);
+        }
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
       } finally {
@@ -81,15 +92,15 @@ const TutorDashboard = () => {
   const calculateCompleteness = () => {
     const tp = profile?.tutor_profile;
     if (!tp) return 20; // base profile setup complete
-    
+
     // If database already has completeness calculated and saved, use it
     if (tp.profile_completeness !== undefined && tp.profile_completeness !== null && tp.profile_completeness > 0) {
       return tp.profile_completeness;
     }
-    
+
     // Otherwise fallback to dynamic calculation matching the wizard rules
     let score = 20;
-    
+
     // 1. Location (5%)
     if (tp.current_city && tp.living_location && tp.preferred_locations && tp.preferred_locations.length > 0) {
       score += 5;
@@ -122,7 +133,7 @@ const TutorDashboard = () => {
     if (tp.cv_url) {
       score += 10;
     }
-    
+
     return score;
   };
 
@@ -178,12 +189,28 @@ const TutorDashboard = () => {
     }
   };
 
+  const handleDeleteBookmark = async (bookmarkId) => {
+    if (!confirm('Are you sure you want to remove this bookmark?')) return;
+    try {
+      const { error } = await supabase
+        .from('bookmarks')
+        .delete()
+        .eq('id', bookmarkId);
+      if (error) throw error;
+      setBookmarks(prev => prev.filter(b => b.id !== bookmarkId));
+      showAlert('success', 'Bookmark Removed', 'Tuition post removed from bookmarks.');
+    } catch (err) {
+      console.error(err);
+      showAlert('error', 'Error', 'Failed to remove bookmark.');
+    }
+  };
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      
+
       {/* Top Grid Section */}
       <div className="grid md:grid-cols-3 gap-6">
-        
+
         {/* Welcome Card (Top Left, spans 2 columns) */}
         <div className="md:col-span-2 bg-white rounded-xl border border-slate-100 shadow-sm p-8 flex justify-between items-center relative overflow-hidden">
           <div className="z-10">
@@ -191,7 +218,7 @@ const TutorDashboard = () => {
               Good Morning, <span className="font-bold text-slate-800">{profile?.full_name || 'Tushar Undefined'}</span>
             </h1>
             <h2 className="text-3xl font-black text-slate-800 mt-1 mb-3">
-              Welcome to "Tuition Terminal"
+              Welcome to TutorCore BD
             </h2>
             <p className="text-slate-500 text-sm max-w-lg leading-relaxed">
               We are so delighted about your arrival on our platform. You can apply your desired "Tuition Job" from your personalized dashboard. So, don't be late apply & enjoy your tutoring journey!!!
@@ -200,7 +227,7 @@ const TutorDashboard = () => {
           {/* Decorative illustration placeholder */}
           <div className="hidden lg:block w-48 h-40 bg-slate-50 rounded-lg flex-shrink-0 flex items-center justify-center">
             {/* If you have the image, it goes here */}
-            <span className="text-xs text-slate-400">Illustration</span>
+            <span className="text-xs text-slate-400"></span>
           </div>
         </div>
 
@@ -229,7 +256,7 @@ const TutorDashboard = () => {
               Save 39%
             </span>
           </div>
-          
+
           <p className="text-slate-300 text-sm mt-4 mb-6 max-w-md z-10 relative leading-relaxed">
             Subscriptions to a Membership Package always be top rated. It helps to gain tuition jobs rapidly.
           </p>
@@ -239,7 +266,7 @@ const TutorDashboard = () => {
               <span className="text-2xl font-bold">499</span>
               <span className="text-slate-400 text-sm mb-1">/year</span>
             </div>
-            <button 
+            <button
               onClick={() => navigate('/tutor/membership')}
               className="bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-sm font-bold px-6 py-2 rounded-md transition-colors"
             >
@@ -260,7 +287,7 @@ const TutorDashboard = () => {
 
       {/* Row 2: Promos / Action Cards */}
       <div className="grid md:grid-cols-3 gap-6">
-        
+
         {/* Profile Completeness Card (The Requested Prompt) */}
         <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] flex items-center justify-between">
           <div className="flex items-center gap-5">
@@ -333,7 +360,7 @@ const TutorDashboard = () => {
           <TrendingUp className="w-4 h-4 text-[#86c240]" />
           My Status
         </h3>
-        
+
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500 flex-shrink-0">
@@ -442,14 +469,95 @@ const TutorDashboard = () => {
         )}
       </div>
 
-      <CustomAlert 
-        isOpen={alertOpen} 
-        onClose={() => setAlertOpen(false)} 
-        type={alertConfig.type} 
-        title={alertConfig.title} 
-        message={alertConfig.message} 
+      {/* Row 5: Bookmarked Tuitions */}
+      <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-lg font-extrabold text-slate-800">Bookmarked Tuitions</h2>
+            <p className="text-xs text-slate-400 font-semibold mt-0.5">Your saved tuition requests</p>
+          </div>
+        </div>
+
+        {bookmarks.length === 0 ? (
+          <div className="flex items-center justify-center py-12 text-slate-400 text-sm bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+            You have not bookmarked any tuitions yet.
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {bookmarks.map((b) => {
+              const job = b.tuition_requests;
+              if (!job) return null;
+              const applied = applications.some(app => app.tuition_request_id === job.id);
+              
+              return (
+                <div key={b.id} className="bg-slate-50/50 hover:bg-slate-50 border border-slate-100 hover:border-slate-200 rounded-2xl p-5 transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-md">
+                  <div>
+                    <div className="flex justify-between items-start mb-4">
+                      <span className="inline-block px-2.5 py-1 bg-[#eaf4df] text-[#86c240] text-[10px] font-black rounded-lg uppercase tracking-wider border border-[#86c240]/10">
+                        {job.student_class}
+                      </span>
+                      <button 
+                        onClick={() => handleDeleteBookmark(b.id)}
+                        className="text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1.5 rounded-lg transition-colors"
+                        title="Remove Bookmark"
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </button>
+                    </div>
+                    
+                    <h3 className="font-extrabold text-slate-800 text-base leading-tight">
+                      <Link to={`/tuition/${job.id}`} className="hover:text-[#86c240] transition-colors">
+                        {job.subject ? job.subject.join(', ') : 'All Subjects'}
+                      </Link>
+                    </h3>
+                    <p className="text-xs text-slate-400 font-bold mt-1">Posted by {job.guardian?.full_name || 'Guardian'}</p>
+
+                    <div className="space-y-2.5 mt-5">
+                      <div className="flex items-center gap-2.5 text-xs text-slate-600 font-semibold">
+                        <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <span className="truncate">{job.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-xs text-slate-600 font-semibold">
+                        <Clock className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <span>{job.days_per_week} days/week</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-xs text-slate-600 font-semibold">
+                        <DollarSign className="w-4 h-4 text-[#86c240] flex-shrink-0" />
+                        <span className="font-extrabold text-slate-800">{job.salary_range || 'Negotiable'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 mt-6">
+                    <Link
+                      to={`/tuition/${job.id}`}
+                      className="flex-1 text-center py-2.5 bg-slate-900 text-white hover:bg-slate-800 rounded-xl text-xs font-bold transition-all shadow-sm"
+                    >
+                      Details
+                    </Link>
+                    <button
+                      onClick={() => !applied && handleApply(job.id)}
+                      disabled={applied}
+                      className={`flex-grow py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm ${applied ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-[#86c240] text-white hover:bg-[#6a9c31]'}`}
+                    >
+                      {applied ? 'Applied' : 'Apply'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <CustomAlert
+        isOpen={alertOpen}
+        onClose={() => setAlertOpen(false)}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
         actionText={alertConfig.actionText}
-        onAction={alertConfig.onAction} 
+        onAction={alertConfig.onAction}
       />
     </div>
   );

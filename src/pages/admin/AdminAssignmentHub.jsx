@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, BookOpen, Clock, Banknote, User, MessageCircle, CheckCircle } from 'lucide-react';
+import { MapPin, BookOpen, Clock, Banknote, User, MessageCircle, CheckCircle, XCircle, Award, Eye, Settings } from 'lucide-react';
 
 const AdminAssignmentHub = () => {
   const [requests, setRequests] = useState([]);
@@ -16,7 +16,14 @@ const AdminAssignmentHub = () => {
       .select('*, guardian:guardian_id(full_name)')
       .order('created_at', { ascending: false });
     
-    if (data) setRequests(data);
+    if (data) {
+      setRequests(data);
+      // Keep selectedRequest in sync if it is set
+      if (selectedRequest) {
+        const updated = data.find(r => r.id === selectedRequest.id);
+        if (updated) setSelectedRequest(updated);
+      }
+    }
     setLoading(false);
   };
 
@@ -59,6 +66,34 @@ const AdminAssignmentHub = () => {
     fetchApplications(selectedRequest.id);
   };
 
+  const handleUpdateAppStatus = async (applicationId, newStatus) => {
+    const { error } = await supabase
+      .from('job_applications')
+      .update({ status: newStatus })
+      .eq('id', applicationId);
+    
+    if (!error) {
+      alert(`Application marked as ${newStatus}`);
+      fetchApplications(selectedRequest.id);
+    } else {
+      alert(`Error updating application: ${error.message}`);
+    }
+  };
+
+  const handleUpdateRequestStatus = async (newStatus) => {
+    const { error } = await supabase
+      .from('tuition_requests')
+      .update({ status: newStatus })
+      .eq('id', selectedRequest.id);
+    
+    if (!error) {
+      alert(`Tuition request status updated to ${newStatus}`);
+      fetchRequests();
+    } else {
+      alert(`Error updating status: ${error.message}`);
+    }
+  };
+
   const displayEducation = (status) => {
     if (!status) return 'N/A';
     try {
@@ -73,27 +108,43 @@ const AdminAssignmentHub = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-120px)]">
+    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-120px)] font-sans">
       {/* Left Panel: Requests List */}
       <div className="w-full lg:w-1/3 bg-white rounded-xl shadow-sm border border-slate-200 overflow-y-auto flex flex-col">
-        <div className="p-4 border-b border-slate-200 bg-slate-50 sticky top-0">
-          <h2 className="text-lg font-bold">Tuition Requests</h2>
+        <div className="p-4 border-b border-slate-200 bg-slate-50 sticky top-0 z-10 flex justify-between items-center">
+          <h2 className="text-lg font-bold text-slate-800">Tuition Requests</h2>
+          <span className="bg-slate-200 text-slate-700 text-xs px-2.5 py-1 rounded-full font-bold">
+            {requests.length} Total
+          </span>
         </div>
         <div className="divide-y divide-slate-100">
-          {loading ? <div className="p-4 text-center">Loading...</div> : requests.map(req => (
+          {loading && requests.length === 0 ? (
+            <div className="p-4 text-center text-slate-400 font-bold">Loading...</div>
+          ) : requests.map(req => (
             <div 
               key={req.id} 
               onClick={() => handleSelectRequest(req)}
-              className={`p-4 cursor-pointer hover:bg-slate-50 transition-colors ${selectedRequest?.id === req.id ? 'bg-primary-light border-l-4 border-primary' : ''}`}
+              className={`p-4 cursor-pointer hover:bg-slate-50/50 transition-colors ${selectedRequest?.id === req.id ? 'bg-[#f7fee7] border-l-4 border-[#86c240]' : ''}`}
             >
               <div className="flex justify-between items-start mb-1">
-                <span className="font-semibold text-slate-800">Class: {req.student_class}</span>
-                <span className={`text-xs px-2 py-1 rounded-full ${req.status === 'open' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
-                  {req.status}
+                <span className="font-extrabold text-slate-800">Class: {req.student_class}</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  req.status === 'open' 
+                    ? 'bg-blue-50 text-blue-600 border border-blue-100' 
+                    : req.status === 'assigned'
+                      ? 'bg-green-50 text-green-600 border border-green-100'
+                      : 'bg-slate-100 text-slate-500 border border-slate-200'
+                }`}>
+                  {req.status.toUpperCase()}
                 </span>
               </div>
-              <div className="text-sm text-slate-500 mb-2 truncate">{req.subject.join(', ')}</div>
-              <div className="text-xs text-slate-400">By: {req.guardian?.full_name} • {formatDistanceToNow(new Date(req.created_at))} ago</div>
+              <div className="text-xs font-semibold text-slate-500 mb-2 truncate">
+                {req.subject ? req.subject.join(', ') : 'N/A'}
+              </div>
+              <div className="text-[10px] font-bold text-slate-400 flex justify-between">
+                <span>By: {req.guardian?.full_name || 'Admin'}</span>
+                <span>{formatDistanceToNow(new Date(req.created_at))} ago</span>
+              </div>
             </div>
           ))}
         </div>
@@ -103,60 +154,137 @@ const AdminAssignmentHub = () => {
       <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-y-auto">
         {selectedRequest ? (
           <>
+            {/* Request Info */}
             <div className="p-6 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-2xl font-bold mb-4">Request Details</h2>
-              <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                <div><span className="font-semibold">Location:</span> {selectedRequest.location}</div>
-                <div><span className="font-semibold">Subjects:</span> {selectedRequest.subject.join(', ')}</div>
-                <div><span className="font-semibold">Salary:</span> {selectedRequest.salary_range}</div>
-                <div><span className="font-semibold">Guardian Phone:</span> {selectedRequest.guardian_whatsapp}</div>
+              <div className="flex justify-between items-start gap-4 flex-wrap mb-4">
+                <div>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Job ID: {selectedRequest.id.substring(0, 8).toUpperCase()}</span>
+                  <h2 className="text-2xl font-black text-slate-800">Need Tutor for {selectedRequest.student_class}</h2>
+                </div>
+                
+                {/* Request Status Dropdown */}
+                <div className="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
+                  <span className="text-xs font-bold text-slate-500">Request Status:</span>
+                  <select
+                    value={selectedRequest.status}
+                    onChange={(e) => handleUpdateRequestStatus(e.target.value)}
+                    className="text-xs font-extrabold text-slate-800 bg-transparent border-none focus:outline-none focus:ring-0 cursor-pointer"
+                  >
+                    <option value="open">Open</option>
+                    <option value="assigned">Assigned</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                </div>
               </div>
-              <a 
-                href={`https://wa.me/${selectedRequest.guardian_whatsapp.replace(/[^0-9]/g, '')}`} 
-                target="_blank" 
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 bg-[#25D366] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#128C7E] transition-colors"
-              >
-                <MessageCircle className="w-4 h-4" /> WhatsApp Guardian
-              </a>
+
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs font-semibold text-slate-600 mb-5">
+                <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-slate-400" /> <span className="text-slate-400">Location:</span> {selectedRequest.location}</div>
+                <div className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-slate-400" /> <span className="text-slate-400">Subjects:</span> {selectedRequest.subject?.join(', ')}</div>
+                <div className="flex items-center gap-2"><Banknote className="w-4 h-4 text-slate-400" /> <span className="text-slate-400">Salary:</span> {selectedRequest.salary_range}</div>
+                <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-slate-400" /> <span className="text-slate-400">Days:</span> {selectedRequest.days_per_week} days/week</div>
+                <div className="flex items-center gap-2"><User className="w-4 h-4 text-pink-400" /> <span className="text-slate-400">Gender:</span> {selectedRequest.preferred_gender || 'Any'}</div>
+                <div className="flex items-center gap-2"><GraduationCap className="w-4 h-4 text-[#86c240]" /> <span className="text-slate-400">University:</span> {selectedRequest.preferred_university || 'Any'}</div>
+              </div>
+
+              <div className="flex gap-3">
+                <a 
+                  href={`https://wa.me/${selectedRequest.guardian_whatsapp.replace(/[^0-9]/g, '')}`} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#25D366] text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#128C7E] transition-colors shadow-sm"
+                >
+                  <MessageCircle className="w-4 h-4" /> WhatsApp Guardian ({selectedRequest.guardian_whatsapp})
+                </a>
+              </div>
             </div>
 
-            <div className="p-6">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <User className="w-5 h-5 text-primary" /> Tutor Applications ({applications.length})
+            {/* Applications List */}
+            <div className="p-6 flex-1">
+              <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
+                <User className="w-5 h-5 text-[#86c240]" /> Tutor Applications ({applications.length})
               </h3>
               
               {applications.length === 0 ? (
-                <div className="text-center text-slate-500 py-8">No tutors have applied yet.</div>
+                <div className="text-center text-slate-400 font-bold py-12">No tutors have applied yet.</div>
               ) : (
                 <div className="space-y-4">
                   {applications.map(app => (
-                    <div key={app.id} className="border border-slate-200 rounded-lg p-4 flex justify-between items-center">
+                    <div key={app.id} className="border border-slate-100 bg-white rounded-2xl p-5 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center shadow-sm hover:shadow-md transition-shadow">
                       <div>
-                        <div className="font-semibold text-lg">{app.tutor?.full_name}</div>
-                        <div className="text-sm text-slate-600 mb-1">{displayEducation(app.tutor?.tutor_profiles?.[0]?.education_status)}</div>
-                        <div className="text-xs text-slate-500">Phone: {app.tutor?.phone_number}</div>
-                        {app.tutor?.tutor_profiles?.[0]?.cv_url && (
-                          <a href={app.tutor.tutor_profiles[0].cv_url} target="_blank" rel="noreferrer" className="text-primary text-sm hover:underline mt-2 inline-block">
-                            View CV
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <a 
+                            href={`/tutor/${app.tutor_id}`} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="font-extrabold text-lg text-[#86c240] hover:underline flex items-center gap-1.5"
+                          >
+                            {app.tutor?.full_name} <Eye className="w-4 h-4 text-slate-400 hover:text-[#86c240]" />
                           </a>
-                        )}
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                            app.status === 'selected'
+                              ? 'bg-green-50 text-green-600 border border-green-100'
+                              : app.status === 'reviewed'
+                                ? 'bg-orange-50 text-orange-600 border border-orange-100'
+                                : app.status === 'rejected'
+                                  ? 'bg-red-50 text-red-600 border border-red-100'
+                                  : 'bg-blue-50 text-blue-600 border border-blue-100'
+                          }`}>
+                            {app.status.toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="text-xs font-semibold text-slate-500 mt-1 mb-2">
+                          {displayEducation(app.tutor?.tutor_profiles?.[0]?.education_status)}
+                        </div>
+                        <div className="text-xs font-bold text-slate-400 flex gap-4">
+                          <span>Phone: {app.tutor?.phone_number}</span>
+                          {app.tutor?.tutor_profiles?.[0]?.cv_url && (
+                            <a 
+                              href={app.tutor.tutor_profiles[0].cv_url} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className="text-[#86c240] hover:underline font-extrabold flex items-center gap-1"
+                            >
+                              View CV
+                            </a>
+                          )}
+                        </div>
                       </div>
                       
-                      <div>
-                        {app.status === 'selected' ? (
-                          <span className="flex items-center gap-1 text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full">
-                            <CheckCircle className="w-4 h-4" /> Assigned
+                      {/* Action buttons per application */}
+                      <div className="flex gap-2 flex-wrap md:flex-nowrap w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 mt-3 md:mt-0">
+                        {app.status !== 'selected' && (
+                          <>
+                            {app.status !== 'reviewed' && (
+                              <button 
+                                onClick={() => handleUpdateAppStatus(app.id, 'reviewed')}
+                                className="flex-1 md:flex-none px-3.5 py-2 border border-orange-200 hover:border-orange-500 text-orange-600 hover:bg-orange-50 rounded-xl text-xs font-bold transition-all"
+                              >
+                                Shortlist
+                              </button>
+                            )}
+                            
+                            <button 
+                              onClick={() => handleAssign(app.id, app.tutor_id)}
+                              className="flex-grow md:flex-none px-4 py-2 bg-[#86c240] hover:bg-[#6a9c31] text-white rounded-xl text-xs font-bold shadow-md shadow-[#86c240]/10 transition-all"
+                            >
+                              Assign Tutor
+                            </button>
+
+                            {app.status !== 'rejected' && (
+                              <button 
+                                onClick={() => handleUpdateAppStatus(app.id, 'rejected')}
+                                className="flex-1 md:flex-none px-3.5 py-2 border border-red-200 hover:border-red-500 text-red-600 hover:bg-red-50 rounded-xl text-xs font-bold transition-all"
+                              >
+                                Reject
+                              </button>
+                            )}
+                          </>
+                        )}
+                        
+                        {app.status === 'selected' && (
+                          <span className="flex items-center gap-1.5 text-green-600 font-extrabold bg-green-50 px-4 py-2 rounded-xl border border-green-100 text-xs">
+                            <CheckCircle className="w-4 h-4" /> Assigned to Job
                           </span>
-                        ) : selectedRequest.status === 'open' ? (
-                          <button 
-                            onClick={() => handleAssign(app.id, app.tutor_id)}
-                            className="btn-primary"
-                          >
-                            Assign Tutor
-                          </button>
-                        ) : (
-                          <span className="text-slate-400 font-medium">Not Selected</span>
                         )}
                       </div>
                     </div>
@@ -166,8 +294,9 @@ const AdminAssignmentHub = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-slate-500">
-            Select a request from the left panel to view details and applications.
+          <div className="flex-1 flex flex-col items-center justify-center text-slate-400 gap-2">
+            <Settings className="w-8 h-8 text-slate-300 animate-spin" style={{ animationDuration: '6s' }} />
+            <span className="font-bold text-sm">Select a request from the left panel to inspect details & applications.</span>
           </div>
         )}
       </div>
