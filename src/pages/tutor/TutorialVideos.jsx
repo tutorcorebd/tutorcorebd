@@ -90,7 +90,7 @@ const TutorialVideos = () => {
                     {tutorial.description}
                   </p>
                 )}
-                <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+                <div className="flex justify-between items-center text-[10px] font-bold text-slate-400">
                   <span>{formatDistanceToNow(new Date(tutorial.created_at), { addSuffix: true })}</span>
                   <span className="px-2 py-1 bg-slate-50 rounded-md">
                     {tutorial.target_role === 'all' ? 'General' : tutorial.target_role}

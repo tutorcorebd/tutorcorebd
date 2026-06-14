@@ -121,7 +121,7 @@ const Settings = () => {
             </h3>
             <form onSubmit={handleUpdateName} className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Full Name</label>
+                <label className="text-xs font-bold text-slate-500 mb-2 block">Full Name</label>
                 <input 
                   type="text" 
                   className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium"
@@ -147,7 +147,7 @@ const Settings = () => {
               Email Address
             </h3>
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Current Email</label>
+              <label className="text-xs font-bold text-slate-500 mb-2 block">Current Email</label>
               <input 
                 type="email" 
                 className="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 font-medium cursor-not-allowed"
@@ -173,7 +173,7 @@ const Settings = () => {
             </h3>
             <form onSubmit={handleUpdatePassword} className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">New Password</label>
+                <label className="text-xs font-bold text-slate-500 mb-2 block">New Password</label>
                 <input 
                   type="password" 
                   className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 font-medium"
@@ -184,7 +184,7 @@ const Settings = () => {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Confirm Password</label>
+                <label className="text-xs font-bold text-slate-500 mb-2 block">Confirm Password</label>
                 <input 
                   type="password" 
                   className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 font-medium"

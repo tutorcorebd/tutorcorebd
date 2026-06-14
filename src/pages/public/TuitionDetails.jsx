@@ -306,7 +306,7 @@ const TuitionDetails = () => {
                 </div>
                 <div>
                   <span className="text-slate-400 font-bold block mb-0.5">Subject</span>
-                  <span className="text-slate-800 text-sm font-extrabold truncate max-w-[150px] block" title={job.subject?.join(', ')}>
+                  <span className="text-slate-800 text-sm font-extrabold block" title={job.subject?.join(', ')}>
                     {job.subject?.join(', ')}
                   </span>
                 </div>
@@ -504,17 +504,19 @@ const TuitionDetails = () => {
             )}
 
             {/* Apply Now Button */}
-            <button 
-              onClick={handleApplyClick}
-              disabled={profile?.role === 'tutor' && !reqCheck.match}
-              className={`flex items-center justify-center gap-2 w-full py-3 text-white rounded-xl text-xs font-bold transition-all shadow-md ${
-                profile?.role === 'tutor' && !reqCheck.match
-                  ? 'bg-slate-300 cursor-not-allowed shadow-none'
-                  : 'bg-[#86c240] hover:bg-[#6a9c31]'
-              }`}
-            >
-              Apply Now
-            </button>
+            {profile?.role !== 'guardian' && (
+              <button 
+                onClick={handleApplyClick}
+                disabled={profile?.role === 'tutor' && !reqCheck.match}
+                className={`flex items-center justify-center gap-2 w-full py-3 text-white rounded-xl text-xs font-bold transition-all shadow-md ${
+                  profile?.role === 'tutor' && !reqCheck.match
+                    ? 'bg-slate-300 cursor-not-allowed shadow-none'
+                    : 'bg-[#86c240] hover:bg-[#6a9c31]'
+                }`}
+              >
+                Apply Now
+              </button>
+            )}
           </div>
         </div>
 
@@ -522,11 +524,11 @@ const TuitionDetails = () => {
 
       {/* Footer stats */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col sm:flex-row justify-around items-center text-xs font-black text-slate-500 gap-4">
-        <div>JOB ID-{shortId}</div>
+        <div>Job Id: {shortId}</div>
         <div className="hidden sm:block text-slate-200">|</div>
-        <div>TOTAL VIEWS-{(job.views || 0)}</div>
+        <div>Total Views: {(job.views || 0)}</div>
         <div className="hidden sm:block text-slate-200">|</div>
-        <div>TOTAL APPLICATIONS-{applicationCount}</div>
+        <div>Total Applications: {applicationCount}</div>
       </div>
 
       {/* Terms of Service Modal */}

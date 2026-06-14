@@ -41,11 +41,14 @@ import Settings from './pages/tutor/Settings';
 import GuardianDashboard from './pages/guardian/GuardianDashboard';
 import PostRequest from './pages/guardian/PostRequest';
 import EditRequest from './pages/guardian/EditRequest';
+import GuardianProfileForm from './pages/guardian/GuardianProfileForm';
+import GuardianSettings from './pages/guardian/Settings';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminAssignmentHub from './pages/admin/AdminAssignmentHub';
 import AdminTutorials from './pages/admin/AdminTutorials';
+import AdminTutors from './pages/admin/AdminTutors';
 
 function App() {
   const { initialize } = useAuthStore();
@@ -103,6 +106,8 @@ function App() {
             <Route path="/guardian/dashboard" element={<GuardianDashboard />} />
             <Route path="/guardian/post-request" element={<PostRequest />} />
             <Route path="/guardian/edit-request/:id" element={<EditRequest />} />
+            <Route path="/guardian/profile" element={<GuardianProfileForm />} />
+            <Route path="/guardian/settings" element={<GuardianSettings />} />
           </Route>
 
           {/* Admin Routes */}
@@ -110,6 +115,7 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/requests" element={<AdminAssignmentHub />} />
             <Route path="/admin/tutorials" element={<AdminTutorials />} />
+            <Route path="/admin/tutors" element={<AdminTutors />} />
           </Route>
         </Route>
       </Routes>

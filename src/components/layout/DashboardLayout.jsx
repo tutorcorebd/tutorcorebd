@@ -85,8 +85,8 @@ const DashboardLayout = () => {
     admin: [
       { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
       { name: 'Assignment Hub', path: '/admin/requests', icon: Shield },
+      { name: 'Tutor Management', path: '/admin/tutors', icon: Users },
       { name: 'Tutorial Management', path: '/admin/tutorials', icon: Video },
-      { name: 'Settings', path: '/admin/settings', icon: Settings },
     ]
   };
 
@@ -267,16 +267,18 @@ const DashboardLayout = () => {
           </nav>
         </div>
 
-        <div className="p-6 border-t border-slate-50">
-          <Link 
-            to="/tutor/tutorials"
-            onClick={() => setSidebarOpen(false)}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-slate-50 border border-slate-100 hover:bg-slate-100 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-800 transition-colors shadow-sm"
-          >
-            <Video className="w-4 h-4 text-slate-400" />
-            Watch Tutorial
-          </Link>
-        </div>
+        {role !== 'guardian' && (
+          <div className="p-6 border-t border-slate-50">
+            <Link 
+              to={role === 'admin' ? '/admin/tutorials' : '/tutor/tutorials'}
+              onClick={() => setSidebarOpen(false)}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-slate-50 border border-slate-100 hover:bg-slate-100 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-800 transition-colors shadow-sm"
+            >
+              <Video className="w-4 h-4 text-slate-400" />
+              Watch Tutorial
+            </Link>
+          </div>
+        )}
       </aside>
 
       {/* Main Content Area */}

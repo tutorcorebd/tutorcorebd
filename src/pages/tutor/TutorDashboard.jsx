@@ -430,7 +430,7 @@ const TutorDashboard = () => {
                 <div key={job.id} className="bg-slate-50/50 hover:bg-slate-50 border border-slate-100 hover:border-slate-200 rounded-2xl p-5 transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-md">
                   <div>
                     {/* Badge */}
-                    <span className="inline-block px-2.5 py-1 bg-[#eaf4df] text-[#86c240] text-[10px] font-black rounded-lg uppercase tracking-wider mb-4 border border-[#86c240]/10">
+                    <span className="inline-block px-2.5 py-1 bg-[#eaf4df] text-[#86c240] text-[10px] font-black rounded-lg border border-[#86c240]/10">
                       {job.student_class}
                     </span>
                     <h3 className="font-extrabold text-slate-800 text-base leading-tight">
@@ -493,7 +493,7 @@ const TutorDashboard = () => {
                 <div key={b.id} className="bg-slate-50/50 hover:bg-slate-50 border border-slate-100 hover:border-slate-200 rounded-2xl p-5 transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-md">
                   <div>
                     <div className="flex justify-between items-start mb-4">
-                      <span className="inline-block px-2.5 py-1 bg-[#eaf4df] text-[#86c240] text-[10px] font-black rounded-lg uppercase tracking-wider border border-[#86c240]/10">
+                      <span className="inline-block px-2.5 py-1 bg-[#eaf4df] text-[#86c240] text-[10px] font-black rounded-lg border border-[#86c240]/10">
                         {job.student_class}
                       </span>
                       <button 

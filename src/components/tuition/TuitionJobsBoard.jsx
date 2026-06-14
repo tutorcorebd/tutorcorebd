@@ -489,53 +489,53 @@ const TuitionJobsBoard = ({ isPublic }) => {
                   <span className="text-slate-600">{postDate}</span>
                 </div>
 
-                {/* Grid Details */}
+                 {/* Grid Details */}
                 <div className="grid grid-cols-3 gap-y-5 gap-x-2 mb-6">
                   <div>
-                    <p className="text-[10px] font-bold text-[#86c240] flex items-center gap-1.5 mb-1">
+                    <p className="text-xs font-bold text-[#86c240] flex items-center gap-1.5 mb-1">
                       <BookOpen className="w-3.5 h-3.5" /> Subjects
                     </p>
-                    <p className="text-xs font-medium text-slate-400 truncate pr-2" title={job.subject ? job.subject.join(', ') : 'N/A'}>
+                    <p className="text-sm font-medium text-slate-500 truncate pr-2" title={job.subject ? job.subject.join(', ') : 'N/A'}>
                       {job.subject ? job.subject.join(', ') : 'N/A'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-[#86c240] flex items-center gap-1.5 mb-1">
+                    <p className="text-xs font-bold text-[#86c240] flex items-center gap-1.5 mb-1">
                       <Calendar className="w-3.5 h-3.5" /> Per Week
                     </p>
-                    <p className="text-xs font-medium text-slate-400">
+                    <p className="text-sm font-medium text-slate-500">
                       {job.days_per_week || 'N/A'} days
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-[#86c240] flex items-center gap-1.5 mb-1">
+                    <p className="text-xs font-bold text-[#86c240] flex items-center gap-1.5 mb-1">
                       <Box className="w-3.5 h-3.5" /> Tutoring Mode
                     </p>
-                    <p className="text-xs font-medium text-slate-400">
+                    <p className="text-sm font-medium text-slate-500">
                       {job.tutoring_mode || 'Home Tutoring'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-[#86c240] flex items-center gap-1.5 mb-1">
+                    <p className="text-xs font-bold text-[#86c240] flex items-center gap-1.5 mb-1">
                       <Banknote className="w-3.5 h-3.5" /> Salary
                     </p>
-                    <p className="text-xs font-medium text-slate-400">
+                    <p className="text-sm font-medium text-slate-500">
                       {job.salary_range || 'Negotiable'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-pink-500 flex items-center gap-1.5 mb-1">
+                    <p className="text-xs font-bold text-pink-500 flex items-center gap-1.5 mb-1">
                       <User className="w-3.5 h-3.5" /> Tutor Gender
                     </p>
-                    <p className="text-xs font-medium text-pink-500">
+                    <p className="text-sm font-medium text-pink-500">
                       {job.preferred_gender || 'Any'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-[#86c240] flex items-center gap-1.5 mb-1">
+                    <p className="text-xs font-bold text-[#86c240] flex items-center gap-1.5 mb-1">
                       <Clock className="w-3.5 h-3.5" /> Tutoring Time
                     </p>
-                    <p className="text-xs font-medium text-slate-400">
+                    <p className="text-sm font-medium text-slate-500">
                       {job.tutoring_time || 'Negotiable'}
                     </p>
                   </div>
@@ -549,19 +549,21 @@ const TuitionJobsBoard = ({ isPublic }) => {
                 )}
 
                 {/* Action Button */}
-                <div className="flex justify-end mt-auto pt-2">
-                  <button 
-                    onClick={() => handleApplyClick(job)}
-                    className={`text-white text-xs font-bold px-6 py-2.5 rounded-lg transition-colors shadow-md ${
-                      profile?.role === 'tutor' && !reqCheck.match
-                        ? 'bg-slate-300 cursor-not-allowed'
-                        : 'bg-slate-900 hover:bg-slate-800'
-                    }`}
-                    disabled={profile?.role === 'tutor' && !reqCheck.match}
-                  >
-                    Apply Now
-                  </button>
-                </div>
+                {profile?.role !== 'guardian' && (
+                  <div className="flex justify-end mt-auto pt-2">
+                    <button 
+                      onClick={() => handleApplyClick(job)}
+                      className={`text-white text-xs font-bold px-6 py-2.5 rounded-lg transition-colors shadow-md ${
+                        profile?.role === 'tutor' && !reqCheck.match
+                          ? 'bg-slate-300 cursor-not-allowed'
+                          : 'bg-slate-900 hover:bg-slate-800'
+                      }`}
+                      disabled={profile?.role === 'tutor' && !reqCheck.match}
+                    >
+                      Apply Now
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}

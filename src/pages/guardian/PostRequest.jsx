@@ -22,6 +22,35 @@ const SALARY_RANGES = ['Negotiable', '2000 - 4000 BDT', '4000 - 6000 BDT', '6000
 
 const GROUPS = ['Science', 'Business Studies', 'Humanities'];
 
+const UNIVERSITIES = [
+  'Dhaka University (DU)',
+  'Bangladesh University of Engineering and Technology (BUET)',
+  'Jahangirnagar University (JU)',
+  'Chittagong University (CU)',
+  'Rajshahi University (RU)',
+  'North South University (NSU)',
+  'BRAC University',
+  'East West University (EWU)',
+  'American International University-Bangladesh (AIUB)',
+  'Independent University, Bangladesh (IUB)',
+  'Ahsanullah University of Science and Technology (AUST)',
+  'Shahjalal University of Science and Technology (SUST)',
+  'Khulna University of Engineering & Technology (KUET)',
+  'Chittagong University of Engineering & Technology (CUET)',
+  'Rajshahi University of Engineering & Technology (RUET)',
+  'Mymensingh Engineering College',
+  'Jagannath University',
+  'National University'
+];
+
+const TUTORING_TIMES = [
+  'Negotiable',
+  'Morning (8:00 AM - 12:00 PM)',
+  'Afternoon (12:00 PM - 4:00 PM)',
+  'Evening (4:00 PM - 8:00 PM)',
+  'Night (8:00 PM - 11:00 PM)'
+];
+
 const SUBJECTS_BY_GROUP = {
   'Class 9-10': {
     'Science': ['Bangla', 'English', 'Math', 'Higher Math', 'Physics', 'Chemistry', 'Biology', 'BGS', 'Islam', 'ICT'],
@@ -257,7 +286,7 @@ const PostRequest = () => {
           {/* Pre-defined Class/Group Suggestions Grid */}
           {studentClass && (!requiresGroup || (requiresGroup && studentGroup)) && unselectedSuggested.length > 0 && (
             <div className="mb-4">
-              <p className="text-xs text-slate-400 font-bold mb-2 uppercase tracking-wider">Suggested for {requiresGroup ? `${studentClass} - ${studentGroup}` : studentClass}</p>
+              <p className="text-xs text-slate-400 font-bold mb-2">Suggested for {requiresGroup ? `${studentClass} - ${studentGroup}` : studentClass}</p>
               <div className="flex flex-wrap gap-2">
                 {unselectedSuggested.map(subject => (
                   <button
@@ -429,7 +458,7 @@ const PostRequest = () => {
 
         {/* Tutor Preferences Section */}
         <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-6">
-          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tutor Preferences & Mode</h4>
+          <h4 className="text-xs font-bold text-slate-400">Tutor Preferences & Mode</h4>
           
           <div className="grid md:grid-cols-2 gap-6">
             <div>
@@ -453,13 +482,16 @@ const PostRequest = () => {
                 <GraduationCap className="w-4 h-4 text-[#86c240]" />
                 Preferred University
               </label>
-              <input 
-                type="text"
-                placeholder="e.g. BUET, DU, Any"
+              <select 
                 value={preferredUniversity}
                 onChange={e => setPreferredUniversity(e.target.value)}
                 className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium"
-              />
+              >
+                <option value="Any">Any</option>
+                {UNIVERSITIES.map(univ => (
+                  <option key={univ} value={univ}>{univ}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -469,13 +501,15 @@ const PostRequest = () => {
                 <Clock className="w-4 h-4 text-[#86c240]" />
                 Tutoring Time
               </label>
-              <input 
-                type="text"
-                placeholder="e.g. 4:00 PM, Negotiable"
+              <select 
                 value={tutoringTime}
                 onChange={e => setTutoringTime(e.target.value)}
                 className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium"
-              />
+              >
+                {TUTORING_TIMES.map(time => (
+                  <option key={time} value={time}>{time}</option>
+                ))}
+              </select>
             </div>
             
             <div>

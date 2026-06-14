@@ -35,7 +35,7 @@ const LOCATIONS_BY_CITY = {
   Mymensingh: ['Ganginar Par', 'Charpara', 'Kewatkhali', 'Valuka', 'Sadar']
 };
 
-const PRESET_SUBJECTS = ['Math', 'Physics', 'Chemistry', 'Biology', 'English', 'Bangla', 'ICT', 'General Science', 'Accounting', 'Finance', 'General Math', 'Higher Math'];
+const PRESET_SUBJECTS = ['Math', 'Physics', 'Chemistry', 'Biology', 'English', 'Bangla', 'ICT', 'General Science', 'Accounting', 'Finance', 'General Math', 'Higher Math', 'Management', 'Economics', 'Sociology', 'Civics', 'History', 'Geography', 'Religion', 'Agriculture', 'Statistics'];
 const PRESET_COURSES = ['Play', 'Nursery', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'SSC', 'HSC', 'O Level', 'A Level', 'Admission Test'];
 const PRESET_CATEGORIES = ['Bangla Medium', 'English Medium', 'English Version', 'Madrasah Medium', 'Cambridge Curriculum', 'Edexcel Curriculum'];
 const PRESET_EXPERIENCE = ['1 Year', '2 Year(s)', '3 Year(s)', '4 Year(s)', '5 Year(s)', '5+ Year(s)'];
@@ -608,7 +608,7 @@ const TutorProfileForm = () => {
       <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl p-4 mb-6 shadow-sm flex items-start gap-3">
         <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
         <div className="text-xs font-semibold">
-          <span className="font-extrabold uppercase text-amber-900">Notice:</span> After completing your profile to at least <span className="font-black text-[#86c240]">80%</span>, you can apply for the tuition jobs.
+          <span className="font-extrabold text-amber-900">Notice:</span> After completing your profile to at least <span className="font-black text-[#86c240]">80%</span>, you can apply for the tuition jobs.
         </div>
       </div>
 
@@ -863,7 +863,7 @@ const TutorProfileForm = () => {
 
             {/* Read-only brief profile info */}
             <div className="mt-8 pt-6 border-t border-slate-100 hidden lg:block text-slate-400">
-              <span className="text-[9px] uppercase tracking-wider font-extrabold block mb-2">My ID Card</span>
+              <span className="text-[9px] tracking-wider font-extrabold block mb-2">My ID Card</span>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[#86c240] font-black text-xs">
                   {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : 'T'}
@@ -895,14 +895,14 @@ const TutorProfileForm = () => {
 
                     <div className="grid md:grid-cols-2 gap-5 pt-3">
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Your Country*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Your Country*</label>
                         <select disabled className="w-full px-4 py-3 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl text-xs font-bold outline-none cursor-not-allowed">
                           <option>Bangladesh</option>
                         </select>
                       </div>
 
                       <div className="relative" ref={cityRef}>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Your Current City *</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Your Current City *</label>
                         <input 
                           type="text" 
                           placeholder="Select current city..."
@@ -935,7 +935,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Your Living Location*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Your Living Location*</label>
                         <input 
                           type="text" 
                           placeholder="e.g. Uttara" 
@@ -946,7 +946,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div className="relative" ref={locRef}>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Your Preferable Tutoring Locations*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Your Preferable Tutoring Locations*</label>
                         <input 
                           type="text" 
                           placeholder={city ? "Add preferred areas..." : "Select current city first"}
@@ -1016,7 +1016,7 @@ const TutorProfileForm = () => {
                       
                       {/* Preferred Category Select */}
                       <div className="relative" ref={categoryRef}>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Your Preferred Tutoring Category*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Your Preferred Tutoring Category*</label>
                         <div 
                           onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-700 bg-white flex justify-between items-center cursor-pointer select-none"
@@ -1047,7 +1047,7 @@ const TutorProfileForm = () => {
 
                       {/* Favorite Subjects */}
                       <div className="relative" ref={subjectsRef}>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Select Your Favorite Subjects For Tutoring*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Select Your Favorite Subjects For Tutoring*</label>
                         <div 
                           onClick={() => setShowSubjectsDropdown(!showSubjectsDropdown)}
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-700 bg-white flex justify-between items-center cursor-pointer select-none"
@@ -1092,7 +1092,7 @@ const TutorProfileForm = () => {
 
                       {/* Preferred Courses */}
                       <div className="relative" ref={coursesRef}>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Your Preferred Tutoring Courses/Classes*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Your Preferred Tutoring Courses/Classes*</label>
                         <div 
                           onClick={() => setShowCoursesDropdown(!showCoursesDropdown)}
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-700 bg-white flex justify-between items-center cursor-pointer select-none"
@@ -1137,7 +1137,7 @@ const TutorProfileForm = () => {
 
                       {/* Tutoring Experience */}
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Tutoring Experience*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Tutoring Experience*</label>
                         <select 
                           value={experience} 
                           onChange={(e) => setExperience(e.target.value)}
@@ -1166,7 +1166,7 @@ const TutorProfileForm = () => {
                       
                       {/* Available Days */}
                       <div className="relative" ref={daysRef}>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Available Day*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Available Day*</label>
                         <div 
                           onClick={() => setShowDaysDropdown(!showDaysDropdown)}
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-700 bg-white flex justify-between items-center cursor-pointer select-none"
@@ -1211,7 +1211,7 @@ const TutorProfileForm = () => {
 
                       {/* Teaching Method */}
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Preferred Teaching Method*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Preferred Teaching Method*</label>
                         <select 
                           value={teachingMethod} 
                           onChange={(e) => setTeachingMethod(e.target.value)}
@@ -1226,7 +1226,7 @@ const TutorProfileForm = () => {
 
                       {/* Available From */}
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Available From*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Available From*</label>
                         <input 
                           type="time" 
                           value={availableFrom} 
@@ -1237,7 +1237,7 @@ const TutorProfileForm = () => {
 
                       {/* Expected Salary */}
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Expected Salary*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Expected Salary*</label>
                         <input 
                           type="text" 
                           placeholder="e.g. 2500" 
@@ -1249,7 +1249,7 @@ const TutorProfileForm = () => {
 
                       {/* Available To */}
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Available To*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Available To*</label>
                         <input 
                           type="time" 
                           value={availableTo} 
@@ -1279,7 +1279,7 @@ const TutorProfileForm = () => {
 
                     <div className="grid md:grid-cols-2 gap-5 pt-3">
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">School Name*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">School Name*</label>
                         <input 
                           type="text" 
                           placeholder="Select/type school name..." 
@@ -1290,7 +1290,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Group*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Group*</label>
                         <select 
                           value={schoolGroup} 
                           onChange={(e) => setSchoolGroup(e.target.value)}
@@ -1304,7 +1304,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Curriculum*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Curriculum*</label>
                         <select 
                           value={schoolCurriculum} 
                           onChange={(e) => setSchoolCurriculum(e.target.value)}
@@ -1318,7 +1318,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Board*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Board*</label>
                         <select 
                           value={schoolBoard} 
                           onChange={(e) => setSchoolBoard(e.target.value)}
@@ -1332,7 +1332,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">GPA*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">GPA*</label>
                         <input 
                           type="text" 
                           placeholder="e.g. 5.00" 
@@ -1343,7 +1343,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Passing Year*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Passing Year*</label>
                         <select 
                           value={schoolYear} 
                           onChange={(e) => setSchoolYear(e.target.value)}
@@ -1370,7 +1370,7 @@ const TutorProfileForm = () => {
 
                     <div className="grid md:grid-cols-2 gap-5 pt-3">
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">College Name*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">College Name*</label>
                         <input 
                           type="text" 
                           placeholder="Select/type college name..." 
@@ -1381,7 +1381,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Group*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Group*</label>
                         <select 
                           value={collegeGroup} 
                           onChange={(e) => setCollegeGroup(e.target.value)}
@@ -1395,7 +1395,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Curriculum*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Curriculum*</label>
                         <select 
                           value={collegeCurriculum} 
                           onChange={(e) => setCollegeCurriculum(e.target.value)}
@@ -1409,7 +1409,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Board*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Board*</label>
                         <select 
                           value={collegeBoard} 
                           onChange={(e) => setCollegeBoard(e.target.value)}
@@ -1423,7 +1423,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">GPA*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">GPA*</label>
                         <input 
                           type="text" 
                           placeholder="e.g. 5.00" 
@@ -1434,7 +1434,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Passing Year*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Passing Year*</label>
                         <select 
                           value={collegeYear} 
                           onChange={(e) => setCollegeYear(e.target.value)}
@@ -1489,7 +1489,7 @@ const TutorProfileForm = () => {
                       
                       {/* University Selection Dropdown */}
                       <div className="relative" ref={univRef}>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">University Name*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">University Name*</label>
                         <div 
                           onClick={() => !isHscStudent && setShowUnivDropdown(!showUnivDropdown)}
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 bg-white flex justify-between items-center cursor-pointer select-none"
@@ -1520,7 +1520,7 @@ const TutorProfileForm = () => {
 
                       {/* Department Select Dropdown */}
                       <div className="relative" ref={deptRef}>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Department*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Department*</label>
                         <div 
                           onClick={() => !isHscStudent && setShowDeptDropdown(!showDeptDropdown)}
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 bg-white flex justify-between items-center cursor-pointer select-none"
@@ -1550,7 +1550,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">GPA*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">GPA*</label>
                         <input 
                           type="text" 
                           placeholder="e.g. 3.80" 
@@ -1562,7 +1562,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Passing Year*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Passing Year*</label>
                         <select 
                           value={gradYear} 
                           disabled={isHscStudent}
@@ -1592,7 +1592,7 @@ const TutorProfileForm = () => {
                       
                       {/* PG University */}
                       <div className="relative" ref={pgUnivRef}>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">University Name</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">University Name</label>
                         <div 
                           onClick={() => !isHscStudent && setShowPgUnivDropdown(!showPgUnivDropdown)}
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 bg-white flex justify-between items-center cursor-pointer select-none"
@@ -1623,7 +1623,7 @@ const TutorProfileForm = () => {
 
                       {/* PG Dept */}
                       <div className="relative" ref={pgDeptRef}>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Department</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Department</label>
                         <div 
                           onClick={() => !isHscStudent && setShowPgDeptDropdown(!showPgDeptDropdown)}
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 bg-white flex justify-between items-center cursor-pointer select-none"
@@ -1653,7 +1653,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">GPA</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">GPA</label>
                         <input 
                           type="text" 
                           placeholder="e.g. 3.80" 
@@ -1665,7 +1665,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Passing Year</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Passing Year</label>
                         <select 
                           value={postGradYear} 
                           disabled={isHscStudent}
@@ -1696,7 +1696,7 @@ const TutorProfileForm = () => {
 
                 <div className="grid md:grid-cols-2 gap-5 pt-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Gender*</label>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Gender*</label>
                     <select 
                       value={gender} 
                       onChange={(e) => setGender(e.target.value)}
@@ -1710,7 +1710,7 @@ const TutorProfileForm = () => {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Emergency Contact*</label>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Emergency Contact*</label>
                     <input 
                       type="text" 
                       placeholder="e.g. +8801700000000" 
@@ -1721,7 +1721,7 @@ const TutorProfileForm = () => {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Father's Name*</label>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Father's Name*</label>
                     <input 
                       type="text" 
                       placeholder="Father's full name" 
@@ -1732,7 +1732,7 @@ const TutorProfileForm = () => {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Mother's Name*</label>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Mother's Name*</label>
                     <input 
                       type="text" 
                       placeholder="Mother's full name" 
@@ -1743,7 +1743,7 @@ const TutorProfileForm = () => {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">NID Number*</label>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">NID Number*</label>
                     <input 
                       type="text" 
                       placeholder="National ID Card Number" 
@@ -1754,7 +1754,7 @@ const TutorProfileForm = () => {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Date of Birth*</label>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Date of Birth*</label>
                     <input 
                       type="date" 
                       value={dob} 
@@ -1764,7 +1764,7 @@ const TutorProfileForm = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Address*</label>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Address*</label>
                     <textarea 
                       placeholder="Your complete mailing address..." 
                       value={address} 
@@ -1789,7 +1789,7 @@ const TutorProfileForm = () => {
                   
                   {/* Profile Photo Upload Segment (COMPLETELY OPTIONAL) */}
                   <div className="space-y-3 bg-slate-50 p-4 border border-slate-100 rounded-2xl">
-                    <label className="block text-[11px] font-extrabold text-slate-600 uppercase tracking-wide flex items-center gap-1.5">
+                    <label className="block text-[11px] font-extrabold text-slate-600 tracking-wide flex items-center gap-1.5">
                       <ImageIcon className="w-3.5 h-3.5 text-[#86c240]" />
                       Profile Photo (Optional)
                     </label>
@@ -1822,7 +1822,7 @@ const TutorProfileForm = () => {
 
                   {/* CV/Resume Upload Segment */}
                   <div className="space-y-3 bg-slate-50 p-4 border border-slate-100 rounded-2xl">
-                    <label className="block text-[11px] font-extrabold text-slate-600 uppercase tracking-wide flex items-center gap-1.5">
+                    <label className="block text-[11px] font-extrabold text-slate-600 tracking-wide flex items-center gap-1.5">
                       <FileText className="w-3.5 h-3.5 text-[#86c240]" />
                       CV / Resume *
                     </label>
@@ -1831,14 +1831,14 @@ const TutorProfileForm = () => {
                       <button
                         type="button"
                         onClick={() => setCvOption('upload')}
-                        className={`flex-1 py-1.5 rounded-lg border font-bold text-[10px] uppercase transition-all ${cvOption === 'upload' ? 'bg-[#86c240]/10 border-[#86c240] text-[#86c240]' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-350'}`}
+                        className={`flex-1 py-1.5 rounded-lg border font-bold text-[10px] transition-all ${cvOption === 'upload' ? 'bg-[#86c240]/10 border-[#86c240] text-[#86c240]' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-350'}`}
                       >
                         Upload PDF
                       </button>
                       <button
                         type="button"
                         onClick={() => setCvOption('link')}
-                        className={`flex-1 py-1.5 rounded-lg border font-bold text-[10px] uppercase transition-all ${cvOption === 'link' ? 'bg-[#86c240]/10 border-[#86c240] text-[#86c240]' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-350'}`}
+                        className={`flex-1 py-1.5 rounded-lg border font-bold text-[10px] transition-all ${cvOption === 'link' ? 'bg-[#86c240]/10 border-[#86c240] text-[#86c240]' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-350'}`}
                       >
                         Google Drive Link
                       </button>

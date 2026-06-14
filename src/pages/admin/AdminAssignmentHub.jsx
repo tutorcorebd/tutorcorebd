@@ -158,7 +158,7 @@ const AdminAssignmentHub = () => {
             <div className="p-6 border-b border-slate-200 bg-slate-50">
               <div className="flex justify-between items-start gap-4 flex-wrap mb-4">
                 <div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Job ID: {selectedRequest.id.substring(0, 8).toUpperCase()}</span>
+                  <span className="text-[10px] font-black text-slate-400 block mb-0.5">Job ID: {selectedRequest.id.substring(0, 8).toUpperCase()}</span>
                   <h2 className="text-2xl font-black text-slate-800">Need Tutor for {selectedRequest.student_class}</h2>
                 </div>
                 
@@ -208,87 +208,90 @@ const AdminAssignmentHub = () => {
                 <div className="text-center text-slate-400 font-bold py-12">No tutors have applied yet.</div>
               ) : (
                 <div className="space-y-4">
-                  {applications.map(app => (
-                    <div key={app.id} className="border border-slate-100 bg-white rounded-2xl p-5 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center shadow-sm hover:shadow-md transition-shadow">
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <a 
-                            href={`/tutor/${app.tutor_id}`} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="font-extrabold text-lg text-[#86c240] hover:underline flex items-center gap-1.5"
-                          >
-                            {app.tutor?.full_name} <Eye className="w-4 h-4 text-slate-400 hover:text-[#86c240]" />
-                          </a>
-                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
-                            app.status === 'selected'
-                              ? 'bg-green-50 text-green-600 border border-green-100'
-                              : app.status === 'reviewed'
-                                ? 'bg-orange-50 text-orange-600 border border-orange-100'
-                                : app.status === 'rejected'
-                                  ? 'bg-red-50 text-red-600 border border-red-100'
-                                  : 'bg-blue-50 text-blue-600 border border-blue-100'
-                          }`}>
-                            {app.status.toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="text-xs font-semibold text-slate-500 mt-1 mb-2">
-                          {displayEducation(app.tutor?.tutor_profiles?.[0]?.education_status)}
-                        </div>
-                        <div className="text-xs font-bold text-slate-400 flex gap-4">
-                          <span>Phone: {app.tutor?.phone_number}</span>
-                          {app.tutor?.tutor_profiles?.[0]?.cv_url && (
+                  {applications.map(app => {
+                    const tp = app.tutor?.tutor_profiles ? (Array.isArray(app.tutor.tutor_profiles) ? (app.tutor.tutor_profiles[0] || {}) : app.tutor.tutor_profiles) : {};
+                    return (
+                      <div key={app.id} className="border border-slate-100 bg-white rounded-2xl p-5 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center shadow-sm hover:shadow-md transition-shadow">
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
                             <a 
-                              href={app.tutor.tutor_profiles[0].cv_url} 
+                              href={`/tutor/${app.tutor_id}`} 
                               target="_blank" 
-                              rel="noreferrer" 
-                              className="text-[#86c240] hover:underline font-extrabold flex items-center gap-1"
+                              rel="noreferrer"
+                              className="font-extrabold text-lg text-[#86c240] hover:underline flex items-center gap-1.5"
                             >
-                              View CV
+                              {app.tutor?.full_name} <Eye className="w-4 h-4 text-slate-400 hover:text-[#86c240]" />
                             </a>
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                              app.status === 'selected'
+                                ? 'bg-green-50 text-green-600 border border-green-100'
+                                : app.status === 'reviewed'
+                                  ? 'bg-orange-50 text-orange-600 border border-orange-100'
+                                  : app.status === 'rejected'
+                                    ? 'bg-red-50 text-red-600 border border-red-100'
+                                    : 'bg-blue-50 text-blue-600 border border-blue-100'
+                            }`}>
+                              {app.status.toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="text-xs font-semibold text-slate-500 mt-1 mb-2">
+                            {displayEducation(tp.education_status)}
+                          </div>
+                          <div className="text-xs font-bold text-slate-400 flex gap-4">
+                            <span>Phone: {app.tutor?.phone_number}</span>
+                            {tp.cv_url && (
+                              <a 
+                                href={tp.cv_url} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="text-[#86c240] hover:underline font-extrabold flex items-center gap-1"
+                              >
+                                View CV
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Action buttons per application */}
+                        <div className="flex gap-2 flex-wrap md:flex-nowrap w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 mt-3 md:mt-0">
+                          {app.status !== 'selected' && (
+                            <>
+                              {app.status !== 'reviewed' && (
+                                <button 
+                                  onClick={() => handleUpdateAppStatus(app.id, 'reviewed')}
+                                  className="flex-1 md:flex-none px-3.5 py-2 border border-orange-200 hover:border-orange-500 text-orange-600 hover:bg-orange-50 rounded-xl text-xs font-bold transition-all"
+                                >
+                                  Shortlist
+                                </button>
+                              )}
+                              
+                              <button 
+                                onClick={() => handleAssign(app.id, app.tutor_id)}
+                                className="flex-grow md:flex-none px-4 py-2 bg-[#86c240] hover:bg-[#6a9c31] text-white rounded-xl text-xs font-bold shadow-md shadow-[#86c240]/10 transition-all"
+                              >
+                                Assign Tutor
+                              </button>
+
+                              {app.status !== 'rejected' && (
+                                <button 
+                                  onClick={() => handleUpdateAppStatus(app.id, 'rejected')}
+                                  className="flex-1 md:flex-none px-3.5 py-2 border border-red-200 hover:border-red-500 text-red-600 hover:bg-red-50 rounded-xl text-xs font-bold transition-all"
+                                >
+                                  Reject
+                                </button>
+                              )}
+                            </>
+                          )}
+                          
+                          {app.status === 'selected' && (
+                            <span className="flex items-center gap-1.5 text-green-600 font-extrabold bg-green-50 px-4 py-2 rounded-xl border border-green-100 text-xs">
+                              <CheckCircle className="w-4 h-4" /> Assigned to Job
+                            </span>
                           )}
                         </div>
                       </div>
-                      
-                      {/* Action buttons per application */}
-                      <div className="flex gap-2 flex-wrap md:flex-nowrap w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 mt-3 md:mt-0">
-                        {app.status !== 'selected' && (
-                          <>
-                            {app.status !== 'reviewed' && (
-                              <button 
-                                onClick={() => handleUpdateAppStatus(app.id, 'reviewed')}
-                                className="flex-1 md:flex-none px-3.5 py-2 border border-orange-200 hover:border-orange-500 text-orange-600 hover:bg-orange-50 rounded-xl text-xs font-bold transition-all"
-                              >
-                                Shortlist
-                              </button>
-                            )}
-                            
-                            <button 
-                              onClick={() => handleAssign(app.id, app.tutor_id)}
-                              className="flex-grow md:flex-none px-4 py-2 bg-[#86c240] hover:bg-[#6a9c31] text-white rounded-xl text-xs font-bold shadow-md shadow-[#86c240]/10 transition-all"
-                            >
-                              Assign Tutor
-                            </button>
-
-                            {app.status !== 'rejected' && (
-                              <button 
-                                onClick={() => handleUpdateAppStatus(app.id, 'rejected')}
-                                className="flex-1 md:flex-none px-3.5 py-2 border border-red-200 hover:border-red-500 text-red-600 hover:bg-red-50 rounded-xl text-xs font-bold transition-all"
-                              >
-                                Reject
-                              </button>
-                            )}
-                          </>
-                        )}
-                        
-                        {app.status === 'selected' && (
-                          <span className="flex items-center gap-1.5 text-green-600 font-extrabold bg-green-50 px-4 py-2 rounded-xl border border-green-100 text-xs">
-                            <CheckCircle className="w-4 h-4" /> Assigned to Job
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
