@@ -86,7 +86,7 @@ const AdminLogin = () => {
             <Shield className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight mb-6">
-            Tuition Terminal<br />
+            TutorCore BD<br />
             <span className="text-green-100">
               Enterprise Admin
             </span>
@@ -97,7 +97,7 @@ const AdminLogin = () => {
         </div>
 
         <div className="relative z-10 text-green-100/70 text-sm font-semibold">
-          &copy; {new Date().getFullYear()} Tuition Terminal. Enterprise Security System.
+          &copy; {new Date().getFullYear()} TutorCore BD. Enterprise Security System.
         </div>
       </div>
 

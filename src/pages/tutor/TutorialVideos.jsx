@@ -38,7 +38,7 @@ const TutorialVideos = () => {
       <div className="flex items-center justify-between border-b border-slate-100 pb-4">
         <div>
           <h1 className="text-2xl font-black text-slate-800">Tutorial Videos</h1>
-          <p className="text-sm font-semibold text-slate-500 mt-1">Learn how to make the most of Tuition Terminal</p>
+          <p className="text-sm font-semibold text-slate-500 mt-1">Learn how to make the most of TutorCore BD</p>
         </div>
         <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-[#86c240]">
           <Video className="w-6 h-6" />

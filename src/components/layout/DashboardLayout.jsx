@@ -177,8 +177,8 @@ const DashboardLayout = () => {
           {/* Logo and Brand */}
           <div className="h-16 flex items-center justify-between px-6 border-b border-slate-50">
             <Link to="/" className="text-xl font-bold text-slate-800 flex items-center gap-2">
-              <span className="bg-[#86c240] text-white p-1 rounded-lg text-sm font-black">TT</span> 
-              <span>Tuition<span className="text-[#86c240]">Terminal</span></span>
+              <span className="bg-[#86c240] text-white p-1 rounded-lg text-sm font-black">TC</span> 
+              <span>TutorCore<span className="text-[#86c240]">BD</span></span>
             </Link>
             <button 
               onClick={() => setSidebarOpen(false)}
