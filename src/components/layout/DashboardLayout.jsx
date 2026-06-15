@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/useAuthStore';
 import { 
@@ -42,6 +42,11 @@ const DashboardLayout = () => {
   const [expandedMenus, setExpandedMenus] = useState({ 'My Profile': true });
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Automatically close sidebar on mobile when navigating to a new route
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   const handleSignOut = async () => {
     await signOut();

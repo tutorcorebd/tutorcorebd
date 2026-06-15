@@ -8,6 +8,8 @@ const TutorProfileView = () => {
   
   const userInitial = profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : 'U';
   const shortId = profile?.id ? profile.id.substring(0, 6).toUpperCase() : '------';
+  const tp = profile?.tutor_profile || {};
+  const completeness = tp.profile_completeness || 0;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -17,11 +19,15 @@ const TutorProfileView = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-6">
             <div className="relative">
-              <div className="w-20 h-20 rounded-full border-4 border-[#eaf4df] bg-blue-500 flex items-center justify-center text-white text-3xl font-black shadow-sm">
-                {userInitial}
+              <div className="w-20 h-20 rounded-full border-4 border-[#eaf4df] bg-blue-500 flex items-center justify-center text-white text-3xl font-black shadow-sm overflow-hidden">
+                {tp.photo_url ? (
+                  <img src={tp.photo_url} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  userInitial
+                )}
               </div>
               <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-sm border border-slate-100 text-[10px] font-bold text-slate-600 flex items-center gap-1">
-                <span className="w-2 h-2 bg-blue-500 rounded-full"></span> 10%
+                <span className="w-2 h-2 bg-blue-500 rounded-full"></span> {completeness}%
               </div>
             </div>
             <div>
@@ -56,9 +62,9 @@ const TutorProfileView = () => {
         {/* Progress Bar & Update Profile Link */}
         <div className="mt-8 pt-6 border-t border-slate-50 flex items-center gap-4">
           <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-full bg-[#86c240] rounded-full" style={{ width: '32%' }}></div>
+            <div className="h-full bg-[#86c240] rounded-full transition-all duration-1000" style={{ width: `${completeness}%` }}></div>
           </div>
-          <span className="text-xs font-bold text-slate-400">32%</span>
+          <span className="text-xs font-bold text-slate-400">{completeness}%</span>
           <Link to="/tutor/profile/update" className="flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-[#86c240] ml-4 transition-colors">
             <Edit className="w-4 h-4" /> Update profile
           </Link>
@@ -76,7 +82,7 @@ const TutorProfileView = () => {
               <Calendar className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-sm font-bold text-slate-800">N/A</div>
+              <div className="text-sm font-bold text-slate-800">{tp.dob || 'N/A'}</div>
               <div className="text-[10px] font-semibold text-slate-400">Date Of Birth</div>
             </div>
           </div>
@@ -94,7 +100,7 @@ const TutorProfileView = () => {
               <User className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-sm font-bold text-slate-800">N/A</div>
+              <div className="text-sm font-bold text-slate-800">{tp.gender || 'N/A'}</div>
               <div className="text-[10px] font-semibold text-slate-400">Gender</div>
             </div>
           </div>
@@ -103,7 +109,7 @@ const TutorProfileView = () => {
               <Droplet className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-sm font-bold text-slate-800">N/A</div>
+              <div className="text-sm font-bold text-slate-800">{tp.blood_group || 'N/A'}</div>
               <div className="text-[10px] font-semibold text-slate-400">Blood Group</div>
             </div>
           </div>
@@ -112,7 +118,7 @@ const TutorProfileView = () => {
               <Moon className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-sm font-bold text-slate-800">N/A</div>
+              <div className="text-sm font-bold text-slate-800">{tp.religion || 'N/A'}</div>
               <div className="text-[10px] font-semibold text-slate-400">Religion</div>
             </div>
           </div>
@@ -121,7 +127,7 @@ const TutorProfileView = () => {
               <CreditCard className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-sm font-bold text-slate-800">N/A</div>
+              <div className="text-sm font-bold text-slate-800">{tp.nid || 'N/A'}</div>
               <div className="text-[10px] font-semibold text-slate-400">NID NO</div>
             </div>
           </div>
@@ -140,7 +146,7 @@ const TutorProfileView = () => {
               <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">
                 <MapPin className="w-4 h-4" />
               </div>
-              <div className="text-sm font-bold text-slate-800">N/A</div>
+              <div className="text-sm font-bold text-slate-800">{tp.living_location || tp.address || 'N/A'}</div>
             </div>
           </div>
           <div>
@@ -149,7 +155,7 @@ const TutorProfileView = () => {
               <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">
                 <MapPin className="w-4 h-4" />
               </div>
-              <div className="text-sm font-bold text-slate-800">N/A</div>
+              <div className="text-sm font-bold text-slate-800">{tp.address || 'N/A'}</div>
             </div>
           </div>
         </div>

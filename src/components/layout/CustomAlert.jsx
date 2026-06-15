@@ -1,7 +1,10 @@
 import React from 'react';
 import { CheckCircle, XCircle, Info, X } from 'lucide-react';
 
-const CustomAlert = ({ isOpen, onClose, type = 'success', title, message, actionText = 'OK', onAction }) => {
+const CustomAlert = ({ 
+  isOpen, onClose, type = 'success', title, message, 
+  actionText = 'OK', onAction, showCancel = false, cancelText = 'Cancel' 
+}) => {
   if (!isOpen) return null;
 
   const icons = {
@@ -53,12 +56,26 @@ const CustomAlert = ({ isOpen, onClose, type = 'success', title, message, action
         </p>
 
         {/* Action Button */}
-        <button
-          onClick={handleAction}
-          className="w-full py-3 bg-[#86c240] hover:bg-[#6a9c31] text-white font-bold rounded-xl transition-all shadow-md shadow-[#86c240]/20 text-sm"
-        >
-          {actionText}
-        </button>
+        <div className="flex w-full gap-3">
+          {showCancel && (
+            <button
+              onClick={onClose}
+              className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition-colors text-sm"
+            >
+              {cancelText}
+            </button>
+          )}
+          <button
+            onClick={handleAction}
+            className={`flex-1 py-3 text-white font-bold rounded-xl transition-all shadow-md text-sm ${
+              type === 'error' ? 'bg-red-500 hover:bg-red-600 shadow-red-500/20' :
+              type === 'info' ? 'bg-blue-500 hover:bg-blue-600 shadow-blue-500/20' :
+              'bg-[#86c240] hover:bg-[#6a9c31] shadow-[#86c240]/20'
+            }`}
+          >
+            {actionText}
+          </button>
+        </div>
       </div>
     </div>
   );

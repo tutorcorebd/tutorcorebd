@@ -5,6 +5,7 @@ import {
   UserMinus, Trash2, Mail, Phone, BookOpen, Search, Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CustomAlert from '../../components/layout/CustomAlert';
 
 const AdminMembership = () => {
   const [requests, setRequests] = useState([]);
@@ -13,6 +14,16 @@ const AdminMembership = () => {
   const [filterStatus, setFilterStatus] = useState('pending'); // 'All', 'pending', 'approved', 'rejected'
   const [actionMessage, setActionMessage] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const [alertConfig, setAlertConfig] = useState({ isOpen: false, type: 'info', title: '', message: '' });
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, request: null, newStatus: null });
+
+  const showAlert = (type, title, message) => {
+    setAlertConfig({ isOpen: true, type, title, message });
+  };
+
+  const closeAlert = () => {
+    setAlertConfig({ ...alertConfig, isOpen: false });
+  };
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -33,8 +44,7 @@ const AdminMembership = () => {
           users (
             id,
             full_name,
-            phone_number,
-            email
+            phone_number
           )
         `)
         .order('created_at', { ascending: false });
@@ -43,6 +53,7 @@ const AdminMembership = () => {
       setRequests(data || []);
     } catch (err) {
       console.error('Error fetching membership requests:', err);
+      showAlert('error', 'Fetch Failed', `Raw Error: ${err.message}. Details: ${err.details || 'None'}`);
     } finally {
       clearTimeout(timeout);
       setLoading(false);
@@ -53,10 +64,14 @@ const AdminMembership = () => {
     fetchRequests();
   }, []);
 
-  const handleProcessRequest = async (request, newStatus) => {
-    const confirmMsg = `Are you sure you want to ${newStatus.toUpperCase()} this upgrade request for ${request.users?.full_name || 'Tutor'} to the ${request.plan_name} plan?`;
-    if (!confirm(confirmMsg)) return;
+  const promptConfirm = (request, newStatus) => {
+    setConfirmModal({ isOpen: true, request, newStatus });
+  };
 
+  const executeProcessRequest = async () => {
+    const { request, newStatus } = confirmModal;
+    setConfirmModal({ isOpen: false, request: null, newStatus: null });
+    
     setUpdatingId(request.id);
     try {
       // 1. Update the request status
@@ -91,7 +106,7 @@ const AdminMembership = () => {
       showToast(`Upgrade request has been ${newStatus}.`);
     } catch (err) {
       console.error('Error processing membership request:', err);
-      alert('Failed to update request: ' + err.message);
+      showAlert('error', 'Update Failed', err.message);
     } finally {
       setUpdatingId(null);
     }
@@ -124,6 +139,28 @@ const AdminMembership = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Global Alert */}
+      <CustomAlert 
+        isOpen={alertConfig.isOpen}
+        onClose={closeAlert}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+      />
+
+      {/* Custom Confirmation Modal */}
+      <CustomAlert 
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, request: null, newStatus: null })}
+        type="info"
+        title="Confirm Action"
+        message={`Are you sure you want to ${confirmModal.newStatus?.toUpperCase()} this upgrade request for ${confirmModal.request?.users?.full_name || 'Tutor'} to the ${confirmModal.request?.plan_name} plan?`}
+        actionText="Confirm"
+        showCancel={true}
+        cancelText="Cancel"
+        onAction={executeProcessRequest}
+      />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -288,14 +325,14 @@ const AdminMembership = () => {
                             {isPending ? (
                               <div className="flex items-center justify-end gap-2">
                                 <button
-                                  onClick={() => handleProcessRequest(req, 'approved')}
+                                  onClick={() => promptConfirm(req, 'approved')}
                                   disabled={updatingId !== null}
                                   className="px-3 py-1.5 bg-green-50 border border-green-200 hover:border-green-400 text-green-700 rounded-xl text-xs font-bold shadow-sm transition-colors flex items-center gap-1"
                                 >
                                   <UserCheck className="w-3.5 h-3.5" /> Approve
                                 </button>
                                 <button
-                                  onClick={() => handleProcessRequest(req, 'rejected')}
+                                  onClick={() => promptConfirm(req, 'rejected')}
                                   disabled={updatingId !== null}
                                   className="px-3 py-1.5 bg-rose-50 border border-rose-200 hover:border-rose-400 text-rose-600 rounded-xl text-xs font-bold shadow-sm transition-colors flex items-center gap-1"
                                 >
