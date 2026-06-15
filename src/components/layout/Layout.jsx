@@ -1,15 +1,37 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/useAuthStore';
-import { LogOut, User, Menu, Send, Globe, Mail, Phone, ArrowRight } from 'lucide-react';
+import { LogOut, User, Menu, Send, Globe, Mail, Phone, ArrowRight, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
 
 const Layout = () => {
   const { session, profile, signOut } = useAuthStore();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showRoleMismatchModal, setShowRoleMismatchModal] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleBecomeTutorClick = (e) => {
+    if (!session) {
+      navigate('/register?role=tutor');
+    } else if (profile?.role === 'tutor') {
+      navigate('/tutor/dashboard');
+    } else if (profile?.role === 'guardian') {
+      e.preventDefault();
+      setShowRoleMismatchModal(true);
+    }
+  };
+
+  const handlePostTuitionClick = (e) => {
+    if (session && profile?.role === 'guardian') {
+      navigate('/guardian/post-request');
+    } else if (!session) {
+      navigate('/register?redirectTo=/guardian/post-request');
+    } else {
+      navigate(profile?.role === 'admin' ? '/admin/dashboard' : '/tutor/dashboard');
+    }
   };
 
   return (
@@ -103,7 +125,7 @@ const Layout = () => {
 
       {/* Main Content */}
       <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Outlet />
+        <Outlet context={{ setShowRoleMismatchModal }} />
       </main>
 
       {/* Footer */}
@@ -194,10 +216,17 @@ const Layout = () => {
             <div className="space-y-4">
               <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">For Tutors</h4>
               <ul className="space-y-2.5 text-sm font-medium">
-                <li><Link to="/register" className="hover:text-[#86c240] transition-colors">Become a Tutor</Link></li>
+                <li>
+                  <button 
+                    onClick={handleBecomeTutorClick}
+                    className="hover:text-[#86c240] transition-colors text-left font-medium w-full"
+                  >
+                    Become a Tutor
+                  </button>
+                </li>
                 <li><Link to="/job-board" className="hover:text-[#86c240] transition-colors">Find Tuitions</Link></li>
                 <li><Link to="/find-tutors" className="hover:text-[#86c240] transition-colors">Find Tutors</Link></li>
-                <li><Link to="/faq" className="hover:text-[#86c240] transition-colors">Tutor FAQ</Link></li>
+                <li><Link to="/tutor-faq" className="hover:text-[#86c240] transition-colors">Tutor FAQ</Link></li>
                 <li><a href="#" className="hover:text-[#86c240] transition-colors">Guidelines</a></li>
               </ul>
             </div>
@@ -206,9 +235,16 @@ const Layout = () => {
             <div className="space-y-4">
               <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">For Parents</h4>
               <ul className="space-y-2.5 text-sm font-medium">
-                <li><Link to="/register" className="hover:text-[#86c240] transition-colors">Hire a Tutor</Link></li>
-                <li><Link to="/register" className="hover:text-[#86c240] transition-colors">Post Tuition Request</Link></li>
-                <li><Link to="/faq" className="hover:text-[#86c240] transition-colors">Parent FAQ</Link></li>
+                <li><Link to="/find-tutors" className="hover:text-[#86c240] transition-colors">Hire a Tutor</Link></li>
+                <li>
+                  <button 
+                    onClick={handlePostTuitionClick}
+                    className="hover:text-[#86c240] transition-colors text-left font-medium w-full"
+                  >
+                    Post Tuition Request
+                  </button>
+                </li>
+                <li><Link to="/parent-faq" className="hover:text-[#86c240] transition-colors">Parent FAQ</Link></li>
                 <li><a href="#" className="hover:text-[#86c240] transition-colors">Safety Rules</a></li>
               </ul>
             </div>
@@ -243,6 +279,38 @@ const Layout = () => {
           </div>
         </div>
       </footer>
+      {/* Role Mismatch Warning Modal */}
+      {showRoleMismatchModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 border border-slate-100 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mb-4">
+              <ShieldAlert className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-black text-slate-800 mb-2">Action Restricted</h3>
+            <p className="text-sm font-medium text-slate-500 mb-6 px-2">
+              You are currently signed in as a Parent/Guardian. To become a tutor, please log out first and register/login with a tutor account.
+            </p>
+            <div className="w-full space-y-3">
+              <button
+                onClick={async () => {
+                  setShowRoleMismatchModal(false);
+                  await signOut();
+                  navigate('/register?role=tutor');
+                }}
+                className="w-full bg-[#86c240] hover:bg-[#6a9c31] text-white font-extrabold py-3.5 px-4 rounded-xl text-sm transition-colors shadow-md shadow-[#86c240]/10"
+              >
+                Log Out & Sign Up as Tutor
+              </button>
+              <button
+                onClick={() => setShowRoleMismatchModal(false)}
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold py-3.5 px-4 rounded-xl text-sm transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

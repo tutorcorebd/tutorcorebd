@@ -13,10 +13,14 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const searchParams = new URLSearchParams(window.location.search);
+  const redirectTo = searchParams.get('redirectTo');
 
   useEffect(() => {
     if (!isLoading && session && profile && !loading) {
-      if (profile.role === 'admin') {
+      if (redirectTo) {
+        navigate(redirectTo, { replace: true });
+      } else if (profile.role === 'admin') {
         navigate('/admin/dashboard', { replace: true });
       } else if (profile.role === 'tutor') {
         navigate('/tutor/dashboard', { replace: true });
@@ -26,7 +30,7 @@ const Login = () => {
         navigate('/', { replace: true });
       }
     }
-  }, [session, profile, isLoading, loading, navigate]);
+  }, [session, profile, isLoading, loading, navigate, redirectTo]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -74,7 +78,9 @@ const Login = () => {
           return;
         }
 
-        if (userData.role === 'admin') {
+        if (redirectTo) {
+          navigate(redirectTo, { replace: true });
+        } else if (userData.role === 'admin') {
           navigate('/admin/dashboard', { replace: true });
         } else if (userData.role === 'tutor') {
           navigate('/tutor/dashboard', { replace: true });

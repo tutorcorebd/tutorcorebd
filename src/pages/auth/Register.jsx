@@ -11,7 +11,11 @@ const Register = () => {
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [gender, setGender] = useState('Male'); // 'Male' or 'Female'
-  const [role, setRole] = useState('parents'); // 'parents' or 'tutor'
+  const searchParams = new URLSearchParams(window.location.search);
+  const queryRole = searchParams.get('role') || 'parents'; // 'parents' or 'tutor'
+  const redirectTo = searchParams.get('redirectTo');
+  
+  const [role, setRole] = useState(queryRole); // 'parents' or 'tutor'
   const [showPassword, setShowPassword] = useState(false);
   const [showRePassword, setShowRePassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -59,7 +63,7 @@ const Register = () => {
         'success', 
         'Registration Successful!', 
         'Your account has been created successfully.', 
-        () => navigate('/')
+        () => navigate(redirectTo || '/')
       );
     }
     setLoading(false);

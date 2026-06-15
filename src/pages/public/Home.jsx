@@ -1,7 +1,9 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, MapPin, BookOpen, Users, CheckCircle, Star, GraduationCap, ArrowRight, Video, Target, Heart } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import useAuthStore from '../../store/useAuthStore';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -20,12 +22,61 @@ const staggerContainer = {
 
 const Home = () => {
   const navigate = useNavigate();
+  const { setShowRoleMismatchModal } = useOutletContext() || {};
+  const { session, profile } = useAuthStore();
+
   const [searchLocation, setSearchLocation] = useState('');
   const [searchClass, setSearchClass] = useState('');
+  const [dbLocations, setDbLocations] = useState([]);
+  const [dbClasses, setDbClasses] = useState([]);
+  const [loadingOptions, setLoadingOptions] = useState(true);
+
+  useEffect(() => {
+    const fetchSearchOptions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('tuition_requests')
+          .select('student_class, location')
+          .eq('status', 'open');
+        
+        if (data) {
+          // Unique Classes
+          const classes = Array.from(new Set(data.map(item => item.student_class).filter(Boolean))).sort();
+          setDbClasses(classes);
+
+          // Unique Locations
+          const locations = Array.from(new Set(data.map(item => item.location).filter(Boolean))).sort();
+          setDbLocations(locations);
+        }
+      } catch (err) {
+        console.error("Error fetching search options from database:", err);
+      } finally {
+        setLoadingOptions(false);
+      }
+    };
+
+    fetchSearchOptions();
+  }, []);
+
+  const handleBecomeTutorClick = (e) => {
+    if (!session) {
+      navigate('/register?role=tutor');
+    } else if (profile?.role === 'tutor') {
+      navigate('/tutor/dashboard');
+    } else if (profile?.role === 'guardian') {
+      e.preventDefault();
+      if (setShowRoleMismatchModal) {
+        setShowRoleMismatchModal(true);
+      }
+    }
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate('/job-board');
+    const params = new URLSearchParams();
+    if (searchLocation) params.append('location', searchLocation);
+    if (searchClass) params.append('class', searchClass);
+    navigate(`/job-board?${params.toString()}`);
   };
 
   return (
@@ -71,16 +122,19 @@ const Home = () => {
               </motion.p>
               
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
-                <Link to="/register" className="bg-black text-white py-4 px-8 rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-2xl hover:bg-neutral-800 hover:-translate-y-1 transform transition-all border border-black">
+                <Link to="/find-tutors" className="bg-black text-white py-4 px-8 rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-2xl hover:bg-neutral-800 hover:-translate-y-1 transform transition-all border border-black">
                   Hire a Tutor <ArrowRight className="w-5 h-5" />
                 </Link>
-                <Link to="/job-board" className="bg-white text-black py-4 px-8 rounded-xl font-bold text-lg hover:bg-neutral-100 transition-colors shadow-2xl flex items-center justify-center border border-white">
+                <button 
+                  onClick={handleBecomeTutorClick}
+                  className="bg-white text-black py-4 px-8 rounded-xl font-bold text-lg hover:bg-neutral-100 transition-colors shadow-2xl flex items-center justify-center border border-white animate-in"
+                >
                   Become a Tutor
-                </Link>
+                </button>
               </motion.div>
             </motion.div>
 
-            {/* Hero Search Box (similar to tuitionterminal) */}
+            {/* Hero Search Box (similar to tutorcorebd) */}
             <motion.div 
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -95,14 +149,22 @@ const Home = () => {
                     <div className="relative">
                       <MapPin className="absolute left-3 top-3.5 text-neutral-400 w-5 h-5" />
                       <select 
-                        className="w-full pl-10 pr-4 py-3 bg-neutral-50 border-2 border-neutral-200 rounded-xl focus:ring-0 focus:border-primary outline-none transition-all appearance-none font-medium text-black"
+                        className="w-full pl-10 pr-4 py-3 bg-neutral-50 border-2 border-neutral-200 rounded-xl focus:ring-0 focus:border-primary outline-none transition-all appearance-none font-medium text-black cursor-pointer"
                         value={searchLocation}
                         onChange={(e) => setSearchLocation(e.target.value)}
                       >
                         <option value="">All Locations</option>
-                        <option value="dhaka">Dhaka</option>
-                        <option value="chattogram">Chattogram</option>
-                        <option value="sylhet">Sylhet</option>
+                        {dbLocations.length > 0 ? (
+                          dbLocations.map(loc => (
+                            <option key={loc} value={loc}>{loc}</option>
+                          ))
+                        ) : (
+                          <>
+                            <option value="Dhaka">Dhaka</option>
+                            <option value="Chattogram">Chattogram</option>
+                            <option value="Sylhet">Sylhet</option>
+                          </>
+                        )}
                       </select>
                     </div>
                   </div>
@@ -111,13 +173,24 @@ const Home = () => {
                     <label className="block text-sm font-bold text-black mb-1">Select Class/Subject</label>
                     <div className="relative">
                       <BookOpen className="absolute left-3 top-3.5 text-neutral-400 w-5 h-5" />
-                      <input 
-                        type="text"
-                        placeholder="e.g. Class 10, HSC, Math"
-                        className="w-full pl-10 pr-4 py-3 bg-neutral-50 border-2 border-neutral-200 rounded-xl focus:ring-0 focus:border-primary outline-none transition-all font-medium text-black"
+                      <select 
+                        className="w-full pl-10 pr-4 py-3 bg-neutral-50 border-2 border-neutral-200 rounded-xl focus:ring-0 focus:border-primary outline-none transition-all appearance-none font-medium text-black cursor-pointer"
                         value={searchClass}
                         onChange={(e) => setSearchClass(e.target.value)}
-                      />
+                      >
+                        <option value="">All Classes</option>
+                        {dbClasses.length > 0 ? (
+                          dbClasses.map(c => (
+                            <option key={c} value={c}>{c}</option>
+                          ))
+                        ) : (
+                          <>
+                            <option value="Class 10">Class 10</option>
+                            <option value="HSC">HSC</option>
+                            <option value="SSC">SSC</option>
+                          </>
+                        )}
+                      </select>
                     </div>
                   </div>
 

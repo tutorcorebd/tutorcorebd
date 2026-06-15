@@ -7,7 +7,7 @@ import {
   X, ChevronLeft, ChevronRight, Check
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import CustomAlert from '../../components/layout/CustomAlert';
 
 const cities = [
@@ -31,6 +31,7 @@ const PRESET_COURSES = ['Play', 'Nursery', 'Class 1', 'Class 2', 'Class 3', 'Cla
 const TuitionJobsBoard = ({ isPublic }) => {
   const { profile } = useAuthStore();
   const navigate = useNavigate();
+  const locationState = useLocation();
 
   const [allTuitions, setAllTuitions] = useState([]);
   const [filteredTuitions, setFilteredTuitions] = useState([]);
@@ -157,6 +158,30 @@ const TuitionJobsBoard = ({ isPublic }) => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(locationState.search);
+    const queryLocation = queryParams.get('location') || '';
+    const queryClass = queryParams.get('class') || '';
+    
+    if (queryLocation || queryClass) {
+      setAdvFilters(prev => ({
+        ...prev,
+        location: queryLocation,
+        courseClass: queryClass
+      }));
+      setActiveFilters({
+        dateFrom: '',
+        dateTo: '',
+        country: 'Bangladesh',
+        city: '',
+        location: queryLocation,
+        category: '',
+        courseClass: queryClass,
+        subject: ''
+      });
+    }
+  }, [locationState]);
 
   // Filter & Search Logic
   useEffect(() => {

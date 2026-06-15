@@ -15,6 +15,8 @@ import AdminLogin from './pages/auth/AdminLogin';
 import TermsOfUse from './pages/public/TermsOfUse';
 import PrivacyPolicy from './pages/public/PrivacyPolicy';
 import FAQ from './pages/public/FAQ';
+import ParentFAQ from './pages/public/ParentFAQ';
+import TutorFAQ from './pages/public/TutorFAQ';
 import JobBoard from './pages/public/JobBoard';
 import FindTutors from './pages/public/FindTutors';
 import PublicTutorProfile from './pages/public/PublicTutorProfile';
@@ -70,6 +72,8 @@ function App() {
           <Route path="/terms-of-use" element={<TermsOfUse />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/parent-faq" element={<ParentFAQ />} />
+          <Route path="/tutor-faq" element={<TutorFAQ />} />
           <Route path="/job-board" element={<JobBoard />} />
           <Route path="/find-tutors" element={<FindTutors />} />
           <Route path="/tutor/:id" element={<PublicTutorProfile />} />

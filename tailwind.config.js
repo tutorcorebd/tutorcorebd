@@ -8,7 +8,7 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#86c240', // tuitionterminal.com theme color
+          DEFAULT: '#86c240', // tutorcorebd.com theme color
           dark: '#6a9c31',
           light: '#eaf4df',
         },
