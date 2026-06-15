@@ -130,11 +130,12 @@ const TutorProfileForm = () => {
 
   // Step 1: Tutoring Info -> Availability
   const [availableDays, setAvailableDays] = useState([]);
-  const [teachingMethod, setTeachingMethod] = useState('');
+  const [teachingMethods, setTeachingMethods] = useState([]);
   const [availableFrom, setAvailableFrom] = useState('');
   const [availableTo, setAvailableTo] = useState('');
   const [expectedSalary, setExpectedSalary] = useState('');
   const [showDaysDropdown, setShowDaysDropdown] = useState(false);
+  const [showMethodsDropdown, setShowMethodsDropdown] = useState(false);
 
   // Step 2: Education Info -> School
   const [schoolName, setSchoolName] = useState('');
@@ -202,6 +203,7 @@ const TutorProfileForm = () => {
   const deptRef = useRef(null);
   const pgUnivRef = useRef(null);
   const pgDeptRef = useRef(null);
+  const methodsRef = useRef(null);
 
   // --- DYNAMIC PROGRESS CALCULATION ---
   const calculateCompleteness = () => {
@@ -261,7 +263,7 @@ const TutorProfileForm = () => {
         setExperience(tp.experience || '');
 
         setAvailableDays(tp.available_days || []);
-        setTeachingMethod(tp.teaching_method || '');
+        setTeachingMethods(tp.teaching_method ? tp.teaching_method.split(', ') : []);
         setAvailableFrom(tp.available_from || '');
         setAvailableTo(tp.available_to || '');
         setExpectedSalary(tp.expected_salary || '');
@@ -330,6 +332,7 @@ const TutorProfileForm = () => {
       if (deptRef.current && !deptRef.current.contains(event.target)) setShowDeptDropdown(false);
       if (pgUnivRef.current && !pgUnivRef.current.contains(event.target)) setShowPgUnivDropdown(false);
       if (pgDeptRef.current && !pgDeptRef.current.contains(event.target)) setShowPgDeptDropdown(false);
+      if (methodsRef.current && !methodsRef.current.contains(event.target)) setShowMethodsDropdown(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -389,6 +392,14 @@ const TutorProfileForm = () => {
       setAvailableDays(availableDays.filter(d => d !== day));
     } else {
       setAvailableDays([...availableDays, day]);
+    }
+  };
+
+  const toggleMethodSelection = (method) => {
+    if (teachingMethods.includes(method)) {
+      setTeachingMethods(teachingMethods.filter(m => m !== method));
+    } else {
+      setTeachingMethods([...teachingMethods, method]);
     }
   };
 
@@ -459,7 +470,7 @@ const TutorProfileForm = () => {
           preferred_subjects: preferredSubjects,
           experience,
           available_days: availableDays,
-          teaching_method: teachingMethod,
+          teaching_method: teachingMethods.join(', '),
           available_from: availableFrom,
           available_to: availableTo,
           expected_salary: expectedSalary,
@@ -749,7 +760,7 @@ const TutorProfileForm = () => {
                     onClick={() => setActiveSubStep(3)}
                     className="w-full flex items-start gap-4 text-left relative py-2 outline-none group"
                   >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs z-10 transition-colors ${activeSubStep === 3 ? 'bg-[#86c240] text-white' : availableDays.length > 0 && teachingMethod && expectedSalary ? 'bg-[#eaf4df] text-[#86c240]' : 'bg-white border border-slate-200 text-slate-500'}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs z-10 transition-colors ${activeSubStep === 3 ? 'bg-[#86c240] text-white' : availableDays.length > 0 && teachingMethods.length > 0 && expectedSalary ? 'bg-[#eaf4df] text-[#86c240]' : 'bg-white border border-slate-200 text-slate-500'}`}>
                       3
                     </div>
                     <div className="flex-1">
@@ -1222,18 +1233,48 @@ const TutorProfileForm = () => {
                       </div>
 
                       {/* Teaching Method */}
-                      <div>
+                      <div className="relative" ref={methodsRef}>
                         <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Preferred Teaching Method*</label>
-                        <select 
-                          value={teachingMethod} 
-                          onChange={(e) => setTeachingMethod(e.target.value)}
-                          className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-bold focus:outline-none focus:border-[#86c240]"
+                        <div 
+                          onClick={() => setShowMethodsDropdown(!showMethodsDropdown)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-700 bg-white flex justify-between items-center cursor-pointer select-none"
                         >
-                          <option value="">Select your teaching method</option>
-                          {PRESET_METHODS.map((m) => (
-                            <option key={m} value={m}>{m}</option>
-                          ))}
-                        </select>
+                          <span className="text-slate-400 truncate max-w-[90%]">
+                            {teachingMethods.length > 0 ? `${teachingMethods.length} selected` : 'Select your teaching method'}
+                          </span>
+                          <span className="text-slate-400 text-xs">▼</span>
+                        </div>
+                        {showMethodsDropdown && (
+                          <div className="absolute z-30 w-full bg-white border border-slate-100 rounded-xl shadow-xl mt-1 max-h-48 overflow-y-auto p-2 space-y-1">
+                            {PRESET_METHODS.map((m) => {
+                              const checked = teachingMethods.includes(m);
+                              return (
+                                <button
+                                  key={m}
+                                  type="button"
+                                  onClick={() => toggleMethodSelection(m)}
+                                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-all flex justify-between items-center ${checked ? 'bg-[#eaf4df] text-[#86c240]' : 'hover:bg-slate-50 text-slate-600'}`}
+                                >
+                                  {m}
+                                  {checked && <Check className="w-3.5 h-3.5" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {teachingMethods.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-3 p-2 bg-slate-50 border border-slate-100 rounded-xl">
+                            {teachingMethods.map((m) => (
+                              <span key={m} className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg text-[10px]">
+                                {m}
+                                <button type="button" onClick={() => toggleMethodSelection(m)} className="p-0.5 rounded-full hover:bg-slate-150 text-slate-400 hover:text-slate-600">
+                                  <X className="w-2.5 h-2.5" />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       {/* Available From */}

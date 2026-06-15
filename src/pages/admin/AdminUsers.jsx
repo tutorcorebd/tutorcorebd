@@ -45,6 +45,9 @@ const AdminUsers = () => {
           email,
           role,
           status,
+          deactivation_reason,
+          deletion_reason,
+          deletion_requested_at,
           created_at,
           tutor_profiles (*),
           guardian_profiles (*)
@@ -63,6 +66,9 @@ const AdminUsers = () => {
               phone_number,
               role,
               status,
+              deactivation_reason,
+              deletion_reason,
+              deletion_requested_at,
               created_at,
               tutor_profiles (*),
               guardian_profiles (*)
@@ -115,6 +121,28 @@ const AdminUsers = () => {
     } catch (err) {
       console.error('Error updating status:', err);
       alert('Failed to update user status: ' + err.message);
+    } finally {
+      setUpdatingUserId(null);
+    }
+  };
+
+  const handleDeleteInstantly = async (userId) => {
+    if (!confirm('CRITICAL ACTION: Are you sure you want to PERMANENTLY delete this user? All their data will be destroyed. This cannot be undone.')) return;
+    
+    setUpdatingUserId(userId);
+    try {
+      const { error } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+      setUsers(users.filter(u => u.id !== userId));
+      setSelectedUser(null);
+      showToast('User has been permanently deleted.');
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      alert('Failed to delete user: ' + err.message);
     } finally {
       setUpdatingUserId(null);
     }
@@ -273,6 +301,8 @@ const AdminUsers = () => {
   // Count stats
   const activeCount = users.filter(u => u.role === activeTab && (u.status || 'active') === 'active').length;
   const suspendedCount = users.filter(u => u.role === activeTab && u.status === 'suspended').length;
+  const deactivatedCount = users.filter(u => u.role === activeTab && u.status === 'deactivated').length;
+  const pendingDeletionCount = users.filter(u => u.role === activeTab && u.status === 'pending_deletion').length;
   const verifiedTutors = users.filter(u => u.role === 'tutor' && getTutorProfile(u).is_verified).length;
   const premiumTutors = users.filter(u => u.role === 'tutor' && getTutorProfile(u).tutor_status === 'Premium Tutor').length;
 
@@ -371,6 +401,8 @@ const AdminUsers = () => {
           <option value="All">All Statuses</option>
           <option value="active">Active</option>
           <option value="suspended">Suspended</option>
+          <option value="deactivated">Deactivated</option>
+          <option value="pending_deletion">Pending Deletion</option>
         </select>
       </div>
 
@@ -401,6 +433,8 @@ const AdminUsers = () => {
               <tbody className="divide-y divide-slate-50 font-medium text-slate-650">
                 {filteredUsers.map(user => {
                   const isSuspended = user.status === 'suspended';
+                  const isDeactivated = user.status === 'deactivated';
+                  const isPendingDeletion = user.status === 'pending_deletion';
                   const tutorProf = getTutorProfile(user);
                   const guardianProf = getGuardianProfile(user);
 
@@ -451,10 +485,14 @@ const AdminUsers = () => {
                         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wide border ${
                           isSuspended 
                             ? 'bg-rose-50 text-rose-600 border-rose-100' 
+                            : isDeactivated
+                            ? 'bg-slate-50 text-slate-600 border-slate-200'
+                            : isPendingDeletion
+                            ? 'bg-red-50 text-red-700 border-red-200'
                             : 'bg-green-50 text-green-700 border-green-100'
                         }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${isSuspended ? 'bg-rose-500' : 'bg-green-500'}`}></span>
-                          {isSuspended ? 'Suspended' : 'Active'}
+                          <span className={`w-1.5 h-1.5 rounded-full ${isSuspended ? 'bg-rose-500' : isDeactivated ? 'bg-slate-500' : isPendingDeletion ? 'bg-red-600' : 'bg-green-500'}`}></span>
+                          {isSuspended ? 'Suspended' : isDeactivated ? 'Deactivated' : isPendingDeletion ? 'Pending Deletion' : 'Active'}
                         </span>
                       </td>
 
@@ -564,6 +602,48 @@ const AdminUsers = () => {
                         This user is currently suspended. They are logged out from all active sessions and cannot sign in.
                       </p>
                     </div>
+                  </div>
+                )}
+
+                {/* Status Alert Banner if Deactivated */}
+                {selectedUser.status === 'deactivated' && (
+                  <div className="bg-slate-100 border border-slate-200 rounded-2xl p-4 flex flex-col gap-2">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-slate-800 text-xs font-black leading-none">User Deactivated</p>
+                        <p className="text-slate-600 text-[11px] font-bold mt-1.5 leading-normal">
+                          This user deactivated their own account. It is hidden from public view. Logging back in will reactivate it.
+                        </p>
+                      </div>
+                    </div>
+                    {selectedUser.deactivation_reason && (
+                      <div className="mt-2 p-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 font-medium">
+                        <span className="font-bold text-slate-500 block mb-1">Reason for Deactivation:</span>
+                        {selectedUser.deactivation_reason}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Status Alert Banner if Pending Deletion */}
+                {selectedUser.status === 'pending_deletion' && (
+                  <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex flex-col gap-2">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-red-800 text-xs font-black leading-none">Deletion Requested</p>
+                        <p className="text-red-600 text-[11px] font-bold mt-1.5 leading-normal">
+                          Requested on {new Date(selectedUser.deletion_requested_at).toLocaleDateString()}. Account will be automatically deleted after 30 days unless they log in.
+                        </p>
+                      </div>
+                    </div>
+                    {selectedUser.deletion_reason && (
+                      <div className="mt-2 p-3 bg-white border border-red-100 rounded-xl text-xs text-red-900 font-medium">
+                        <span className="font-bold text-red-700 block mb-1">Reason for Deletion:</span>
+                        {selectedUser.deletion_reason}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -953,31 +1033,43 @@ const AdminUsers = () => {
 
               {/* Drawer Footer Buttons */}
               <div className="p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-4">
-                <button
-                  onClick={() => handleSendResetPassword(selectedUser.email, selectedUser.id)}
-                  className="flex-1 py-3 bg-white border border-slate-200 hover:border-slate-350 text-slate-700 rounded-2xl font-bold text-xs shadow-sm transition-colors flex items-center justify-center gap-1.5"
-                >
-                  <RefreshCw className="w-4 h-4" /> Send Reset Link
-                </button>
+                {selectedUser.status === 'pending_deletion' ? (
+                  <button
+                    onClick={() => handleDeleteInstantly(selectedUser.id)}
+                    disabled={updatingUserId === selectedUser.id}
+                    className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold text-xs shadow-md transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    Delete Instantly
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleSendResetPassword(selectedUser.email, selectedUser.id)}
+                      className="flex-1 py-3 bg-white border border-slate-200 hover:border-slate-350 text-slate-700 rounded-2xl font-bold text-xs shadow-sm transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <RefreshCw className="w-4 h-4" /> Send Reset Link
+                    </button>
 
-                <button
-                  onClick={() => handleToggleStatus(selectedUser.id, selectedUser.status)}
-                  className={`flex-1 py-3 rounded-2xl font-bold text-xs transition-colors text-white shadow-md flex items-center justify-center gap-1.5 ${
-                    selectedUser.status === 'suspended'
-                      ? 'bg-green-600 hover:bg-green-700 shadow-green-650/15'
-                      : 'bg-rose-600 hover:bg-rose-700 shadow-rose-650/15'
-                  }`}
-                >
-                  {selectedUser.status === 'suspended' ? (
-                    <>
-                      <UserCheck className="w-4 h-4" /> Activate Account
-                    </>
-                  ) : (
-                    <>
-                      <UserMinus className="w-4 h-4" /> Suspend Account
-                    </>
-                  )}
-                </button>
+                    <button
+                      onClick={() => handleToggleStatus(selectedUser.id, selectedUser.status)}
+                      className={`flex-1 py-3 rounded-2xl font-bold text-xs transition-colors text-white shadow-md flex items-center justify-center gap-1.5 ${
+                        selectedUser.status === 'suspended'
+                          ? 'bg-green-600 hover:bg-green-700 shadow-green-650/15'
+                          : 'bg-rose-600 hover:bg-rose-700 shadow-rose-650/15'
+                      }`}
+                    >
+                      {selectedUser.status === 'suspended' ? (
+                        <>
+                          <UserCheck className="w-4 h-4" /> Activate Account
+                        </>
+                      ) : (
+                        <>
+                          <UserMinus className="w-4 h-4" /> Suspend Account
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
               </div>
 
             </motion.div>

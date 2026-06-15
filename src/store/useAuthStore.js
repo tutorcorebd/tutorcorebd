@@ -49,6 +49,16 @@ const useAuthStore = create((set) => ({
           window.location.href = '/login?suspended=true';
           return;
         }
+
+        if (userData.status === 'deactivated' || userData.status === 'pending_deletion') {
+          await supabase.from('users').update({ 
+            status: 'active',
+            deactivation_reason: null,
+            deletion_reason: null,
+            deletion_requested_at: null
+          }).eq('id', user.id);
+          userData.status = 'active';
+        }
         let completeProfile = { ...userData };
         
         if (userData.role === 'tutor') {
