@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Shield, Lock, Mail, ArrowLeft, ShieldAlert } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../../store/useAuthStore';
 
 const AdminLogin = () => {
@@ -47,7 +48,7 @@ const AdminLogin = () => {
 
         if (roleError || userData.role !== 'admin') {
           await supabase.auth.signOut();
-          setError('Access Denied: You do not have administrator privileges.');
+          setError('Access denied: Only administrators can sign in here.');
           setLoading(false);
           return;
         }
@@ -56,7 +57,7 @@ const AdminLogin = () => {
         navigate('/admin/dashboard', { replace: true });
       }
     } catch (err) {
-      setError('An unexpected error occurred during authentication.');
+      setError('Something went wrong. Please try again.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -67,65 +68,105 @@ const AdminLogin = () => {
   const emailError = !isValidEmail(email);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-green-50/20 flex flex-col md:flex-row font-sans">
       
-      {/* Left Branding Panel (Hidden on Mobile) */}
-      <div className="hidden md:flex md:w-1/2 lg:w-3/5 bg-[#86c240] p-12 flex-col justify-between relative overflow-hidden">
-        {/* Abstract Background Shapes */}
-        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#6a9c31]/30 rounded-full blur-3xl"></div>
+      {/* Left branding panel (hidden on mobile, warm & conversational on desktop) */}
+      <div className="hidden md:flex md:w-1/2 lg:w-3/5 bg-gradient-to-br from-[#86c240] to-[#6a9c31] p-12 flex-col justify-between relative overflow-hidden">
+        {/* Soft atmospheric glassmorphic background blobs */}
+        <div className="absolute top-[-10%] left-[-10%] w-[32rem] h-[32rem] bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[32rem] h-[32rem] bg-[#588229]/20 rounded-full blur-3xl"></div>
         
-        <div className="relative z-10">
-          <Link to="/" className="flex items-center gap-3 text-white hover:opacity-80 transition-opacity w-fit">
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm font-bold tracking-wider uppercase">Return to Public Site</span>
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+          className="relative z-10"
+        >
+          <Link to="/" className="flex items-center gap-2.5 text-white/95 hover:text-white transition-colors w-fit group">
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <span className="text-sm font-semibold">Back to public site</span>
           </Link>
-        </div>
+        </motion.div>
 
-        <div className="relative z-10 max-w-xl">
-          <div className="w-16 h-16 bg-white/20 border border-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md mb-8">
-            <Shield className="w-8 h-8 text-white" />
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className="relative z-10 max-w-xl"
+        >
+          <div className="w-14 h-14 bg-white/15 border border-white/25 rounded-2xl flex items-center justify-center backdrop-blur-md mb-8">
+            <Shield className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight mb-6">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight mb-5">
             TutorCore BD<br />
-            <span className="text-green-100">
-              Enterprise Admin
+            <span className="text-green-100 font-medium text-3xl md:text-4xl block mt-2">
+              Enterprise admin portal
             </span>
           </h1>
-          <p className="text-green-50 text-lg font-medium leading-relaxed">
-            Secure administrative portal. Access is strictly restricted to authorized system administrators. All authentication attempts are logged and monitored.
+          <p className="text-green-50/90 text-lg leading-relaxed font-medium">
+            Welcome back! This is the management workspace for TutorCore BD. Sign in here to manage tutors, process applications, and monitor platform activity.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="relative z-10 text-green-100/70 text-sm font-semibold">
-          &copy; {new Date().getFullYear()} TutorCore BD. Enterprise Security System.
-        </div>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.7 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="relative z-10 text-green-100/80 text-sm font-medium"
+        >
+          &copy; {new Date().getFullYear()} TutorCore BD. Enterprise security system.
+        </motion.div>
       </div>
 
-      {/* Right Login Panel */}
-      <div className="w-full md:w-1/2 lg:w-2/5 flex items-center justify-center p-8 bg-white shadow-2xl relative z-20 border-l border-slate-100">
-        <div className="w-full max-w-md space-y-8">
-          
-          <div className="text-center md:text-left mb-10">
-            <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center md:hidden mx-auto mb-6">
+      {/* Right login panel (mobile optimized, responsive, and animated) */}
+      <div className="w-full md:w-1/2 lg:w-2/5 flex flex-col items-center justify-center p-6 sm:p-12 relative z-20 min-h-screen">
+        
+        {/* Soft header banner visible only on mobile devices */}
+        <div className="md:hidden w-full max-w-md flex justify-between items-center mb-8">
+          <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors group">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            <span className="text-xs font-semibold">Back to site</span>
+          </Link>
+          <span className="text-xs font-bold text-[#86c240]">TutorCore Admin</span>
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95, y: 15 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md bg-white border border-slate-100 rounded-3xl p-6 sm:p-10 shadow-xl shadow-slate-200/50"
+        >
+          <div className="text-center sm:text-left mb-8">
+            <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center md:hidden mx-auto mb-5">
               <Shield className="w-6 h-6 text-[#86c240]" />
             </div>
-            <h2 className="text-3xl font-black text-slate-800 tracking-tight">Admin Portal</h2>
-            <p className="text-slate-500 mt-2 text-sm font-medium">Enter your administrative credentials to continue</p>
+            <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">Admin sign in</h2>
+            <p className="text-slate-500 mt-2.5 text-sm font-medium leading-relaxed">
+              Please enter your admin credentials to log in.
+            </p>
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-100 rounded-xl p-4 flex items-start gap-3">
-              <ShieldAlert className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-              <p className="text-red-600 text-sm font-bold">{error}</p>
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0, y: -10 }}
+                animate={{ opacity: 1, height: 'auto', y: 0 }}
+                exit={{ opacity: 0, height: 0, y: -10 }}
+                className="bg-rose-50 border border-rose-100 rounded-2xl p-4 flex items-start gap-3 mb-6"
+              >
+                <ShieldAlert className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                <p className="text-rose-700 text-sm font-semibold leading-relaxed">
+                  {error === 'Invalid login credentials' ? "Oops! Those credentials don't match our records." : error}
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-5">
             
-            {/* Email Input */}
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700 ml-1">Administrator Email</label>
+            {/* Email field */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 ml-1">Admin email address</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-[#86c240] transition-colors" />
@@ -135,18 +176,16 @@ const AdminLogin = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`block w-full pl-11 pr-4 py-3.5 bg-white border ${emailError && email ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-[#86c240] focus:ring-[#86c240]/20'} rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 transition-all sm:text-sm font-medium`}
+                  className={`block w-full pl-11 pr-4 py-3.5 bg-slate-50 border ${emailError && email ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-100 focus:border-[#86c240] focus:ring-[#86c240]/20'} rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 transition-all sm:text-sm font-medium`}
                   placeholder="admin@tutorcorebd.com"
                 />
               </div>
-              {emailError && email && <p className="text-red-500 text-xs font-bold ml-1 mt-1">Please enter a valid email.</p>}
+              {emailError && email && <p className="text-rose-500 text-xs font-bold ml-1 mt-1">Please enter a valid email address.</p>}
             </div>
 
-            {/* Password Input */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between ml-1">
-                <label className="text-sm font-bold text-slate-700">Password</label>
-              </div>
+            {/* Password field */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 ml-1">Password</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-[#86c240] transition-colors" />
@@ -156,8 +195,8 @@ const AdminLogin = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-11 pr-12 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/20 transition-all sm:text-sm font-medium"
-                  placeholder="••••••••"
+                  className="block w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/20 transition-all sm:text-sm font-medium"
+                  placeholder="Enter your password"
                 />
                 <button
                   type="button"
@@ -169,32 +208,34 @@ const AdminLogin = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
-            <button
+            {/* Action button */}
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               type="submit"
               disabled={loading || (emailError && email !== '')}
-              className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-[#86c240] hover:bg-[#6a9c31] focus:outline-none focus:ring-4 focus:ring-[#86c240]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-8"
+              className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-2xl shadow-lg shadow-[#86c240]/15 text-sm font-bold text-white bg-[#86c240] hover:bg-[#72ad30] focus:outline-none focus:ring-4 focus:ring-[#86c240]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-6"
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-3"></div>
-                  Authenticating...
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2.5"></div>
+                  Logging you in...
                 </>
               ) : (
-                'Secure Login'
+                'Sign in to dashboard'
               )}
-            </button>
+            </motion.button>
             
           </form>
 
-          {/* Warning Note */}
-          <div className="pt-8 mt-8 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-400 font-bold">
-              This is a restricted portal. Unauthorized access is strictly prohibited and monitored.
+          {/* Footer note */}
+          <div className="pt-6 mt-6 border-t border-slate-100 text-center">
+            <p className="text-[11px] text-slate-400 font-semibold leading-relaxed">
+              This area is restricted to TutorCore BD administrators. If you need assistance, please contact the system administrator.
             </p>
           </div>
 
-        </div>
+        </motion.div>
       </div>
       
     </div>
@@ -202,3 +243,4 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
+

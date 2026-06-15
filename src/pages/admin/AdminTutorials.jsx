@@ -76,7 +76,10 @@ const AdminTutorials = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('handleSubmit started. Form values:', { title, videoUrl, description, targetRole, showOnJobBoard });
+    
     if (!title || !videoUrl) {
+      console.warn('Validation failed: Title or Video URL is missing.');
       showAlert('error', 'Validation Error', 'Title and Video URL are required.');
       return;
     }
@@ -90,50 +93,72 @@ const AdminTutorials = () => {
         target_role: targetRole,
         show_on_job_board: showOnJobBoard
       };
+      console.log('Prepared payload to insert/update:', payload);
 
       if (editingId) {
+        console.log(`Editing existing tutorial with ID: ${editingId}`);
         // Update other tutorials if this one is set to show on job board
         if (showOnJobBoard) {
-          await supabase
+          console.log('showOnJobBoard is true, resetting other tutorials first...');
+          const { error: resetError } = await supabase
             .from('tutorials')
             .update({ show_on_job_board: false })
             .neq('id', editingId);
+          if (resetError) console.error('Error resetting other tutorials:', resetError);
         }
 
+        console.log('Executing supabase update...');
         const { error } = await supabase
           .from('tutorials')
           .update(payload)
           .eq('id', editingId);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase update returned error:', error);
+          throw error;
+        }
+        console.log('Supabase update succeeded.');
         showAlert('success', 'Updated Successfully', 'Tutorial updated successfully.');
       } else {
-        // Insert new
-        const { data, error } = await supabase
-          .from('tutorials')
-          .insert([payload])
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        // If newly inserted is checked, set others to false
-        if (showOnJobBoard && data?.id) {
-          await supabase
+        console.log('Creating new tutorial...');
+        
+        // If showOnJobBoard is true, reset all other tutorials to false first
+        if (showOnJobBoard) {
+          console.log('showOnJobBoard is true, resetting all other tutorials first...');
+          const { error: resetError } = await supabase
             .from('tutorials')
             .update({ show_on_job_board: false })
-            .neq('id', data.id);
+            .eq('show_on_job_board', true);
+          
+          if (resetError) {
+            console.error('Error resetting other tutorials:', resetError);
+          }
         }
 
+        console.log('Executing simple insert...');
+        const { error } = await supabase
+          .from('tutorials')
+          .insert([payload]);
+
+        console.log('Insert response error:', error);
+
+        if (error) {
+          console.error('Supabase insert returned error:', error);
+          throw error;
+        }
+
+        console.log('Supabase insert succeeded.');
         showAlert('success', 'Created Successfully', 'Tutorial created successfully.');
       }
 
+      console.log('Closing form modal and refetching...');
       setIsFormOpen(false);
       fetchTutorials();
     } catch (err) {
-      console.error(err);
+      console.error('Error in handleSubmit try-catch block:', err);
       showAlert('error', 'Operation Failed', err.message || 'An error occurred while saving.');
     } finally {
+      console.log('handleSubmit completed. Setting saving to false.');
       setSaving(false);
     }
   };
