@@ -32,7 +32,8 @@ const AdminLogin = () => {
       const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       
       if (signInError) {
-        setError('Invalid admin credentials.');
+        console.error('Sign in error:', signInError);
+        setError(signInError.message);
         setLoading(false);
         return;
       }
