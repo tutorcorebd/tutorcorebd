@@ -122,7 +122,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
         .from('tuition_requests')
         .select(`
           *,
-          guardian:guardian_id(full_name, role)
+          guardian:users(full_name, role)
         `)
         .eq('status', 'open')
         .order('created_at', { ascending: false });

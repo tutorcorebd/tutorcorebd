@@ -34,6 +34,7 @@ import {
   Megaphone
 } from 'lucide-react';
 import ScrollToTop from '../common/ScrollToTop';
+import MobileBottomNav from './MobileBottomNav';
 
 const DashboardLayout = () => {
   const { profile, signOut } = useAuthStore();
@@ -289,7 +290,7 @@ const DashboardLayout = () => {
 
       {/* Main Content Area */}
       <main className="lg:pl-64 pt-16 flex-grow flex flex-col min-h-screen transition-all duration-300">
-        <div className="p-6 md:p-8 flex-grow">
+        <div className="p-6 md:p-8 flex-grow pb-24 md:pb-8">
           <Outlet />
         </div>
         {/* Footer inside Dashboard */}
@@ -301,6 +302,7 @@ const DashboardLayout = () => {
           </div>
         </footer>
       </main>
+      <MobileBottomNav />
       <ScrollToTop />
     </div>
   );

@@ -3,6 +3,7 @@ import useAuthStore from '../../store/useAuthStore';
 import { LogOut, User, Menu, Send, Globe, Mail, Phone, ArrowRight, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
 import ScrollToTop from '../common/ScrollToTop';
+import MobileBottomNav from './MobileBottomNav';
 
 const Layout = () => {
   const { session, profile, signOut } = useAuthStore();
@@ -125,7 +126,7 @@ const Layout = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
         <Outlet context={{ setShowRoleMismatchModal }} />
       </main>
 
@@ -312,6 +313,7 @@ const Layout = () => {
           </div>
         </div>
       )}
+      <MobileBottomNav />
       <ScrollToTop />
     </div>
   );

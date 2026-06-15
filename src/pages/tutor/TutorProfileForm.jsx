@@ -174,7 +174,13 @@ const TutorProfileForm = () => {
   const [gender, setGender] = useState('');
   const [fathersName, setFathersName] = useState('');
   const [mothersName, setMothersName] = useState('');
-  const [emergencyContact, setEmergencyContact] = useState('');
+  const [emergencyContactName, setEmergencyContactName] = useState('');
+  const [emergencyContactRel, setEmergencyContactRel] = useState('');
+  const [emergencyContactPhone, setEmergencyContactPhone] = useState('');
+  const [emergencyContactAdditional, setEmergencyContactAdditional] = useState('');
+  const [facebookLink, setFacebookLink] = useState('');
+  const [linkedinLink, setLinkedinLink] = useState('');
+  const [whatsappNumber, setWhatsappNumber] = useState('');
   const [address, setAddress] = useState('');
   const [nid, setNid] = useState('');
   const [dob, setDob] = useState('');
@@ -186,6 +192,10 @@ const TutorProfileForm = () => {
   const [existingCvUrl, setExistingCvUrl] = useState('');
   const [cvOption, setCvOption] = useState('upload'); // 'upload' or 'link'
   const [cvLinkInput, setCvLinkInput] = useState('');
+  const [aboutYourself, setAboutYourself] = useState('');
+  const [reasonsForHiring, setReasonsForHiring] = useState('');
+  const [tuitionExperienceDetails, setTuitionExperienceDetails] = useState('');
+  const [personalMotivation, setPersonalMotivation] = useState('');
 
   // UI States
   const [loading, setLoading] = useState(false);
@@ -234,13 +244,14 @@ const TutorProfileForm = () => {
     if (hasPostGrad) score += 5;
 
     // 7. Personal Information (40%)
-    const hasPersonalInfo = gender && fathersName && mothersName && emergencyContact && address && nid && dob;
+    const hasPersonalInfo = gender && fathersName && mothersName && emergencyContactName && emergencyContactRel && emergencyContactPhone && address && nid && dob && facebookLink;
     if (hasPersonalInfo) score += 40;
 
     // 8. Credential (10%)
     // Profile picture is completely optional, so CV alone completes Step 4.
     const hasCv = cvFile || existingCvUrl || (cvOption === 'link' && cvLinkInput.trim() !== '');
-    if (hasCv) score += 10;
+    const hasAboutMe = aboutYourself.length >= 50 && reasonsForHiring && tuitionExperienceDetails && personalMotivation;
+    if (hasCv && hasAboutMe) score += 10;
 
     return Math.min(100, score);
   };
@@ -296,10 +307,20 @@ const TutorProfileForm = () => {
         setGender(tp.gender || '');
         setFathersName(tp.fathers_name || '');
         setMothersName(tp.mothers_name || '');
-        setEmergencyContact(tp.emergency_contact || '');
+        setEmergencyContactName(tp.emergency_contact_name || '');
+        setEmergencyContactRel(tp.emergency_contact_relationship || '');
+        setEmergencyContactPhone(tp.emergency_contact_phone || '');
+        setEmergencyContactAdditional(tp.emergency_contact_additional || '');
+        setFacebookLink(tp.facebook_link || '');
+        setLinkedinLink(tp.linkedin_link || '');
+        setWhatsappNumber(tp.whatsapp_number || '');
         setAddress(tp.address || '');
         setNid(tp.nid || '');
         setDob(tp.dob || '');
+        setAboutYourself(tp.about_yourself || '');
+        setReasonsForHiring(tp.reasons_for_hiring || '');
+        setTuitionExperienceDetails(tp.tuition_experience_details || '');
+        setPersonalMotivation(tp.personal_motivation || '');
 
         setPhotoUrl(tp.photo_url || '');
 
@@ -498,10 +519,20 @@ const TutorProfileForm = () => {
           gender,
           fathers_name: fathersName,
           mothers_name: mothersName,
-          emergency_contact: emergencyContact,
+          emergency_contact_name: emergencyContactName,
+          emergency_contact_relationship: emergencyContactRel,
+          emergency_contact_phone: emergencyContactPhone,
+          emergency_contact_additional: emergencyContactAdditional,
+          facebook_link: facebookLink,
+          linkedin_link: linkedinLink,
+          whatsapp_number: whatsappNumber,
           address,
           nid,
           dob,
+          about_yourself: aboutYourself,
+          reasons_for_hiring: reasonsForHiring,
+          tuition_experience_details: tuitionExperienceDetails,
+          personal_motivation: personalMotivation,
           cv_url: finalCvUrl,
           photo_url: finalPhotoUrl,
           profile_completeness: nextCompleteness,
@@ -544,7 +575,7 @@ const TutorProfileForm = () => {
     await handleSaveData(null, `${sectionName} saved successfully.`);
 
     // If there are more sub-steps inside the active main step
-    const subStepsCount = activeMainStep === 1 ? 3 : activeMainStep === 2 ? 4 : 1;
+    const subStepsCount = activeMainStep === 1 ? 3 : activeMainStep === 2 ? 4 : activeMainStep === 3 ? 3 : activeMainStep === 4 ? 2 : 1;
     if (activeSubStep < subStepsCount) {
       setActiveSubStep(activeSubStep + 1);
     } else {
@@ -565,7 +596,7 @@ const TutorProfileForm = () => {
     } else {
       if (activeMainStep > 1) {
         const prevStep = activeMainStep - 1;
-        const prevSubStepsCount = prevStep === 1 ? 3 : prevStep === 2 ? 4 : 1;
+        const prevSubStepsCount = prevStep === 1 ? 3 : prevStep === 2 ? 4 : prevStep === 3 ? 3 : prevStep === 4 ? 2 : 1;
         setActiveMainStep(prevStep);
         setActiveSubStep(prevSubStepsCount);
       }
@@ -591,7 +622,11 @@ const TutorProfileForm = () => {
       if (subStep === 3) return 'Graduation 5%';
       return 'Post Graduation 5%';
     }
-    if (mainStep === 3) return 'Personal Info 40%';
+    if (mainStep === 3) {
+      if (subStep === 1) return 'Personal Info 20%';
+      if (subStep === 2) return 'Emergency Contact 10%';
+      return 'Social Media 10%';
+    }
     return 'Credentials 10%';
   };
 
@@ -696,7 +731,7 @@ const TutorProfileForm = () => {
       <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.01)] mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="w-full sm:w-auto">
           <h3 className="font-extrabold text-slate-800 text-sm">Real-time Profile Progress</h3>
-          <p className="text-slate-450 text-[11px] font-semibold">Fill profile fields to increase completeness.</p>
+          <p className="text-slate-450 text-[11px] font-semibold">Fill profile fields to increase completeness. Fields marked with <span className="text-red-500 font-black ml-0.5">*</span> are required.</p>
         </div>
         <div className="flex items-center gap-4 w-full sm:w-2/3">
           <div className="flex-1 bg-slate-100 h-2.5 rounded-full overflow-hidden">
@@ -847,39 +882,91 @@ const TutorProfileForm = () => {
               )}
 
               {activeMainStep === 3 && (
-                <button 
-                  onClick={() => setActiveSubStep(1)}
-                  className="w-full flex items-start gap-4 text-left relative py-2 outline-none group"
-                >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs z-10 transition-colors ${activeSubStep === 1 ? 'bg-[#86c240] text-white' : gender && fathersName && mothersName && emergencyContact && address && nid && dob ? 'bg-[#eaf4df] text-[#86c240]' : 'bg-white border border-slate-200 text-slate-500'}`}>
-                    1
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-xs font-bold text-slate-800 group-hover:text-slate-900 transition-colors">Personal Info 40%</h4>
-                    <p className="text-[10px] text-slate-455 mt-0.5">Identity & contact details</p>
-                  </div>
-                  {activeSubStep === 1 && (
-                    <div className="hidden lg:block absolute -right-6 top-1/2 -translate-y-1/2 border-y-[10px] border-y-transparent border-r-[10px] border-r-white z-20"></div>
-                  )}
-                </button>
+                <>
+                  <button 
+                    onClick={() => setActiveSubStep(1)}
+                    className="w-full flex items-start gap-4 text-left relative py-2 outline-none group"
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs z-10 transition-colors ${activeSubStep === 1 ? 'bg-[#86c240] text-white' : gender && fathersName && mothersName && address && nid && dob ? 'bg-[#eaf4df] text-[#86c240]' : 'bg-white border border-slate-200 text-slate-500'}`}>
+                      1
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-xs font-bold text-slate-800 group-hover:text-slate-900 transition-colors">Personal Info 20%</h4>
+                      <p className="text-[10px] text-slate-455 mt-0.5">Identity details</p>
+                    </div>
+                    {activeSubStep === 1 && (
+                      <div className="hidden lg:block absolute -right-6 top-1/2 -translate-y-1/2 border-y-[10px] border-y-transparent border-r-[10px] border-r-white z-20"></div>
+                    )}
+                  </button>
+
+                  <button 
+                    onClick={() => setActiveSubStep(2)}
+                    className="w-full flex items-start gap-4 text-left relative py-2 outline-none group"
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs z-10 transition-colors ${activeSubStep === 2 ? 'bg-[#86c240] text-white' : emergencyContactName && emergencyContactRel && emergencyContactPhone ? 'bg-[#eaf4df] text-[#86c240]' : 'bg-white border border-slate-200 text-slate-500'}`}>
+                      2
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-xs font-bold text-slate-800 group-hover:text-slate-900 transition-colors">Emergency Contact 10%</h4>
+                      <p className="text-[10px] text-slate-455 mt-0.5">Emergency info</p>
+                    </div>
+                    {activeSubStep === 2 && (
+                      <div className="hidden lg:block absolute -right-6 top-1/2 -translate-y-1/2 border-y-[10px] border-y-transparent border-r-[10px] border-r-white z-20"></div>
+                    )}
+                  </button>
+
+                  <button 
+                    onClick={() => setActiveSubStep(3)}
+                    className="w-full flex items-start gap-4 text-left relative py-2 outline-none group"
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs z-10 transition-colors ${activeSubStep === 3 ? 'bg-[#86c240] text-white' : facebookLink ? 'bg-[#eaf4df] text-[#86c240]' : 'bg-white border border-slate-200 text-slate-500'}`}>
+                      3
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-xs font-bold text-slate-800 group-hover:text-slate-900 transition-colors">Social Media 10%</h4>
+                      <p className="text-[10px] text-slate-455 mt-0.5">Links & messaging</p>
+                    </div>
+                    {activeSubStep === 3 && (
+                      <div className="hidden lg:block absolute -right-6 top-1/2 -translate-y-1/2 border-y-[10px] border-y-transparent border-r-[10px] border-r-white z-20"></div>
+                    )}
+                  </button>
+                </>
               )}
 
               {activeMainStep === 4 && (
-                <button 
-                  onClick={() => setActiveSubStep(1)}
-                  className="w-full flex items-start gap-4 text-left relative py-2 outline-none group"
-                >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs z-10 transition-colors ${activeSubStep === 1 ? 'bg-[#86c240] text-white' : cvFile || existingCvUrl || (cvOption === 'link' && cvLinkInput) ? 'bg-[#eaf4df] text-[#86c240]' : 'bg-white border border-slate-200 text-slate-500'}`}>
-                    1
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-xs font-bold text-slate-800 group-hover:text-slate-900 transition-colors">Credentials 10%</h4>
-                    <p className="text-[10px] text-slate-455 mt-0.5">Profile Photo & CV Resume</p>
-                  </div>
-                  {activeSubStep === 1 && (
-                    <div className="hidden lg:block absolute -right-6 top-1/2 -translate-y-1/2 border-y-[10px] border-y-transparent border-r-[10px] border-r-white z-20"></div>
-                  )}
-                </button>
+                <>
+                  <button 
+                    onClick={() => setActiveSubStep(1)}
+                    className="w-full flex items-start gap-4 text-left relative py-2 outline-none group"
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs z-10 transition-colors ${activeSubStep === 1 ? 'bg-[#86c240] text-white' : cvFile || existingCvUrl || (cvOption === 'link' && cvLinkInput) ? 'bg-[#eaf4df] text-[#86c240]' : 'bg-white border border-slate-200 text-slate-500'}`}>
+                      1
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-xs font-bold text-slate-800 group-hover:text-slate-900 transition-colors">Documents 10%</h4>
+                      <p className="text-[10px] text-slate-455 mt-0.5">Profile Photo & CV Resume</p>
+                    </div>
+                    {activeSubStep === 1 && (
+                      <div className="hidden lg:block absolute -right-6 top-1/2 -translate-y-1/2 border-y-[10px] border-y-transparent border-r-[10px] border-r-white z-20"></div>
+                    )}
+                  </button>
+
+                  <button 
+                    onClick={() => setActiveSubStep(2)}
+                    className="w-full flex items-start gap-4 text-left relative py-2 outline-none group"
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs z-10 transition-colors ${activeSubStep === 2 ? 'bg-[#86c240] text-white' : aboutYourself.length >= 50 && reasonsForHiring && tuitionExperienceDetails && personalMotivation ? 'bg-[#eaf4df] text-[#86c240]' : 'bg-white border border-slate-200 text-slate-500'}`}>
+                      2
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-xs font-bold text-slate-800 group-hover:text-slate-900 transition-colors">About Me</h4>
+                      <p className="text-[10px] text-slate-455 mt-0.5">Introduction & Motivation</p>
+                    </div>
+                    {activeSubStep === 2 && (
+                      <div className="hidden lg:block absolute -right-6 top-1/2 -translate-y-1/2 border-y-[10px] border-y-transparent border-r-[10px] border-r-white z-20"></div>
+                    )}
+                  </button>
+                </>
               )}
 
             </div>
@@ -1742,12 +1829,16 @@ const TutorProfileForm = () => {
             {/* STEP 3: PERSONAL INFORMATION */}
             {activeMainStep === 3 && (
               <div className="space-y-5">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-800">Personal Information</h3>
-                  <p className="text-slate-455 text-[11px] font-semibold">Enter your private details and emergency contact settings.</p>
-                </div>
+                
+                {/* SUB-STEP 1: PERSONAL DETAILS */}
+                {activeSubStep === 1 && (
+                  <>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800">Personal Information</h3>
+                      <p className="text-slate-455 text-[11px] font-semibold">Enter your private details and emergency contact settings.</p>
+                    </div>
 
-                <div className="grid md:grid-cols-2 gap-5 pt-3">
+                    <div className="grid md:grid-cols-2 gap-5 pt-3">
                   <div>
                     <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Gender*</label>
                     <select 
@@ -1760,17 +1851,6 @@ const TutorProfileForm = () => {
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
                     </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Emergency Contact*</label>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. +8801700000000" 
-                      value={emergencyContact} 
-                      onChange={(e) => setEmergencyContact(e.target.value)} 
-                      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750"
-                    />
                   </div>
 
                   <div>
@@ -1824,21 +1904,137 @@ const TutorProfileForm = () => {
                       onChange={(e) => setAddress(e.target.value)}
                       className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750 min-h-[90px]"
                     />
-                  </div>
+                              </div>
+                    </div>
+                  </>
+                )}
 
-                </div>
+
+                {/* SUB-STEP 2: EMERGENCY CONTACT */}
+                {activeSubStep === 2 && (
+                  <>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800">Emergency Contact</h3>
+                      <p className="text-slate-455 text-[11px] font-semibold">Provide details of someone we can contact in an emergency.</p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-5 pt-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Emergency Contact Name*</label>
+                        <input 
+                          type="text" 
+                          placeholder="Contact person's name" 
+                          value={emergencyContactName} 
+                          onChange={(e) => setEmergencyContactName(e.target.value)} 
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Relationship*</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. Father, Mother, Brother" 
+                          value={emergencyContactRel} 
+                          onChange={(e) => setEmergencyContactRel(e.target.value)} 
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Emergency Contact No.*</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. +8801700000000" 
+                          value={emergencyContactPhone} 
+                          onChange={(e) => setEmergencyContactPhone(e.target.value)} 
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Additional Contact No. (Optional)</label>
+                        <input 
+                          type="text" 
+                          placeholder="Alternative phone number" 
+                          value={emergencyContactAdditional} 
+                          onChange={(e) => setEmergencyContactAdditional(e.target.value)} 
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* SUB-STEP 3: SOCIAL MEDIA & MESSAGING */}
+                {activeSubStep === 3 && (
+                  <>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800">Social Media & Messaging</h3>
+                      <p className="text-slate-455 text-[11px] font-semibold">Add your social profiles and WhatsApp details.</p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-5 pt-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Facebook Link<span className="text-red-500 ml-0.5">*</span></label>
+                        <input 
+                          type="url" 
+                          placeholder="https://facebook.com/yourprofile" 
+                          value={facebookLink} 
+                          onChange={(e) => setFacebookLink(e.target.value)} 
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">LinkedIn Link (Optional)</label>
+                        <input 
+                          type="url" 
+                          placeholder="https://linkedin.com/in/yourprofile" 
+                          value={linkedinLink} 
+                          onChange={(e) => setLinkedinLink(e.target.value)} 
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">WhatsApp Number</label>
+                        <div className="flex gap-2 items-center">
+                          <input 
+                            type="text" 
+                            placeholder="e.g. 8801700000000 (with country code, no +)" 
+                            value={whatsappNumber} 
+                            onChange={(e) => setWhatsappNumber(e.target.value)} 
+                            className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750"
+                          />
+                          {whatsappNumber && (
+                            <a 
+                              href={`https://wa.me/${whatsappNumber}`} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="px-4 py-3 bg-[#eaf4df] text-[#86c240] font-bold rounded-xl text-xs flex-shrink-0 hover:bg-[#86c240] hover:text-white transition-colors"
+                            >
+                              Test Link
+                            </a>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-1 font-semibold">Enter your number with country code (e.g., 88017...). We'll generate your WhatsApp link automatically.</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
               </div>
             )}
 
             {/* STEP 4: CREDENTIALS */}
             {activeMainStep === 4 && (
               <div className="space-y-5">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-800">Upload Credentials</h3>
-                  <p className="text-slate-455 text-[11px] font-semibold">CV/Resume is required to complete profile credentials step. Profile photo is optional.</p>
-                </div>
+                
+                {/* SUB-STEP 1: DOCUMENTS */}
+                {activeSubStep === 1 && (
+                  <>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800">Upload Credentials</h3>
+                      <p className="text-slate-455 text-[11px] font-semibold">CV/Resume is required to complete profile credentials step. Profile photo is optional.</p>
+                    </div>
 
-                <div className="grid md:grid-cols-2 gap-6 pt-3">
+                    <div className="grid md:grid-cols-2 gap-6 pt-3">
                   
                   {/* Profile Photo Upload Segment (COMPLETELY OPTIONAL) */}
                   <div className="space-y-3 bg-slate-50 p-4 border border-slate-100 rounded-2xl">
@@ -1936,9 +2132,67 @@ const TutorProfileForm = () => {
                       </div>
                     )}
 
-                  </div>
+                    </div>
+                    </div>
+                  </>
+                )}
 
-                </div>
+                {/* SUB-STEP 2: ABOUT ME */}
+                {activeSubStep === 2 && (
+                  <>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800">About Me</h3>
+                      <p className="text-slate-455 text-[11px] font-semibold">Tell us more about yourself and your tutoring methodology.</p>
+                    </div>
+
+                    <div className="grid gap-5 pt-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">About Yourself* <span className="font-normal text-[9px] text-slate-400">(minimum 50, maximum 250 characters)</span></label>
+                        <textarea 
+                          placeholder="Write a brief introduction about yourself..." 
+                          value={aboutYourself} 
+                          onChange={(e) => setAboutYourself(e.target.value)}
+                          maxLength={250}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750 min-h-[90px]"
+                        />
+                        <div className="text-right mt-1 text-[9px] font-bold text-slate-400">
+                          {aboutYourself.length}/250
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Reasons for Getting Hired*</label>
+                        <textarea 
+                          placeholder="Why should students hire you? What makes you stand out?" 
+                          value={reasonsForHiring} 
+                          onChange={(e) => setReasonsForHiring(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750 min-h-[90px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Tuition Experiences*</label>
+                        <textarea 
+                          placeholder="Describe your previous tutoring experiences..." 
+                          value={tuitionExperienceDetails} 
+                          onChange={(e) => setTuitionExperienceDetails(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750 min-h-[90px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Personal Motivation*</label>
+                        <textarea 
+                          placeholder="What motivates you to teach?" 
+                          value={personalMotivation} 
+                          onChange={(e) => setPersonalMotivation(e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750 min-h-[90px]"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
               </div>
             )}
 

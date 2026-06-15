@@ -43,7 +43,7 @@ CREATE TABLE public.job_applications (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   tutor_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   tuition_request_id UUID REFERENCES public.tuition_requests(id) ON DELETE CASCADE NOT NULL,
-  status TEXT CHECK (status IN ('pending', 'reviewed', 'selected', 'rejected')) DEFAULT 'pending',
+  status TEXT CHECK (status IN ('pending', 'reviewed', 'selected', 'rejected', 'payment', 'due', 'refund')) DEFAULT 'pending',
   applied_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(tutor_id, tuition_request_id) -- A tutor can apply only once per request
 );
