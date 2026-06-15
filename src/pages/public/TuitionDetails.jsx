@@ -153,9 +153,8 @@ const TuitionDetails = () => {
       showAlert(
         'error',
         'Profile Completeness Required',
-        `Complete your profile to at least 80% to be eligible to apply for tuition. Current completion: ${completeness}%`,
-        () => navigate('/tutor/profile'),
-        'Complete Profile'
+        'Complete your profile at least 80% to apply for the tuitions.',
+        () => navigate('/tutor/profile')
       );
       return;
     }

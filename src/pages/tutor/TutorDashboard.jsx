@@ -90,11 +90,27 @@ const TutorDashboard = () => {
           .gt('expires_at', new Date().toISOString());
 
         if (!noticesError && noticesData) {
-          const tutorNotices = noticesData.filter(n => 
+          let tutorNotices = noticesData.filter(n => 
             n.target_audience === 'all' || 
             n.target_audience === 'tutor' || 
             (n.target_audience === 'specific' && n.specific_user_ids?.includes(profile.id))
           );
+
+          // Inject auto completeness warning notice if < 80% completeness
+          const compVal = calculateCompleteness();
+          if (compVal < 80) {
+            tutorNotices = [
+              {
+                id: 'profile-incomplete-notice',
+                title: '⚠️ Profile Completeness Required',
+                message: 'Complete your profile at least 80% to apply for tuitions.',
+                created_at: new Date().toISOString(),
+                is_system_auto: true
+              },
+              ...tutorNotices
+            ];
+          }
+
           setActiveNotices(tutorNotices);
 
           // Check if there is an unseen notice to trigger as popup
@@ -178,7 +194,7 @@ const TutorDashboard = () => {
       showAlert(
         'error',
         'Profile Completeness Required',
-        `Complete your profile to at least 80% to be eligible to apply for tuition. Current completion: ${completeness}%`,
+        'Complete your profile at least 80% to apply for the tuitions.',
         () => navigate('/tutor/profile'),
         'Complete Profile'
       );

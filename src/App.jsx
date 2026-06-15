@@ -52,6 +52,7 @@ import AdminAssignmentHub from './pages/admin/AdminAssignmentHub';
 import AdminTutorials from './pages/admin/AdminTutorials';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminNotices from './pages/admin/AdminNotices';
+import AdminMembership from './pages/admin/AdminMembership';
 
 function App() {
   const { initialize } = useAuthStore();
@@ -121,6 +122,7 @@ function App() {
             <Route path="/admin/requests" element={<AdminAssignmentHub />} />
             <Route path="/admin/tutorials" element={<AdminTutorials />} />
             <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/membership" element={<AdminMembership />} />
             <Route path="/admin/notices" element={<AdminNotices />} />
           </Route>
         </Route>

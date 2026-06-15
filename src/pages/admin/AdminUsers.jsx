@@ -3,7 +3,8 @@ import { supabase } from '../../lib/supabase';
 import { 
   Search, Shield, Award, Users, CheckCircle, Clock, X, 
   Mail, Phone, BookOpen, GraduationCap, FileText, UserCheck, 
-  UserMinus, RefreshCw, AlertTriangle, ShieldAlert
+  UserMinus, RefreshCw, AlertTriangle, ShieldAlert, Megaphone,
+  Plus, Calendar
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -17,6 +18,13 @@ const AdminUsers = () => {
   const [updatingUserId, setUpdatingUserId] = useState(null);
   const [resettingUserId, setResettingUserId] = useState(null);
   const [actionMessage, setActionMessage] = useState(null);
+
+  // Send Notice Modal state
+  const [noticeTargetUser, setNoticeTargetUser] = useState(null);
+  const [noticeTitle, setNoticeTitle] = useState('');
+  const [noticeMessage, setNoticeMessage] = useState('');
+  const [noticeDurationDays, setNoticeDurationDays] = useState('7');
+  const [sendingNotice, setSendingNotice] = useState(false);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -138,6 +146,85 @@ const AdminUsers = () => {
     }
   };
 
+  const handleOpenSendNotice = (user) => {
+    setNoticeTargetUser(user);
+    setNoticeTitle('');
+    setNoticeMessage('');
+    setNoticeDurationDays('7');
+  };
+
+  const handleSendNoticeSubmit = async (e) => {
+    e.preventDefault();
+    if (!noticeTitle.trim() || !noticeMessage.trim()) {
+      alert('Please fill out all fields.');
+      return;
+    }
+    setSendingNotice(true);
+    try {
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + parseInt(noticeDurationDays, 10));
+
+      const { error } = await supabase
+        .from('notices')
+        .insert([{
+          title: noticeTitle.trim(),
+          message: noticeMessage.trim(),
+          target_audience: 'specific',
+          specific_user_ids: [noticeTargetUser.id],
+          expires_at: expiresAt.toISOString()
+        }]);
+
+      if (error) throw error;
+      showToast(`Notice successfully sent to ${noticeTargetUser.full_name}.`);
+      setNoticeTargetUser(null);
+    } catch (err) {
+      console.error('Error sending notice:', err);
+      alert('Failed to send notice: ' + err.message);
+    } finally {
+      setSendingNotice(false);
+    }
+  };
+
+  const handleUpdateTutorStatus = async (userId, newStatus) => {
+    try {
+      const isVerified = newStatus === 'Verified Tutor' || newStatus === 'Premium Tutor';
+      
+      const { error } = await supabase
+        .from('tutor_profiles')
+        .update({ 
+          tutor_status: newStatus,
+          is_verified: isVerified
+        })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      // Update local state
+      setUsers(users.map(u => {
+        if (u.id === userId) {
+          const updatedProfiles = Array.isArray(u.tutor_profiles)
+            ? [{ ...u.tutor_profiles[0], tutor_status: newStatus, is_verified: isVerified }]
+            : { ...u.tutor_profiles, tutor_status: newStatus, is_verified: isVerified };
+          return { ...u, tutor_profiles: updatedProfiles };
+        }
+        return u;
+      }));
+
+      // Sync selected user drawer
+      if (selectedUser && selectedUser.id === userId) {
+        const updatedProfiles = Array.isArray(selectedUser.tutor_profiles)
+          ? [{ ...selectedUser.tutor_profiles[0], tutor_status: newStatus, is_verified: isVerified }]
+          : { ...selectedUser.tutor_profiles, tutor_status: newStatus, is_verified: isVerified };
+        setSelectedUser({ ...selectedUser, tutor_profiles: updatedProfiles });
+      }
+
+      showToast(`Tutor status updated to ${newStatus}.`);
+    } catch (err) {
+      console.error('Error updating tutor status:', err);
+      alert('Failed to update tutor status: ' + err.message);
+    }
+  };
+
   const showToast = (message) => {
     setActionMessage(message);
     setTimeout(() => {
@@ -145,8 +232,10 @@ const AdminUsers = () => {
     }, 4000);
   };
 
-  const displayEducation = (status) => {
-    if (!status) return 'Profile Not Completed';
+  const displayEducation = (tutorProf) => {
+    const status = tutorProf.education_status;
+    const completeness = tutorProf.profile_completeness || 20;
+    if (!status) return `${completeness}% of the profile has been completed`;
     try {
       const parsed = JSON.parse(status);
       if (parsed.is_hsc_student) {
@@ -229,7 +318,7 @@ const AdminUsers = () => {
       </div>
 
       {/* Stats Counter Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${activeTab === 'tutor' ? 'sm:grid-cols-3 md:grid-cols-5' : 'md:grid-cols-4'}`}>
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
           <span className="text-slate-400 font-bold text-[10px] sm:text-xs tracking-wider">Total {activeTab === 'tutor' ? 'Tutors' : 'Guardians'}</span>
           <span className="text-2xl sm:text-3xl font-black text-slate-800 mt-2">{filteredUsers.length}</span>
@@ -243,10 +332,16 @@ const AdminUsers = () => {
           <span className="text-2xl sm:text-3xl font-black text-slate-800 mt-2">{suspendedCount}</span>
         </div>
         {activeTab === 'tutor' ? (
-          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
-            <span className="text-[#86c240] font-bold text-[10px] sm:text-xs tracking-wider">Verified Tutors</span>
-            <span className="text-2xl sm:text-3xl font-black text-slate-800 mt-2">{verifiedTutors}</span>
-          </div>
+          <>
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+              <span className="text-[#86c240] font-bold text-[10px] sm:text-xs tracking-wider">Verified Tutors</span>
+              <span className="text-2xl sm:text-3xl font-black text-slate-800 mt-2">{verifiedTutors}</span>
+            </div>
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+              <span className="text-purple-650 font-bold text-[10px] sm:text-xs tracking-wider">Premium Tutors</span>
+              <span className="text-2xl sm:text-3xl font-black text-slate-800 mt-2">{premiumTutors}</span>
+            </div>
+          </>
         ) : (
           <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
             <span className="text-slate-400 font-bold text-[10px] sm:text-xs tracking-wider">Total Users</span>
@@ -298,6 +393,7 @@ const AdminUsers = () => {
                   <th className="p-4">Contact Info</th>
                   <th className="p-4">Joined Date</th>
                   <th className="p-4">Status</th>
+                  <th className="p-4">Notice</th>
                   <th className="p-4 pr-6 text-right">Actions</th>
                 </tr>
               </thead>
@@ -322,9 +418,9 @@ const AdminUsers = () => {
                             <CheckCircle className="w-4 h-4 text-[#86c240] fill-current text-white shrink-0" />
                           )}
                         </div>
-                        <div className="text-xs text-slate-400 mt-0.5">
+                        <div className="text-xs text-slate-400 mt-0.5 font-semibold">
                           {activeTab === 'tutor' 
-                            ? displayEducation(tutorProf.education_status)
+                            ? displayEducation(tutorProf)
                             : (guardianProf.profession || 'Guardian')
                           }
                         </div>
@@ -359,6 +455,17 @@ const AdminUsers = () => {
                           <span className={`w-1.5 h-1.5 rounded-full ${isSuspended ? 'bg-rose-500' : 'bg-green-500'}`}></span>
                           {isSuspended ? 'Suspended' : 'Active'}
                         </span>
+                      </td>
+
+                      {/* Notice Column */}
+                      <td className="p-4">
+                        <button
+                          onClick={() => handleOpenSendNotice(user)}
+                          className="px-3 py-1.5 bg-[#f7fee7] hover:bg-[#86c240] hover:text-white text-[#86c240] border border-[#86c240]/30 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1"
+                        >
+                          <Megaphone className="w-3.5 h-3.5" />
+                          Send Notice
+                        </button>
                       </td>
 
                       {/* Action buttons */}
@@ -459,6 +566,27 @@ const AdminUsers = () => {
                   </div>
                 )}
 
+                {/* Tutor Status Dropdown Select Card */}
+                {selectedUser.role === 'tutor' && (
+                  <div className="bg-[#f7fee7] border border-[#86c240]/20 rounded-3xl p-5 space-y-3 shadow-sm">
+                    <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                      <Shield className="w-4 h-4 text-[#86c240]" /> Tutor Status Management
+                    </h4>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-xs font-bold text-slate-650">Tutor Status:</span>
+                      <select
+                        value={getTutorProfile(selectedUser).tutor_status || 'Normal Tutor'}
+                        onChange={(e) => handleUpdateTutorStatus(selectedUser.id, e.target.value)}
+                        className="flex-1 p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#86c240] cursor-pointer font-sans"
+                      >
+                        <option value="Normal Tutor">Normal Tutor</option>
+                        <option value="Verified Tutor">Verified Tutor</option>
+                        <option value="Premium Tutor">Premium Tutor</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
                 {/* Core Account Details Card */}
                 <div className="bg-slate-50/50 border border-slate-100 rounded-3xl p-5 space-y-4">
                   <div className="flex items-center gap-4">
@@ -466,9 +594,22 @@ const AdminUsers = () => {
                       {selectedUser.full_name ? selectedUser.full_name.charAt(0).toUpperCase() : 'U'}
                     </div>
                     <div>
-                      <span className="px-2.5 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 rounded-full text-[10px] font-black tracking-wide capitalize">
-                        {selectedUser.role}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="px-2.5 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 rounded-full text-[10px] font-black tracking-wide capitalize">
+                          {selectedUser.role}
+                        </span>
+                        {selectedUser.role === 'tutor' && (
+                          <span className={`px-2.5 py-0.5 border rounded-full text-[10px] font-black tracking-wide uppercase ${
+                            getTutorProfile(selectedUser).tutor_status === 'Premium Tutor' 
+                              ? 'bg-purple-50 text-purple-700 border-purple-200' 
+                              : getTutorProfile(selectedUser).tutor_status === 'Verified Tutor'
+                                ? 'bg-green-50 text-green-700 border-green-200'
+                                : 'bg-slate-100 text-slate-500 border-slate-200'
+                          }`}>
+                            {getTutorProfile(selectedUser).tutor_status || 'Normal Tutor'}
+                          </span>
+                        )}
+                      </div>
                       <h3 className="text-base font-extrabold text-slate-800 mt-1.5">{selectedUser.full_name}</h3>
                       <p className="text-xs font-bold text-slate-400 flex items-center gap-1 mt-1">
                         <Clock className="w-3.5 h-3.5" /> Joined {new Date(selectedUser.created_at).toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' })}
@@ -498,92 +639,13 @@ const AdminUsers = () => {
                     {/* Tutor profile data */}
                     {(() => {
                       const tp = getTutorProfile(selectedUser);
-                      let edu = {};
-                      let isPlainEdu = false;
-                      if (tp.education_status) {
-                        try { 
-                          edu = JSON.parse(tp.education_status); 
-                        } catch(e) {
-                          isPlainEdu = true;
-                        }
-                      }
-
                       return (
                         <>
-                          {/* Education Box */}
-                          <div className="space-y-3">
-                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                              <GraduationCap className="w-4 h-4 text-[#86c240]" /> Academic Status
-                            </h4>
-                            <div className="border border-slate-100 rounded-2xl p-4 bg-white space-y-3 text-xs">
-                              {isPlainEdu ? (
-                                <div>
-                                  <span className="text-slate-400 block mb-0.5">Details</span>
-                                  <span className="font-bold text-slate-800">{tp.education_status}</span>
-                                </div>
-                              ) : edu.is_hsc_student ? (
-                                <div>
-                                  <span className="text-slate-400 block mb-0.5">Category</span>
-                                  <span className="font-bold text-slate-800">Running HSC / A Level / Alim Student</span>
-                                </div>
-                              ) : (
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <span className="text-slate-400 block mb-0.5">University</span>
-                                    <span className="font-bold text-slate-850">{edu.university || 'N/A'}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-slate-400 block mb-0.5">Department</span>
-                                    <span className="font-bold text-slate-850">{edu.department || 'N/A'}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-slate-400 block mb-0.5">Degree Type</span>
-                                    <span className="font-bold text-slate-850">{edu.degree_type || 'N/A'}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-slate-400 block mb-0.5">Year/Semester</span>
-                                    <span className="font-bold text-slate-850">{edu.year || 'N/A'}</span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Subjects & Bio */}
-                          <div className="space-y-3">
-                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                              <BookOpen className="w-4 h-4 text-[#86c240]" /> Tuition Preferences
-                            </h4>
-                            <div className="border border-slate-100 rounded-2xl p-4 bg-white space-y-3.5 text-xs">
-                              <div>
-                                <span className="text-slate-400 block mb-1.5">Preferred Subjects</span>
-                                <div className="flex flex-wrap gap-1.5">
-                                  {tp.preferred_subjects && tp.preferred_subjects.length > 0 ? (
-                                    tp.preferred_subjects.map((s, i) => (
-                                      <span key={i} className="px-2.5 py-1 bg-green-50 text-green-700 border border-green-100 rounded-lg font-bold text-[10px]">
-                                        {s}
-                                      </span>
-                                    ))
-                                  ) : (
-                                    <span className="text-slate-400 font-semibold">No subjects preferred yet.</span>
-                                  )}
-                                </div>
-                              </div>
-
-                              <div className="border-t border-slate-50 pt-3">
-                                <span className="text-slate-400 block mb-1">Biography / About</span>
-                                <p className="text-slate-700 leading-relaxed font-medium">
-                                  {tp.bio || 'This tutor hasn\'t added a biography yet.'}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* CV & Credentials */}
+                          {/* CV & Credentials - IMPORTANT FIRST */}
                           {tp.cv_url && (
                             <div className="space-y-3">
                               <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                                <FileText className="w-4 h-4 text-[#86c240]" /> Attachments & Credentials
+                                <FileText className="w-4 h-4 text-[#86c240]" /> Curriculum Vitae (CV)
                               </h4>
                               <div className="border border-slate-100 rounded-2xl p-4 bg-white flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -591,8 +653,8 @@ const AdminUsers = () => {
                                     <FileText className="w-5 h-5" />
                                   </div>
                                   <div>
-                                    <p className="text-xs font-bold text-slate-800">Curriculum Vitae (CV)</p>
-                                    <p className="text-[10px] text-slate-400 font-bold">Uploaded PDF document</p>
+                                    <p className="text-xs font-bold text-slate-800">Tutor CV Attachment</p>
+                                    <p className="text-[10px] text-slate-400 font-bold">Uploaded document / link</p>
                                   </div>
                                 </div>
                                 <a 
@@ -606,6 +668,235 @@ const AdminUsers = () => {
                               </div>
                             </div>
                           )}
+
+                          {/* Academic Status Box */}
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                              <GraduationCap className="w-4 h-4 text-[#86c240]" /> Academic Status
+                            </h4>
+                            <div className="border border-slate-100 rounded-2xl p-4 bg-white space-y-4 text-xs font-bold text-slate-700">
+                              {/* Graduation Details */}
+                              <div>
+                                <span className="text-[#86c240] text-[10px] uppercase tracking-wider block mb-1.5">Graduation Details</span>
+                                <div className="grid grid-cols-2 gap-3.5 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+                                  <div>
+                                    <span className="text-slate-400 text-[10px] block mb-0.5">University</span>
+                                    <span className="text-slate-800">{tp.university || 'N/A'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 text-[10px] block mb-0.5">Department</span>
+                                    <span className="text-slate-800">{tp.department || 'N/A'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 text-[10px] block mb-0.5">Grad Year</span>
+                                    <span className="text-slate-800">{tp.grad_year || 'N/A'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 text-[10px] block mb-0.5">Grad GPA</span>
+                                    <span className="text-slate-800">{tp.grad_gpa || 'N/A'}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Post Graduation Details */}
+                              {(tp.post_grad_university || tp.post_grad_department) && (
+                                <div>
+                                  <span className="text-[#86c240] text-[10px] uppercase tracking-wider block mb-1.5">Post Graduation Details</span>
+                                  <div className="grid grid-cols-2 gap-3.5 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+                                    <div>
+                                      <span className="text-slate-400 text-[10px] block mb-0.5">University</span>
+                                      <span className="text-slate-800">{tp.post_grad_university || 'N/A'}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-slate-400 text-[10px] block mb-0.5">Department</span>
+                                      <span className="text-slate-800">{tp.post_grad_department || 'N/A'}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-slate-400 text-[10px] block mb-0.5">Graduation Year</span>
+                                      <span className="text-slate-800">{tp.post_grad_year || 'N/A'}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-slate-400 text-[10px] block mb-0.5">GPA</span>
+                                      <span className="text-slate-800">{tp.post_grad_gpa || 'N/A'}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* College Details */}
+                              <div>
+                                <span className="text-slate-400 text-[10px] uppercase tracking-wider block mb-1.5">HSC / College Details</span>
+                                <div className="grid grid-cols-2 gap-3 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+                                  <div className="col-span-2">
+                                    <span className="text-slate-400 text-[10px] block">College Name</span>
+                                    <span className="text-slate-800">{tp.college_name || 'N/A'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 text-[10px] block">Group</span>
+                                    <span className="text-slate-800">{tp.college_group || 'N/A'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 text-[10px] block">GPA</span>
+                                    <span className="text-slate-800">{tp.college_gpa || 'N/A'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 text-[10px] block">Board</span>
+                                    <span className="text-slate-800">{tp.college_board || 'N/A'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 text-[10px] block">Passing Year</span>
+                                    <span className="text-slate-800">{tp.college_year || 'N/A'}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* School Details */}
+                              <div>
+                                <span className="text-slate-400 text-[10px] uppercase tracking-wider block mb-1.5">SSC / School Details</span>
+                                <div className="grid grid-cols-2 gap-3 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+                                  <div className="col-span-2">
+                                    <span className="text-slate-400 text-[10px] block">School Name</span>
+                                    <span className="text-slate-800">{tp.school_name || 'N/A'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 text-[10px] block">Group</span>
+                                    <span className="text-slate-800">{tp.school_group || 'N/A'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 text-[10px] block">GPA</span>
+                                    <span className="text-slate-800">{tp.school_gpa || 'N/A'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 text-[10px] block">Board</span>
+                                    <span className="text-slate-800">{tp.school_board || 'N/A'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-400 text-[10px] block">Passing Year</span>
+                                    <span className="text-slate-800">{tp.school_year || 'N/A'}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Preferences & Availability */}
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                              <BookOpen className="w-4 h-4 text-[#86c240]" /> Preferences & Availability
+                            </h4>
+                            <div className="border border-slate-100 rounded-2xl p-4 bg-white space-y-4 text-xs font-bold text-slate-700">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Preferred Category</span>
+                                  <span className="text-slate-800">{tp.preferred_category || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Experience</span>
+                                  <span className="text-slate-800">{tp.experience || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Expected Salary</span>
+                                  <span className="text-[#86c240] font-black">{tp.expected_salary ? `${tp.expected_salary} TK` : 'Negotiable'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Teaching Method</span>
+                                  <span className="text-slate-800">{tp.teaching_method || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Preferred Courses</span>
+                                  <span className="text-slate-800">{tp.preferred_courses ? tp.preferred_courses.join(', ') : 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Available Hours</span>
+                                  <span className="text-slate-800">
+                                    {tp.available_from && tp.available_to ? `${tp.available_from} - ${tp.available_to}` : 'N/A'}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="border-t border-slate-100 pt-3">
+                                <span className="text-slate-400 text-[10px] block mb-1.5">Available Days</span>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {tp.available_days && tp.available_days.length > 0 ? (
+                                    tp.available_days.map((d, i) => (
+                                      <span key={i} className="px-2.5 py-1 bg-green-50 text-green-700 border border-green-100 rounded-lg text-[10px] font-black uppercase">
+                                        {d}
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span className="text-slate-400">N/A</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="border-t border-slate-100 pt-3">
+                                <span className="text-slate-400 text-[10px] block mb-1.5">Preferred Subjects</span>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {tp.preferred_subjects && tp.preferred_subjects.length > 0 ? (
+                                    tp.preferred_subjects.map((s, i) => (
+                                      <span key={i} className="px-2.5 py-1 bg-green-50 text-green-700 border border-green-100 rounded-lg text-[10px] font-black">
+                                        {s}
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span className="text-slate-400">N/A</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="border-t border-slate-100 pt-3">
+                                <span className="text-slate-400 text-[10px] block mb-1">Biography / About</span>
+                                <p className="text-slate-750 leading-relaxed font-semibold whitespace-pre-wrap">{tp.bio || 'N/A'}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Personal Details */}
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                              <User className="w-4 h-4 text-[#86c240]" /> Personal Details
+                            </h4>
+                            <div className="border border-slate-100 rounded-2xl p-4 bg-white space-y-4 text-xs font-bold text-slate-700">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Gender</span>
+                                  <span className="text-slate-800 capitalize">{tp.gender || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Date of Birth</span>
+                                  <span className="text-slate-800">{tp.dob || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">National ID (NID)</span>
+                                  <span className="text-slate-800">{tp.nid || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Emergency Contact</span>
+                                  <span className="text-slate-800">{tp.emergency_contact || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Father's Name</span>
+                                  <span className="text-slate-800">{tp.fathers_name || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Mother's Name</span>
+                                  <span className="text-slate-800">{tp.mothers_name || 'N/A'}</span>
+                                </div>
+                              </div>
+                              <div className="border-t border-slate-100 pt-3">
+                                <span className="text-slate-400 text-[10px] block mb-0.5">Current City</span>
+                                <span className="text-slate-800">{tp.current_city || 'N/A'}</span>
+                              </div>
+                              <div className="border-t border-slate-100 pt-3">
+                                <span className="text-slate-400 text-[10px] block mb-0.5">Living Location</span>
+                                <span className="text-slate-800">{tp.living_location || 'N/A'}</span>
+                              </div>
+                              <div className="border-t border-slate-100 pt-3">
+                                <span className="text-slate-400 text-[10px] block mb-0.5">Full Permanent Address</span>
+                                <p className="text-slate-850 leading-relaxed font-semibold">{tp.address || 'N/A'}</p>
+                              </div>
+                            </div>
+                          </div>
                         </>
                       );
                     })()}
@@ -615,31 +906,37 @@ const AdminUsers = () => {
                     {/* Guardian profile data */}
                     {(() => {
                       const gp = getGuardianProfile(selectedUser);
-
                       return (
                         <div className="space-y-3">
                           <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                             <Users className="w-4 h-4 text-[#86c240]" /> Family & Home Details
                           </h4>
-                          <div className="border border-slate-100 rounded-2xl p-5 bg-white space-y-4 text-xs font-bold text-slate-700">
+                          <div className="border border-slate-150 rounded-2xl p-5 bg-white space-y-4 text-xs font-bold text-slate-700">
                             <div className="grid grid-cols-2 gap-4">
                               <div>
                                 <span className="text-slate-400 text-[10px] block mb-1">Profession</span>
-                                <span>{gp.profession || 'N/A'}</span>
+                                <span className="text-slate-800">{gp.profession || 'N/A'}</span>
                               </div>
                               <div>
                                 <span className="text-slate-400 text-[10px] block mb-1">City</span>
-                                <span>{gp.city || 'N/A'}</span>
+                                <span className="text-slate-800">{gp.city || 'N/A'}</span>
                               </div>
                               <div>
                                 <span className="text-slate-400 text-[10px] block mb-1">Number of Children</span>
-                                <span>{gp.number_of_children || 'N/A'}</span>
+                                <span className="text-slate-800">{gp.number_of_children || 'N/A'}</span>
                               </div>
                               <div>
                                 <span className="text-slate-400 text-[10px] block mb-1">Alternative Phone</span>
-                                <span>{gp.alternative_phone || 'N/A'}</span>
+                                <span className="text-slate-800">{gp.alternative_phone || 'N/A'}</span>
                               </div>
                             </div>
+
+                            {gp.profile_photo_url && (
+                              <div className="border-t border-slate-100 pt-4">
+                                <span className="text-slate-400 text-[10px] block mb-2">Profile Photo</span>
+                                <img src={gp.profile_photo_url} alt="Profile Photo" className="w-32 h-32 rounded-xl object-cover border border-slate-200" />
+                              </div>
+                            )}
 
                             <div className="border-t border-slate-100 pt-4">
                               <span className="text-slate-400 text-[10px] block mb-1">Detailed Address</span>
@@ -684,6 +981,100 @@ const AdminUsers = () => {
 
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Quick Notice Modal Popup */}
+      <AnimatePresence>
+        {noticeTargetUser && (
+          <div className="fixed inset-0 z-[99] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setNoticeTargetUser(null)}
+              className="fixed inset-0 bg-slate-900"
+            />
+            {/* Modal Content */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl border border-slate-150 p-6 md:p-8 max-w-lg w-full relative shadow-2xl z-10 space-y-4 font-sans"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <Megaphone className="w-5 h-5 text-[#86c240]" />
+                  <h3 className="font-extrabold text-slate-800 text-lg">Send Notice to {noticeTargetUser.full_name}</h3>
+                </div>
+                <button 
+                  onClick={() => setNoticeTargetUser(null)}
+                  className="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSendNoticeSubmit} className="space-y-4 pt-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-600">Notice Title</label>
+                  <input
+                    type="text"
+                    required
+                    value={noticeTitle}
+                    onChange={(e) => setNoticeTitle(e.target.value)}
+                    placeholder="e.g. Action Required: Profile Review"
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 rounded-xl text-slate-800 text-sm font-bold focus:outline-none transition-all"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-600">Message Content</label>
+                  <textarea
+                    required
+                    value={noticeMessage}
+                    onChange={(e) => setNoticeMessage(e.target.value)}
+                    placeholder="Write your notice message here..."
+                    rows="4"
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 rounded-xl text-slate-800 text-sm font-medium focus:outline-none transition-all min-h-[100px]"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-600">Expiry Timer (Duration)</label>
+                  <select
+                    value={noticeDurationDays}
+                    onChange={(e) => setNoticeDurationDays(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 rounded-xl text-slate-800 text-sm font-bold focus:outline-none transition-all cursor-pointer"
+                  >
+                    <option value="1">1 Day (24 Hours)</option>
+                    <option value="3">3 Days (72 Hours)</option>
+                    <option value="7">7 Days (1 Week)</option>
+                    <option value="14">14 Days (2 Weeks)</option>
+                    <option value="30">30 Days (1 Month)</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setNoticeTargetUser(null)}
+                    className="flex-1 py-3 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={sendingNotice}
+                    className="flex-1 py-3 bg-[#86c240] hover:bg-[#6a9c31] disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-[#86c240]/15"
+                  >
+                    {sendingNotice ? 'Sending...' : 'Send Notice'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
