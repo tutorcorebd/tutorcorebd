@@ -617,7 +617,10 @@ const TutorProfileForm = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative">
           
           {/* Main Step 1 */}
-          <div className="flex items-center gap-3 flex-1 z-10">
+          <button 
+            onClick={() => { setActiveMainStep(1); setActiveSubStep(1); }}
+            className="flex items-center gap-3 flex-1 z-10 text-left hover:opacity-80 transition-opacity focus:outline-none cursor-pointer"
+          >
             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs transition-colors duration-300 ${activeMainStep >= 1 ? 'bg-[#86c240] text-white' : 'bg-slate-100 text-slate-450'}`}>
               {activeMainStep > 1 ? <Check className="w-4 h-4" /> : '1'}
             </div>
@@ -625,12 +628,15 @@ const TutorProfileForm = () => {
               <div className="text-xs font-bold text-slate-800">Tutoring Information</div>
               <div className="text-[10px] text-slate-450 font-bold">10% Completed</div>
             </div>
-          </div>
+          </button>
           
           <div className={`hidden md:block h-[3px] flex-1 -mx-2 rounded-full transition-colors duration-300 ${activeMainStep > 1 ? 'bg-[#86c240]' : 'bg-slate-100'}`}></div>
 
           {/* Main Step 2 */}
-          <div className="flex items-center gap-3 flex-1 z-10">
+          <button 
+            onClick={() => { setActiveMainStep(2); setActiveSubStep(1); }}
+            className="flex items-center gap-3 flex-1 z-10 text-left hover:opacity-80 transition-opacity focus:outline-none cursor-pointer"
+          >
             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs transition-colors duration-300 ${activeMainStep >= 2 ? 'bg-[#86c240] text-white' : 'bg-slate-100 text-slate-450'}`}>
               {activeMainStep > 2 ? <Check className="w-4 h-4" /> : '2'}
             </div>
@@ -638,12 +644,15 @@ const TutorProfileForm = () => {
               <div className="text-xs font-bold text-slate-800">Education Information</div>
               <div className="text-[10px] text-slate-450 font-bold">20% Completed</div>
             </div>
-          </div>
+          </button>
 
           <div className={`hidden md:block h-[3px] flex-1 -mx-2 rounded-full transition-colors duration-300 ${activeMainStep > 2 ? 'bg-[#86c240]' : 'bg-slate-100'}`}></div>
 
           {/* Main Step 3 */}
-          <div className="flex items-center gap-3 flex-1 z-10">
+          <button 
+            onClick={() => { setActiveMainStep(3); setActiveSubStep(1); }}
+            className="flex items-center gap-3 flex-1 z-10 text-left hover:opacity-80 transition-opacity focus:outline-none cursor-pointer"
+          >
             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs transition-colors duration-300 ${activeMainStep >= 3 ? 'bg-[#86c240] text-white' : 'bg-slate-100 text-slate-450'}`}>
               {activeMainStep > 3 ? <Check className="w-4 h-4" /> : '3'}
             </div>
@@ -651,12 +660,15 @@ const TutorProfileForm = () => {
               <div className="text-xs font-bold text-slate-800">Personal Information</div>
               <div className="text-[10px] text-slate-450 font-bold">40% Completed</div>
             </div>
-          </div>
+          </button>
 
           <div className={`hidden md:block h-[3px] flex-1 -mx-2 rounded-full transition-colors duration-300 ${activeMainStep > 3 ? 'bg-[#86c240]' : 'bg-slate-100'}`}></div>
 
           {/* Main Step 4 */}
-          <div className="flex items-center gap-3 flex-1 z-10">
+          <button 
+            onClick={() => { setActiveMainStep(4); setActiveSubStep(1); }}
+            className="flex items-center gap-3 flex-1 z-10 text-left hover:opacity-80 transition-opacity focus:outline-none cursor-pointer"
+          >
             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs transition-colors duration-300 ${activeMainStep >= 4 ? 'bg-[#86c240] text-white' : 'bg-slate-100 text-slate-450'}`}>
               {activeMainStep > 4 ? <Check className="w-4 h-4" /> : '4'}
             </div>
@@ -664,7 +676,7 @@ const TutorProfileForm = () => {
               <div className="text-xs font-bold text-slate-800">Credential</div>
               <div className="text-[10px] text-slate-450 font-bold">10% Completed</div>
             </div>
-          </div>
+          </button>
 
         </div>
       </div>

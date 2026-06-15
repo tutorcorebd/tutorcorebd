@@ -274,6 +274,7 @@ const AdminUsers = () => {
   const activeCount = users.filter(u => u.role === activeTab && (u.status || 'active') === 'active').length;
   const suspendedCount = users.filter(u => u.role === activeTab && u.status === 'suspended').length;
   const verifiedTutors = users.filter(u => u.role === 'tutor' && getTutorProfile(u).is_verified).length;
+  const premiumTutors = users.filter(u => u.role === 'tutor' && getTutorProfile(u).tutor_status === 'Premium Tutor').length;
 
   return (
     <div className="space-y-6 font-sans max-w-7xl mx-auto mt-4 relative">

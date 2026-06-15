@@ -16,6 +16,7 @@ const AdminMembership = () => {
   const [updatingId, setUpdatingId] = useState(null);
   const [alertConfig, setAlertConfig] = useState({ isOpen: false, type: 'info', title: '', message: '' });
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, request: null, newStatus: null });
+  const [selectedTransactionUser, setSelectedTransactionUser] = useState(null);
 
   const showAlert = (type, title, message) => {
     setAlertConfig({ isOpen: true, type, title, message });
@@ -237,9 +238,9 @@ const AdminMembership = () => {
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold text-xs tracking-wider">
                       <th className="p-4 pl-6">Tutor Info</th>
-                      <th className="p-4">Requested Plan</th>
-                      <th className="p-4">Request Date</th>
-                      <th className="p-4">Status</th>
+                      <th className="p-4 hidden md:table-cell">Requested Plan</th>
+                      <th className="p-4 hidden md:table-cell">Request Date</th>
+                      <th className="p-4 hidden sm:table-cell">Status</th>
                       <th className="p-4 pr-6 text-right">Actions</th>
                     </tr>
                   </thead>
@@ -253,17 +254,31 @@ const AdminMembership = () => {
                         <tr key={req.id} className="hover:bg-slate-50/50 transition-colors group">
                           {/* Tutor details */}
                           <td className="p-4 pl-6">
-                            <h4 className="font-extrabold text-slate-800 text-sm leading-none">{req.users?.full_name || 'Unknown User'}</h4>
+                            <button 
+                              onClick={() => setSelectedTransactionUser(req)}
+                              className="font-extrabold text-slate-800 text-sm leading-none hover:text-[#86c240] hover:underline transition-colors text-left focus:outline-none"
+                            >
+                              {req.users?.full_name || 'Unknown User'}
+                            </button>
                             <div className="flex flex-col sm:flex-row sm:items-center gap-x-3 gap-y-0.5 mt-1.5 text-xs text-slate-400 font-semibold">
                               <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {req.users?.phone_number || 'N/A'}</span>
                               {req.users?.email && (
                                 <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> {req.users?.email}</span>
                               )}
                             </div>
+                            <div className="md:hidden mt-2">
+                               <span className={`px-2 py-0.5 rounded border text-[10px] font-black uppercase tracking-wider ${
+                                 req.plan_name === 'Premium' ? 'bg-purple-50 text-purple-700 border-purple-100' :
+                                 req.plan_name === 'Verified' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                                 'bg-green-50 text-green-700 border-green-100'
+                               }`}>
+                                 {req.plan_name}
+                               </span>
+                            </div>
                           </td>
 
                           {/* Plan details */}
-                          <td className="p-4">
+                          <td className="p-4 hidden md:table-cell">
                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
                               req.plan_name === 'Premium'
                                 ? 'bg-purple-50 text-purple-700 border-purple-100'
@@ -297,7 +312,7 @@ const AdminMembership = () => {
                           </td>
 
                           {/* Request Date */}
-                          <td className="p-4 text-xs text-slate-450 font-bold">
+                          <td className="p-4 text-xs text-slate-450 font-bold hidden md:table-cell">
                             {new Date(req.created_at).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
                             <span className="text-[10px] text-slate-400 block font-normal mt-0.5">
                               {new Date(req.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
@@ -305,7 +320,7 @@ const AdminMembership = () => {
                           </td>
 
                           {/* Status */}
-                          <td className="p-4">
+                          <td className="p-4 hidden sm:table-cell">
                             <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wide border ${
                               isApproved 
                                 ? 'bg-green-50 text-green-700 border-green-100' 
@@ -353,6 +368,121 @@ const AdminMembership = () => {
           </div>
         </>
       )}
+
+      {/* Transaction Details Modal */}
+      <AnimatePresence>
+        {selectedTransactionUser && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedTransactionUser(null)}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100]"
+            ></motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed inset-0 m-auto w-11/12 max-w-md h-fit max-h-[90vh] bg-white rounded-3xl shadow-2xl z-[101] overflow-hidden flex flex-col"
+            >
+              <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div>
+                  <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-[#86c240]" />
+                    Transaction Details
+                  </h3>
+                  <p className="text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-wider">
+                    {selectedTransactionUser.users?.full_name} • {selectedTransactionUser.plan_name} Plan
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedTransactionUser(null)}
+                  className="p-1.5 hover:bg-slate-200 text-slate-400 hover:text-slate-600 rounded-lg transition-colors focus:outline-none"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto">
+                {selectedTransactionUser.payment_platform === 'Free Trial' ? (
+                  <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
+                    <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Award className="w-6 h-6" />
+                    </div>
+                    <h4 className="text-sm font-black text-green-800">Free Trial Request</h4>
+                    <p className="text-xs font-semibold text-green-600 mt-1">
+                      User requested a complimentary access plan. No payment required.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+                        <span className="block text-[10px] font-bold text-slate-400 uppercase">Payment Method</span>
+                        <span className={`block text-sm font-black mt-1 capitalize ${
+                          selectedTransactionUser.payment_platform === 'bkash' ? 'text-pink-600' :
+                          selectedTransactionUser.payment_platform === 'nagad' ? 'text-orange-500' : 'text-purple-600'
+                        }`}>
+                          {selectedTransactionUser.payment_platform || 'N/A'}
+                        </span>
+                      </div>
+                      <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+                        <span className="block text-[10px] font-bold text-slate-400 uppercase">Status</span>
+                        <span className="block text-sm font-black text-slate-800 mt-1 capitalize">
+                          {selectedTransactionUser.status}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl space-y-3">
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-400 uppercase">Sender Number</span>
+                        <span className="block text-sm font-black text-slate-800 mt-0.5">{selectedTransactionUser.phone_number || 'N/A'}</span>
+                      </div>
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-400 uppercase">Transaction ID</span>
+                        <div className="flex items-center justify-between mt-0.5 bg-white border border-slate-200 p-2.5 rounded-xl">
+                          <span className="text-sm font-bold text-[#86c240] tracking-wider uppercase">
+                            {selectedTransactionUser.transaction_id || 'N/A'}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="block text-[10px] font-bold text-slate-400 uppercase">Submitted At</span>
+                        <span className="block text-xs font-bold text-slate-600 mt-0.5">
+                          {new Date(selectedTransactionUser.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {selectedTransactionUser.status === 'pending' && (
+                  <div className="mt-6 flex gap-3 pt-6 border-t border-slate-100">
+                    <button
+                      onClick={() => {
+                        promptConfirm(selectedTransactionUser, 'rejected');
+                        setSelectedTransactionUser(null);
+                      }}
+                      className="flex-1 py-2.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-sm font-bold transition-colors"
+                    >
+                      Reject
+                    </button>
+                    <button
+                      onClick={() => {
+                        promptConfirm(selectedTransactionUser, 'approved');
+                        setSelectedTransactionUser(null);
+                      }}
+                      className="flex-1 py-2.5 bg-[#86c240] text-white hover:bg-[#6a9c31] rounded-xl text-sm font-bold shadow-md shadow-[#86c240]/20 transition-all"
+                    >
+                      Approve
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
     </div>
   );
