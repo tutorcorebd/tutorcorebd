@@ -16,8 +16,10 @@ import {
   HelpCircle,
   ArrowRight,
   TrendingUp,
-  User
+  User,
+  Megaphone
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import CustomAlert from '../../components/layout/CustomAlert';
 
 const TutorDashboard = () => {
@@ -25,6 +27,8 @@ const TutorDashboard = () => {
   const [applications, setApplications] = useState([]);
   const [recommendedJobs, setRecommendedJobs] = useState([]);
   const [bookmarks, setBookmarks] = useState([]);
+  const [activeNotices, setActiveNotices] = useState([]);
+  const [currentNoticePopup, setCurrentNoticePopup] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -77,6 +81,28 @@ const TutorDashboard = () => {
 
         if (!bookmarksError && bookmarksData) {
           setBookmarks(bookmarksData);
+        }
+
+        // Fetch notices
+        const { data: noticesData, error: noticesError } = await supabase
+          .from('notices')
+          .select('*')
+          .gt('expires_at', new Date().toISOString());
+
+        if (!noticesError && noticesData) {
+          const tutorNotices = noticesData.filter(n => 
+            n.target_audience === 'all' || 
+            n.target_audience === 'tutor' || 
+            (n.target_audience === 'specific' && n.specific_user_ids?.includes(profile.id))
+          );
+          setActiveNotices(tutorNotices);
+
+          // Check if there is an unseen notice to trigger as popup
+          const unseen = tutorNotices.find(n => !localStorage.getItem(`seen_notice_${n.id}`));
+          if (unseen) {
+            setCurrentNoticePopup(unseen);
+            localStorage.setItem(`seen_notice_${unseen.id}`, 'true');
+          }
         }
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -276,11 +302,29 @@ const TutorDashboard = () => {
         </div>
 
         {/* Notice Board (Bottom Right, spans 1 column) */}
-        <div className="bg-white rounded-xl p-8 border border-slate-100 shadow-sm flex flex-col justify-center">
-          <h2 className="text-lg font-medium text-slate-800 mb-2">Notice Board</h2>
-          <p className="text-slate-500 text-sm">
-            There are no notices for you at the moment!
-          </p>
+        <div className="bg-white rounded-xl p-8 border border-slate-100 shadow-sm flex flex-col justify-start max-h-[300px]">
+          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-3">
+            <Megaphone className="w-5 h-5 text-[#86c240]" /> Notice Board
+          </h2>
+          {activeNotices.length === 0 ? (
+            <p className="text-slate-450 text-sm font-semibold my-auto text-center">
+              There are no notices for you at the moment!
+            </p>
+          ) : (
+            <div className="space-y-4 overflow-y-auto pr-1 flex-1">
+              {activeNotices.map(n => (
+                <div key={n.id} className="border-b border-slate-50 pb-3 last:border-b-0 last:pb-0">
+                  <h4 className="font-extrabold text-sm text-slate-800 flex items-center justify-between gap-2">
+                    <span className="truncate">{n.title}</span>
+                    <span className="text-xs text-[#86c240] font-bold shrink-0">
+                      {new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1.5 leading-relaxed whitespace-pre-wrap font-medium">{n.message}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>
@@ -559,6 +603,51 @@ const TutorDashboard = () => {
         actionText={alertConfig.actionText}
         onAction={alertConfig.onAction}
       />
+
+      {/* Notice Popup Modal */}
+      <AnimatePresence>
+        {currentNoticePopup && (
+          <div className="fixed inset-0 z-[99] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setCurrentNoticePopup(null)}
+              className="fixed inset-0 bg-slate-900"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl border border-slate-150 p-6 md:p-8 max-w-lg w-full relative shadow-2xl z-10 space-y-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-green-50 text-[#86c240] rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
+                  <Megaphone className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">New Announcement</span>
+                  <h3 className="font-extrabold text-slate-800 text-lg leading-tight mt-0.5">{currentNoticePopup.title}</h3>
+                </div>
+              </div>
+              <p className="text-xs text-slate-650 leading-relaxed whitespace-pre-wrap font-medium pt-2 border-t border-slate-50">
+                {currentNoticePopup.message}
+              </p>
+              <div className="flex justify-between items-center pt-4 border-t border-slate-55">
+                <span className="text-[10px] text-slate-400 font-bold">
+                  Published: {new Date(currentNoticePopup.created_at).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
+                </span>
+                <button
+                  onClick={() => setCurrentNoticePopup(null)}
+                  className="bg-[#86c240] hover:bg-[#6a9c31] text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-md shadow-[#86c240]/15"
+                >
+                  Acknowledge
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

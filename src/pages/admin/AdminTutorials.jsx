@@ -3,6 +3,13 @@ import { supabase } from '../../lib/supabase';
 import { Plus, Edit2, Trash2, Video, Check, Play, Info } from 'lucide-react';
 import CustomAlert from '../../components/layout/CustomAlert';
 
+const promiseWithTimeout = (promise, ms = 8000, errorMsg = 'The database request timed out. This usually means a connection lock or RLS policy is blocking the action.') => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(errorMsg)), ms))
+  ]);
+};
+
 const AdminTutorials = () => {
   const [tutorials, setTutorials] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +23,7 @@ const AdminTutorials = () => {
   const [targetRole, setTargetRole] = useState('all');
   const [showOnJobBoard, setShowOnJobBoard] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   // Custom Alert
   const [alertOpen, setAlertOpen] = useState(false);
@@ -100,22 +108,26 @@ const AdminTutorials = () => {
         // Update other tutorials if this one is set to show on job board
         if (showOnJobBoard) {
           console.log('showOnJobBoard is true, resetting other tutorials first...');
-          const { error: resetError } = await supabase
-            .from('tutorials')
-            .update({ show_on_job_board: false })
-            .neq('id', editingId);
+          const { error: resetError } = await promiseWithTimeout(
+            supabase
+              .from('tutorials')
+              .update({ show_on_job_board: false })
+              .neq('id', editingId)
+          );
           if (resetError) console.error('Error resetting other tutorials:', resetError);
         }
 
         console.log('Executing supabase update...');
-        const { error } = await supabase
-          .from('tutorials')
-          .update(payload)
-          .eq('id', editingId);
+        const { error } = await promiseWithTimeout(
+          supabase
+            .from('tutorials')
+            .update(payload)
+            .eq('id', editingId)
+        );
 
         if (error) {
           console.error('Supabase update returned error:', error);
-          throw error;
+          throw new Error(error.message || 'Failed to update tutorial.');
         }
         console.log('Supabase update succeeded.');
         showAlert('success', 'Updated Successfully', 'Tutorial updated successfully.');
@@ -125,10 +137,12 @@ const AdminTutorials = () => {
         // If showOnJobBoard is true, reset all other tutorials to false first
         if (showOnJobBoard) {
           console.log('showOnJobBoard is true, resetting all other tutorials first...');
-          const { error: resetError } = await supabase
-            .from('tutorials')
-            .update({ show_on_job_board: false })
-            .eq('show_on_job_board', true);
+          const { error: resetError } = await promiseWithTimeout(
+            supabase
+              .from('tutorials')
+              .update({ show_on_job_board: false })
+              .eq('show_on_job_board', true)
+          );
           
           if (resetError) {
             console.error('Error resetting other tutorials:', resetError);
@@ -136,15 +150,17 @@ const AdminTutorials = () => {
         }
 
         console.log('Executing simple insert...');
-        const { error } = await supabase
-          .from('tutorials')
-          .insert([payload]);
+        const { error } = await promiseWithTimeout(
+          supabase
+            .from('tutorials')
+            .insert([payload])
+        );
 
         console.log('Insert response error:', error);
 
         if (error) {
           console.error('Supabase insert returned error:', error);
-          throw error;
+          throw new Error(error.message || 'Failed to insert tutorial.');
         }
 
         console.log('Supabase insert succeeded.');
@@ -163,14 +179,14 @@ const AdminTutorials = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this tutorial?')) return;
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return;
 
     try {
       const { error } = await supabase
         .from('tutorials')
         .delete()
-        .eq('id', id);
+        .eq('id', deleteConfirmId);
 
       if (error) throw error;
       showAlert('success', 'Deleted Successfully', 'Tutorial deleted successfully.');
@@ -178,6 +194,8 @@ const AdminTutorials = () => {
     } catch (err) {
       console.error(err);
       showAlert('error', 'Delete Failed', 'Could not delete the tutorial.');
+    } finally {
+      setDeleteConfirmId(null);
     }
   };
 
@@ -266,7 +284,7 @@ const AdminTutorials = () => {
                   <Edit2 className="w-3.5 h-3.5" /> Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(tuto.id)}
+                  onClick={() => setDeleteConfirmId(tuto.id)}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:border-red-500 text-slate-600 hover:text-red-500 rounded-lg text-xs font-bold transition-colors shadow-sm"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete
@@ -366,6 +384,37 @@ const AdminTutorials = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl relative text-center animate-in zoom-in-95 duration-200 flex flex-col items-center">
+            <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 mb-4">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-800 mb-2">Delete tutorial</h3>
+            <p className="text-sm font-medium text-slate-400 mb-6 leading-relaxed">
+              Are you sure you want to delete this tutorial? This action cannot be undone.
+            </p>
+            <div className="flex w-full gap-3">
+              <button 
+                type="button"
+                onClick={() => setDeleteConfirmId(null)}
+                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-3 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                type="button"
+                onClick={confirmDelete}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold text-xs py-3 rounded-xl transition-colors shadow-md shadow-red-500/10"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

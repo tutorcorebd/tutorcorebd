@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, BookOpen, Clock, Banknote, User, MessageCircle, CheckCircle, XCircle, Award, Eye, Settings } from 'lucide-react';
+import { MapPin, BookOpen, Clock, Banknote, User, MessageCircle, CheckCircle, XCircle, Award, Eye, Settings, GraduationCap } from 'lucide-react';
 
 const AdminAssignmentHub = () => {
   const [requests, setRequests] = useState([]);

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import useAuthStore from '../../store/useAuthStore';
 import { Link } from 'react-router-dom';
-import { PlusCircle, Search } from 'lucide-react';
+import { PlusCircle, Search, Megaphone, Clock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const GuardianDashboard = () => {
   const { profile } = useAuthStore();
@@ -10,6 +11,8 @@ const GuardianDashboard = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [bookmarkedTutors, setBookmarkedTutors] = useState([]);
   const [bookmarksLoading, setBookmarksLoading] = useState(false);
+  const [activeNotices, setActiveNotices] = useState([]);
+  const [currentNoticePopup, setCurrentNoticePopup] = useState(null);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -20,7 +23,38 @@ const GuardianDashboard = () => {
         .order('created_at', { ascending: false });
       if (data) setRequests(data);
     };
-    if (profile?.id) fetchRequests();
+
+    const fetchNotices = async () => {
+      try {
+        const { data: noticesData, error: noticesError } = await supabase
+          .from('notices')
+          .select('*')
+          .gt('expires_at', new Date().toISOString());
+
+        if (!noticesError && noticesData) {
+          const guardianNotices = noticesData.filter(n => 
+            n.target_audience === 'all' || 
+            n.target_audience === 'guardian' || 
+            (n.target_audience === 'specific' && n.specific_user_ids?.includes(profile.id))
+          );
+          setActiveNotices(guardianNotices);
+
+          // Check if unseen notice exists
+          const unseen = guardianNotices.find(n => !localStorage.getItem(`seen_notice_${n.id}`));
+          if (unseen) {
+            setCurrentNoticePopup(unseen);
+            localStorage.setItem(`seen_notice_${unseen.id}`, 'true');
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching notices:', err);
+      }
+    };
+
+    if (profile?.id) {
+      fetchRequests();
+      fetchNotices();
+    }
   }, [profile]);
 
   useEffect(() => {
@@ -199,111 +233,137 @@ const GuardianDashboard = () => {
 
       </div>
       
-      <div>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-slate-700 flex items-center gap-2">
-            Your Tuition Requests
-          </h2>
-          <span className="bg-slate-100 text-slate-500 text-sm px-2.5 py-1 rounded-full font-bold">
-            {counts[activeTab]} showing
-          </span>
-        </div>
-
-        {/* Async tabs toggling */}
-        <div className="flex flex-wrap gap-2.5 border-b border-slate-100 pb-4 mb-6">
-          {['all', 'open', 'assigned', 'closed'].map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className="px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
-            >
-              <span className="capitalize">{tab}</span>
-              <span className="px-1.5 py-0.5 rounded-md text-xs font-black bg-slate-100 text-slate-600">
-                {counts[tab]}
-              </span>
-            </button>
-          ))}
-        </div>
-        
-        {filteredRequests.length === 0 ? (
-          <div className="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
-            <p className="text-slate-500 font-medium">No requirements found in this section.</p>
-            {activeTab === 'all' && (
-              <Link to="/guardian/post-request" className="text-[#86c240] font-bold mt-2 inline-block hover:underline">Post your first tuition →</Link>
-            )}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Left column: Tuition Requests */}
+        <div className="lg:col-span-2">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-slate-700 flex items-center gap-2">
+              Your Tuition Requests
+            </h2>
+            <span className="bg-slate-100 text-slate-500 text-sm px-2.5 py-1 rounded-full font-bold">
+              {counts[activeTab]} showing
+            </span>
           </div>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-5">
-            {filteredRequests.map(req => (
-              <div key={req.id} className="bg-white border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-6 rounded-2xl flex flex-col justify-between hover:shadow-[0_4px_25px_rgb(0,0,0,0.06)] transition-shadow">
-                
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="font-bold text-lg text-slate-800 leading-tight mb-1">{req.student_class}</h3>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {req.subject.slice(0, 3).map(sub => (
-                        <span key={sub} className="bg-slate-50 text-slate-600 border border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                          {sub}
-                        </span>
-                      ))}
-                      {req.subject.length > 3 && (
-                        <span className="bg-slate-50 text-slate-500 border border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                          +{req.subject.length - 3}
-                        </span>
-                      )}
+
+          {/* Async tabs toggling */}
+          <div className="flex flex-wrap gap-2.5 border-b border-slate-100 pb-4 mb-6">
+            {['all', 'open', 'assigned', 'closed'].map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className="px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+              >
+                <span className="capitalize">{tab}</span>
+                <span className="px-1.5 py-0.5 rounded-md text-xs font-black bg-slate-100 text-slate-600">
+                  {counts[tab]}
+                </span>
+              </button>
+            ))}
+          </div>
+          
+          {filteredRequests.length === 0 ? (
+            <div className="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
+              <p className="text-slate-500 font-medium">No requirements found in this section.</p>
+              {activeTab === 'all' && (
+                <Link to="/guardian/post-request" className="text-[#86c240] font-bold mt-2 inline-block hover:underline">Post your first tuition →</Link>
+              )}
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-5">
+              {filteredRequests.map(req => (
+                <div key={req.id} className="bg-white border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-5 rounded-2xl flex flex-col justify-between hover:shadow-[0_4px_25px_rgb(0,0,0,0.06)] transition-shadow">
+                  
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="font-bold text-base text-slate-800 leading-tight mb-1">{req.student_class}</h3>
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {req.subject.slice(0, 2).map(sub => (
+                          <span key={sub} className="bg-slate-50 text-slate-600 border border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                            {sub}
+                          </span>
+                        ))}
+                        {req.subject.length > 2 && (
+                          <span className="bg-slate-50 text-slate-500 border border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                            +{req.subject.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Quick Status Dropdown */}
+                    <select 
+                      value={req.status}
+                      onChange={(e) => updateStatus(req.id, e.target.value)}
+                      className={`text-[10px] font-bold px-2 py-1 rounded-lg border focus:outline-none focus:ring-2 cursor-pointer transition-colors ${
+                        req.status === 'open' ? 'bg-blue-50 text-blue-700 border-blue-200 focus:ring-blue-500/20' : 
+                        req.status === 'assigned' ? 'bg-green-50 text-green-700 border-green-200 focus:ring-green-500/20' : 
+                        'bg-slate-50 text-slate-650 border-slate-200 focus:ring-slate-55/20'
+                      }`}
+                    >
+                      <option value="open">OPEN</option>
+                      <option value="assigned">ASSIGNED</option>
+                      <option value="closed">CLOSED</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2 mb-4 text-xs font-semibold text-slate-600">
+                    <div className="flex items-center">
+                      <span className="w-5 flex justify-center mr-2">📍</span>
+                      <span className="truncate">{req.location}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="w-5 flex justify-center mr-2">💰</span>
+                      {req.salary_range || 'Negotiable'}
+                    </div>
+                    <div className="flex items-center">
+                      <span className="w-5 flex justify-center mr-2">📅</span>
+                      {req.days_per_week} Days / Week
                     </div>
                   </div>
-                  
-                  {/* Quick Status Dropdown */}
-                  <select 
-                    value={req.status}
-                    onChange={(e) => updateStatus(req.id, e.target.value)}
-                    className={`text-xs font-bold px-3 py-1.5 rounded-lg border focus:outline-none focus:ring-2 cursor-pointer transition-colors ${
-                      req.status === 'open' ? 'bg-blue-50 text-blue-700 border-blue-200 focus:ring-blue-500/20' : 
-                      req.status === 'assigned' ? 'bg-green-50 text-green-700 border-green-200 focus:ring-green-500/20' : 
-                      'bg-slate-50 text-slate-600 border-slate-200 focus:ring-slate-500/20'
-                    }`}
-                  >
-                    <option value="open">OPEN</option>
-                    <option value="assigned">ASSIGNED</option>
-                    <option value="closed">CLOSED</option>
-                  </select>
-                </div>
 
-                <div className="space-y-2 mb-6">
-                  <div className="flex items-center text-sm text-slate-500 font-medium">
-                    <span className="w-5 flex justify-center mr-2">📍</span>
-                    {req.location}
-                  </div>
-                  <div className="flex items-center text-sm text-slate-500 font-medium">
-                    <span className="w-5 flex justify-center mr-2">💰</span>
-                    {req.salary_range || 'Negotiable'}
-                  </div>
-                  <div className="flex items-center text-sm text-slate-500 font-medium">
-                    <span className="w-5 flex justify-center mr-2">📅</span>
-                    {req.days_per_week} Days / Week
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-auto">
-                  <span className="text-xs font-bold text-slate-400">
-                    Posted on {new Date(req.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                  </span>
-                  
-                  <div className="flex gap-2">
+                  <div className="flex items-center justify-between border-t border-slate-100 pt-3 mt-auto">
+                    <span className="text-[10px] font-bold text-slate-400">
+                      {new Date(req.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                    </span>
+                    
                     <Link 
                       to={`/guardian/edit-request/${req.id}`}
-                      className="text-xs font-bold text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-slate-800 px-4 py-2 rounded-lg transition-colors border border-slate-200"
+                      className="text-[10px] font-bold text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-slate-800 px-3 py-1.5 rounded-lg transition-colors border border-slate-200"
                     >
                       Modify
                     </Link>
                   </div>
                 </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Right column: Notices Board */}
+        <div className="lg:col-span-1 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-start max-h-[420px] h-full">
+          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+            <Megaphone className="w-5 h-5 text-[#86c240]" /> Notice Board
+          </h2>
+          {activeNotices.length === 0 ? (
+            <p className="text-slate-450 text-sm font-semibold my-auto text-center">
+              There are no notices for you at the moment!
+            </p>
+          ) : (
+            <div className="space-y-4 overflow-y-auto pr-1 flex-1">
+              {activeNotices.map(n => (
+                <div key={n.id} className="border-b border-slate-50 pb-3 last:border-b-0 last:pb-0">
+                  <h4 className="font-extrabold text-sm text-slate-805 flex items-center justify-between gap-2">
+                    <span className="truncate">{n.title}</span>
+                    <span className="text-xs text-[#86c240] font-bold shrink-0">
+                      {new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1.5 leading-relaxed whitespace-pre-wrap font-medium">{n.message}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Row 4: Bookmarked Tutors Section */}
@@ -399,6 +459,51 @@ const GuardianDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Notice Popup Modal */}
+      <AnimatePresence>
+        {currentNoticePopup && (
+          <div className="fixed inset-0 z-[99] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setCurrentNoticePopup(null)}
+              className="fixed inset-0 bg-slate-900"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl border border-slate-150 p-6 md:p-8 max-w-lg w-full relative shadow-2xl z-10 space-y-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-green-50 text-[#86c240] rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
+                  <Megaphone className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">New Announcement</span>
+                  <h3 className="font-extrabold text-slate-800 text-lg leading-tight mt-0.5">{currentNoticePopup.title}</h3>
+                </div>
+              </div>
+              <p className="text-xs text-slate-650 leading-relaxed whitespace-pre-wrap font-medium pt-2 border-t border-slate-50">
+                {currentNoticePopup.message}
+              </p>
+              <div className="flex justify-between items-center pt-4 border-t border-slate-55">
+                <span className="text-[10px] text-slate-400 font-bold">
+                  Published: {new Date(currentNoticePopup.created_at).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
+                </span>
+                <button
+                  onClick={() => setCurrentNoticePopup(null)}
+                  className="bg-[#86c240] hover:bg-[#6a9c31] text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-md shadow-[#86c240]/15"
+                >
+                  Acknowledge
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

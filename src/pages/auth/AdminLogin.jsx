@@ -42,13 +42,20 @@ const AdminLogin = () => {
       if (data?.user) {
         const { data: userData, error: roleError } = await supabase
           .from('users')
-          .select('role')
+          .select('role, status')
           .eq('id', data.user.id)
           .single();
 
         if (roleError || userData.role !== 'admin') {
           await supabase.auth.signOut();
           setError('Access denied: Only administrators can sign in here.');
+          setLoading(false);
+          return;
+        }
+
+        if (userData.status === 'suspended') {
+          await supabase.auth.signOut();
+          setError('Your account has been suspended. Please contact administration.');
           setLoading(false);
           return;
         }

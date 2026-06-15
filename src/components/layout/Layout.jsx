@@ -2,6 +2,7 @@ import { Outlet, Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/useAuthStore';
 import { LogOut, User, Menu, Send, Globe, Mail, Phone, ArrowRight, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
+import ScrollToTop from '../common/ScrollToTop';
 
 const Layout = () => {
   const { session, profile, signOut } = useAuthStore();
@@ -311,6 +312,7 @@ const Layout = () => {
           </div>
         </div>
       )}
+      <ScrollToTop />
     </div>
   );
 };

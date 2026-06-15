@@ -29,8 +29,11 @@ import {
   ShieldCheck,
   Award,
   CheckCircle,
-  Presentation
+  Presentation,
+  Bell,
+  Megaphone
 } from 'lucide-react';
+import ScrollToTop from '../common/ScrollToTop';
 
 const DashboardLayout = () => {
   const { profile, signOut } = useAuthStore();
@@ -85,7 +88,8 @@ const DashboardLayout = () => {
     admin: [
       { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
       { name: 'Assignment Hub', path: '/admin/requests', icon: Shield },
-      { name: 'Tutor Management', path: '/admin/tutors', icon: Users },
+      { name: 'User Management', path: '/admin/users', icon: Users },
+      { name: 'Notice Board', path: '/admin/notices', icon: Megaphone },
       { name: 'Tutorial Management', path: '/admin/tutorials', icon: Video },
     ]
   };
@@ -295,7 +299,7 @@ const DashboardLayout = () => {
           </div>
         </footer>
       </main>
-
+      <ScrollToTop />
     </div>
   );
 };

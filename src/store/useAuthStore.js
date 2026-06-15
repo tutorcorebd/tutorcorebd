@@ -43,6 +43,12 @@ const useAuthStore = create((set) => ({
       if (userError && userError.code !== 'PGRST116') throw userError;
       
       if (userData) {
+        if (userData.status === 'suspended') {
+          await supabase.auth.signOut();
+          set({ session: null, user: null, profile: null });
+          window.location.href = '/login?suspended=true';
+          return;
+        }
         let completeProfile = { ...userData };
         
         if (userData.role === 'tutor') {

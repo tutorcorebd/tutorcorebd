@@ -17,6 +17,12 @@ const Login = () => {
   const redirectTo = searchParams.get('redirectTo');
 
   useEffect(() => {
+    if (searchParams.get('suspended') === 'true') {
+      setError('Your account has been suspended. Please contact administration.');
+    }
+  }, []);
+
+  useEffect(() => {
     if (!isLoading && session && profile && !loading) {
       if (redirectTo) {
         navigate(redirectTo, { replace: true });
@@ -49,16 +55,23 @@ const Login = () => {
       }
 
       if (data?.user) {
-        // Fetch the user role from public.users to enforce toggle role choice
+        // Fetch the user role and status from public.users
         const { data: userData, error: roleError } = await supabase
           .from('users')
-          .select('role')
+          .select('role, status')
           .eq('id', data.user.id)
           .single();
 
         if (roleError) {
           await supabase.auth.signOut();
           setError('Failed to retrieve user profile.');
+          setLoading(false);
+          return;
+        }
+
+        if (userData.status === 'suspended') {
+          await supabase.auth.signOut();
+          setError('Your account has been suspended. Please contact administration.');
           setLoading(false);
           return;
         }

@@ -50,7 +50,8 @@ import GuardianSettings from './pages/guardian/Settings';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminAssignmentHub from './pages/admin/AdminAssignmentHub';
 import AdminTutorials from './pages/admin/AdminTutorials';
-import AdminTutors from './pages/admin/AdminTutors';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminNotices from './pages/admin/AdminNotices';
 
 function App() {
   const { initialize } = useAuthStore();
@@ -119,7 +120,8 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/requests" element={<AdminAssignmentHub />} />
             <Route path="/admin/tutorials" element={<AdminTutorials />} />
-            <Route path="/admin/tutors" element={<AdminTutors />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/notices" element={<AdminNotices />} />
           </Route>
         </Route>
       </Routes>
