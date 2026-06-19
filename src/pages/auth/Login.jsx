@@ -47,7 +47,26 @@ const Login = () => {
     setError(null);
     
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      let loginEmail = email.trim();
+
+      // If the user entered a phone number (doesn't contain '@' and consists of digits/signs)
+      const isPhone = !loginEmail.includes('@') && /^[0-9+\s-]+$/.test(loginEmail);
+      if (isPhone) {
+        const { data: userData, error: phoneFetchError } = await supabase
+          .from('users')
+          .select('email')
+          .eq('phone_number', loginEmail)
+          .maybeSingle();
+
+        if (phoneFetchError || !userData?.email) {
+          setError('No account found with this phone number.');
+          setLoading(false);
+          return;
+        }
+        loginEmail = userData.email;
+      }
+
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
       
       if (signInError) {
         setError(signInError.message);
@@ -82,9 +101,9 @@ const Login = () => {
         if (userData.role !== expectedDbRole) {
           await supabase.auth.signOut();
           if (userData.role === 'tutor') {
-            setError('This email is registered as a Tutor. Please sign in as a Tutor.');
+            setError('This email/phone is registered as a Tutor. Please sign in as a Tutor.');
           } else if (userData.role === 'guardian') {
-            setError('This email is registered as a Parent / Guardian. Please sign in as a Parent.');
+            setError('This email/phone is registered as a Parent / Guardian. Please sign in as a Parent.');
           } else {
             setError('Invalid credentials for the selected role.');
           }
@@ -112,8 +131,11 @@ const Login = () => {
     }
   };
 
-  const isValidEmail = (email) => {
-    return email === '' || (email.includes('@') && email.length > 3);
+  const isValidEmail = (input) => {
+    if (input === '') return true;
+    const isEmail = input.includes('@') && input.length > 3;
+    const isPhone = /^[0-9+\s-]{8,15}$/.test(input.trim());
+    return isEmail || isPhone;
   };
 
   const emailError = !isValidEmail(email);
@@ -224,15 +246,15 @@ const Login = () => {
                     <Mail className={`h-5 w-5 ${emailError ? 'text-red-400' : 'text-slate-400'}`} />
                   </div>
                   <input 
-                    type="email" 
+                    type="text" 
                     className={`appearance-none block w-full pl-11 pr-4 py-3 bg-white border ${emailError ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-primary'} rounded-xl shadow-sm placeholder-slate-400 focus:outline-none sm:text-sm transition-colors font-medium text-slate-700`}
-                    placeholder="Email Address*"
+                    placeholder="Email Address or Phone Number*"
                     value={email} 
                     onChange={(e) => setEmail(e.target.value)} 
                     required 
                   />
                 </div>
-                {emailError && <p className="mt-1.5 text-xs text-red-500 font-medium pl-1">Please enter a valid email address.</p>}
+                {emailError && <p className="mt-1.5 text-xs text-red-500 font-medium pl-1">Please enter a valid email address or phone number.</p>}
               </div>
 
               <div>
