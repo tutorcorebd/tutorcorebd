@@ -38,6 +38,7 @@ import PremiumRequest from './pages/tutor/PremiumRequest';
 import VerificationRequest from './pages/tutor/VerificationRequest';
 import MyBatches from './pages/tutor/MyBatches';
 import JoinCommunity from './pages/tutor/JoinCommunity';
+import HelpSupport from './pages/tutor/HelpSupport';
 import Settings from './pages/tutor/Settings';
 
 // Guardian Pages
@@ -54,6 +55,7 @@ import AdminTutorials from './pages/admin/AdminTutorials';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminNotices from './pages/admin/AdminNotices';
 import AdminMembership from './pages/admin/AdminMembership';
+import AdminSupport from './pages/admin/AdminSupport';
 
 function SessionRefresher() {
   const location = useLocation();
@@ -124,6 +126,7 @@ function App() {
             <Route path="/tutor/verification" element={<VerificationRequest />} />
             <Route path="/tutor/batches" element={<MyBatches />} />
             <Route path="/tutor/community" element={<JoinCommunity />} />
+            <Route path="/tutor/support" element={<HelpSupport />} />
             <Route path="/tutor/settings" element={<Settings />} />
           </Route>
 
@@ -144,6 +147,7 @@ function App() {
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/membership" element={<AdminMembership />} />
             <Route path="/admin/notices" element={<AdminNotices />} />
+            <Route path="/admin/support" element={<AdminSupport />} />
           </Route>
         </Route>
       </Routes>

@@ -82,6 +82,7 @@ const DashboardLayout = () => {
       { name: 'Verification Request', path: '/tutor/verification', icon: CheckCircle },
       { name: 'My Batches', path: '/tutor/batches', icon: Presentation },
       { name: 'Join Community', path: '/tutor/community', icon: Globe },
+      { name: 'Help & Support', path: '/tutor/support', icon: HelpCircle },
       { name: 'Settings', path: '/tutor/settings', icon: Settings },
     ],
     guardian: [
@@ -97,6 +98,7 @@ const DashboardLayout = () => {
       { name: 'User Management', path: '/admin/users', icon: Users },
       { name: 'Membership Management', path: '/admin/membership', icon: ShieldCheck },
       { name: 'Notice Board', path: '/admin/notices', icon: Megaphone },
+      { name: 'Help & Support', path: '/admin/support', icon: HelpCircle },
       { name: 'Tutorial Management', path: '/admin/tutorials', icon: Video },
     ]
   };
@@ -111,7 +113,7 @@ const DashboardLayout = () => {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
 
       {/* Top Header Bar */}
-      <header className="bg-white border-b border-slate-100 h-16 fixed top-0 right-0 left-0 lg:left-64 z-30 flex items-center justify-between px-6 transition-all duration-300">
+      <header className="bg-white border-b border-slate-100 h-16 fixed top-0 right-0 left-0 lg:left-72 z-30 flex items-center justify-between px-6 transition-all duration-300">
         <div className="flex items-center gap-4">
           <button
             onClick={() => setSidebarOpen(true)}
@@ -179,7 +181,7 @@ const DashboardLayout = () => {
       )}
 
       {/* Sidebar Navigation */}
-      <aside className={`fixed inset-y-0 left-0 w-64 bg-white border-r border-slate-100 z-50 transform lg:transform-none transition-transform duration-300 flex flex-col justify-between ${sidebarOpen ? 'translate-x-0' : '-translate-x-0 lg:translate-x-0'} ${!sidebarOpen && '-translate-x-full'}`}>
+      <aside className={`fixed inset-y-0 left-0 w-72 bg-white border-r border-slate-100 z-50 transform lg:transform-none transition-transform duration-300 flex flex-col justify-between ${sidebarOpen ? 'translate-x-0' : '-translate-x-0 lg:translate-x-0'} ${!sidebarOpen && '-translate-x-full'}`}>
         <div className="flex-1 overflow-y-auto overflow-x-hidden pb-4">
           {/* Logo and Brand */}
           <div className="h-16 flex items-center justify-between px-6 border-b border-slate-50">
@@ -205,9 +207,21 @@ const DashboardLayout = () => {
                 <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
               </div>
             </div>
-            <h3 className="mt-3 font-bold text-slate-800 text-base">{profile?.full_name || 'Tushar'}</h3>
-            <p className="text-xs text-slate-400 mt-0.5 truncate max-w-[180px]">{profile?.phone_number || profile?.email || 'email@example.com'}</p>
-            <span className="mt-2.5 px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold tracking-wide uppercase border border-slate-200/50">
+            <div className="relative group flex items-center gap-1 mt-3 justify-center">
+              <h3 className="font-bold text-slate-800 text-lg">{profile?.full_name || 'Tushar'}</h3>
+              {(profile?.tutor_profile?.is_verified || profile?.tutor_profile?.tutor_status === 'Verified Tutor' || profile?.tutor_profile?.tutor_status === 'Premium Tutor') && (
+                <div className="relative flex items-center">
+                  <ShieldCheck className="w-5 h-5 text-[#86c240] fill-current" />
+                  {/* Tooltip */}
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none w-max">
+                    <span className="bg-slate-800 text-white text-xs font-semibold py-1 px-2.5 rounded-lg shadow-lg">Verified Account</span>
+                    <div className="w-2 h-2 bg-slate-800 rotate-45 -mt-1"></div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <p className="text-sm font-medium text-slate-500 mt-1 truncate max-w-[200px]">{profile?.phone_number || profile?.email || 'email@example.com'}</p>
+            <span className="mt-3 px-3.5 py-1 bg-slate-50 text-slate-600 rounded-full text-xs font-semibold tracking-wide border border-slate-200">
               {getMenuId()}
             </span>
           </div>
@@ -288,7 +302,7 @@ const DashboardLayout = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="lg:pl-64 pt-16 flex-grow flex flex-col min-h-screen transition-all duration-300">
+      <main className="lg:pl-72 pt-16 flex-grow flex flex-col min-h-screen transition-all duration-300">
         <div className="p-6 md:p-8 flex-grow pb-24 md:pb-8">
           <Outlet key={location.pathname} />
         </div>

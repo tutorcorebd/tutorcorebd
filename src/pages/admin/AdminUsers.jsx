@@ -77,15 +77,7 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     setLoading(true);
     
-    // Fail-safe timeout to prevent infinite loading in case of RLS/DB query hangs
-    const timeout = setTimeout(() => {
-      setLoading(false);
-    }, 4000);
-
     try {
-      // Ensure session is active and token is fresh
-      await supabase.auth.getSession();
-
       // Try querying with email column first
       let { data, error } = await supabase
         .from('users')
@@ -137,7 +129,6 @@ const AdminUsers = () => {
     } catch (err) {
       console.error('Error fetching users:', err);
     } finally {
-      clearTimeout(timeout);
       setLoading(false);
     }
   };
@@ -286,6 +277,22 @@ const AdminUsers = () => {
         });
 
       if (error) throw error;
+
+      // Sync membership_requests to keep UI consistent
+      if (newStatus === 'Normal Tutor') {
+        await supabase
+          .from('membership_requests')
+          .delete()
+          .eq('user_id', userId)
+          .in('plan_name', ['Verified', 'Premium']);
+      } else if (newStatus === 'Verified Tutor') {
+        // Also ensure any pending requests for Verified are marked approved
+        await supabase
+          .from('membership_requests')
+          .update({ status: 'approved' })
+          .eq('user_id', userId)
+          .eq('plan_name', 'Verified');
+      }
 
       // Update local state
       setUsers(users.map(u => {
@@ -640,14 +647,14 @@ const AdminUsers = () => {
               className="fixed inset-y-0 right-0 w-full max-w-xl bg-white shadow-2xl z-50 border-l border-slate-150 flex flex-col h-screen overflow-hidden"
             >
               {/* Drawer Header */}
-              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10">
                 <div>
-                  <span className="text-xs font-semibold text-slate-400">User profile inspector</span>
-                  <h2 className="text-xl font-bold text-slate-800 mt-0.5">{selectedUser.full_name || 'No Name'}</h2>
+                  <span className="text-sm font-medium text-slate-500 capitalize">{selectedUser.role} Profile Details</span>
+                  <h2 className="text-2xl font-semibold text-slate-800 mt-1 tracking-tight">{selectedUser.full_name || 'No Name'}</h2>
                 </div>
                 <button 
                   onClick={() => setSelectedUser(null)}
-                  className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-500 outline-none"
+                  className="p-2.5 hover:bg-slate-100 rounded-full transition-all text-slate-400 hover:text-slate-600 outline-none"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -738,54 +745,54 @@ const AdminUsers = () => {
                 )}
 
                 {/* Core Account Details Card */}
-                <motion.div variants={itemVariants} className="bg-white border border-slate-100 rounded-2xl p-5 space-y-4 shadow-sm">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-200/60 flex items-center justify-center text-slate-700 text-2xl font-semibold shadow-inner">
+                <motion.div variants={itemVariants} className="bg-white border border-slate-100 rounded-2xl p-6 space-y-5 shadow-sm transition-all hover:shadow-md">
+                  <div className="flex items-center gap-5">
+                    <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 text-2xl font-medium shadow-sm">
                       {selectedUser.full_name ? selectedUser.full_name.charAt(0).toUpperCase() : 'U'}
                     </div>
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="px-2.5 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 rounded-full text-[10px] font-semibold tracking-wide capitalize">
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="px-3 py-1 bg-slate-50 border border-slate-200 text-slate-600 rounded-lg text-xs font-medium capitalize">
                           {selectedUser.role}
                         </span>
                         {selectedUser.role === 'tutor' && (
                           <>
                             {getTutorProfile(selectedUser).tutor_status === 'Premium Tutor' ? (
-                              <span className="px-2.5 py-0.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-full text-[10px] font-semibold tracking-wide flex items-center gap-1 shadow-sm shadow-amber-500/10">
-                                <Sparkles className="w-3 h-3 text-amber-100 fill-current animate-pulse" />
-                                Premium
+                              <span className="px-3 py-1 bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 text-amber-900 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm border border-amber-300">
+                                <Sparkles className="w-3.5 h-3.5 text-amber-800 animate-pulse" />
+                                Premium Member
                               </span>
                             ) : getTutorProfile(selectedUser).tutor_status === 'Verified Tutor' ? (
-                              <span className="px-2.5 py-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full text-[10px] font-semibold tracking-wide flex items-center gap-1 shadow-sm shadow-emerald-500/10">
-                                <CheckCircle className="w-3 h-3 text-emerald-100" />
+                              <span className="px-3 py-1 bg-green-50 text-green-700 border border-green-200 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm">
+                                <CheckCircle className="w-3.5 h-3.5 text-green-600" />
                                 Verified
                               </span>
                             ) : (
-                              <span className="px-2.5 py-0.5 bg-slate-100 border border-slate-200 text-slate-500 rounded-full text-[10px] font-medium tracking-wide">
-                                Normal tutor
+                              <span className="px-3 py-1 bg-slate-50 border border-slate-200 text-slate-500 rounded-lg text-xs font-medium">
+                                Normal Tutor
                               </span>
                             )}
                           </>
                         )}
                       </div>
-                      <h3 className="text-base font-bold text-slate-800">{selectedUser.full_name}</h3>
-                      <p className="text-xs font-medium text-slate-400 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-slate-350" /> Joined {new Date(selectedUser.created_at).toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' })}
+                      <h3 className="text-lg font-semibold text-slate-800 tracking-tight">{selectedUser.full_name}</h3>
+                      <p className="text-sm font-medium text-slate-500 flex items-center gap-1.5">
+                        <Clock className="w-4 h-4 text-slate-400" /> Joined {new Date(selectedUser.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
                       </p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 text-xs font-semibold">
+                  <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-5 text-sm font-medium">
                     <div>
-                      <span className="text-slate-400 text-[10px] block mb-1">Phone number</span>
-                      <span className="text-slate-700 font-medium flex items-center gap-1.5">
-                        <Phone className="w-4 h-4 text-slate-400" /> {selectedUser.phone_number || 'N/A'}
+                      <span className="text-slate-500 text-xs block mb-1.5">Phone number</span>
+                      <span className="text-slate-800 flex items-center gap-2">
+                        <Phone className="w-4 h-4 text-slate-400" /> {selectedUser.phone_number || 'Not provided'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-400 text-[10px] block mb-1">Email address</span>
-                      <span className="text-slate-700 font-medium flex items-center gap-1.5 truncate">
-                        <Mail className="w-4 h-4 text-slate-400" /> {selectedUser.email || 'N/A'}
+                      <span className="text-slate-500 text-xs block mb-1.5">Email address</span>
+                      <span className="text-slate-800 flex items-center gap-2 truncate">
+                        <Mail className="w-4 h-4 text-slate-400" /> {selectedUser.email || 'Not provided'}
                       </span>
                     </div>
                   </div>
@@ -829,17 +836,17 @@ const AdminUsers = () => {
 
                           {/* Academic Status Box */}
                           <motion.div variants={itemVariants} className="space-y-3">
-                            <h4 className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
-                              <GraduationCap className="w-4 h-4 text-[#86c240]" /> Academic status
+                            <h4 className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                              <GraduationCap className="w-5 h-5 text-[#86c240]" /> Academic Status
                             </h4>
-                            <div className="border border-slate-100 rounded-2xl p-4 bg-white space-y-4 text-xs font-semibold text-slate-700">
+                            <div className="border border-slate-100 rounded-2xl p-5 bg-white space-y-6 text-sm font-medium text-slate-700 shadow-sm">
                               {/* Graduation Details */}
                               <div>
-                                <span className="text-primary text-[10px] font-semibold block mb-1.5">Graduation details</span>
-                                <div className="grid grid-cols-2 gap-3.5 bg-slate-50/50 p-3 rounded-xl border border-slate-100/60">
+                                <span className="text-[#86c240] text-xs font-semibold block mb-2">Graduation details</span>
+                                <div className="grid grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
                                   <div>
-                                    <span className="text-slate-400 text-[10px] block mb-0.5">University</span>
-                                    <span className="text-slate-800 font-medium">{tp.university || 'N/A'}</span>
+                                    <span className="text-slate-500 text-xs block mb-1">University</span>
+                                    <span className="text-slate-800">{tp.university || 'Not specified'}</span>
                                   </div>
                                   <div>
                                     <span className="text-slate-400 text-[10px] block mb-0.5">Department</span>
