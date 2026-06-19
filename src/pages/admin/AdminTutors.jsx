@@ -2,6 +2,18 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Search, Shield, Award, Users, CheckCircle, Clock } from 'lucide-react';
 
+const VerifiedBadge = ({ size = 16 }) => (
+  <svg 
+    className="inline-block text-[#86c240] fill-current shrink-0 ml-1.5 align-middle" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M23 12l-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-13 5l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
+  </svg>
+);
+
 const AdminTutors = () => {
   const [tutors, setTutors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,6 +24,9 @@ const AdminTutors = () => {
   const fetchTutors = async () => {
     setLoading(true);
     try {
+      // Ensure session is fresh before running query
+      await supabase.auth.getSession();
+
       const { data, error } = await supabase
         .from('users')
         .select(`
@@ -41,8 +56,10 @@ const AdminTutors = () => {
     try {
       const { error } = await supabase
         .from('tutor_profiles')
-        .update({ tutor_category: newCategory })
-        .eq('user_id', tutorId);
+        .upsert({ 
+          user_id: tutorId,
+          tutor_category: newCategory 
+        });
 
       if (error) throw error;
 
@@ -177,7 +194,7 @@ const AdminTutors = () => {
                         <div className="flex items-center gap-2">
                           {tutor.full_name}
                           {tp.is_verified && (
-                            <CheckCircle className="w-4 h-4 text-[#86c240] fill-current text-white shrink-0" />
+                            <VerifiedBadge size={16} />
                           )}
                         </div>
                         <div className="text-xs text-slate-400 font-medium mt-0.5">{tp.university || 'N/A'}</div>

@@ -17,7 +17,7 @@ const ParentFAQ = () => {
         answer: "No, posting tuition requests and matching with qualified tutors is completely free for parents and guardians. You only pay the tutor's agreed monthly salary directly to the tutor."
       },
       {
-        question: "How does TutorCore verify tutors?",
+        question: "How does Tutor Core verify tutors?",
         answer: "Tutors are required to submit their academic certificates, university/institutional IDs, and background verification documents. Our verification team reviews these credentials before giving tutors a verified badge."
       },
       {
@@ -40,10 +40,10 @@ const ParentFAQ = () => {
       },
       {
         question: "টিউটর খোঁজার জন্য কোনো ফি দিতে হয় কি?",
-        answer: "না, টিউটরকোর বিডি-তে অভিভাবক ও শিক্ষার্থীদের জন্য টিউশন রিকোয়েস্ট পোস্ট করা এবং শিক্ষক নির্বাচন করা সম্পূর্ণ ফ্রি। আপনার শুধুমাত্র পারস্পরিক আলোচনার ভিত্তিতে শিক্ষকের নির্ধারিত মাসিক বেতন সরাসরি শিক্ষককে পরিশোধ করতে হবে।"
+        answer: "না, টিউটর কোর-এ অভিভাবক ও শিক্ষার্থীদের জন্য টিউশন রিকোয়েস্ট পোস্ট করা এবং শিক্ষক নির্বাচন করা সম্পূর্ণ ফ্রি। আপনার শুধুমাত্র পারস্পরিক আলোচনার ভিত্তিতে শিক্ষকের নির্ধারিত মাসিক বেতন সরাসরি শিক্ষককে পরিশোধ করতে হবে।"
       },
       {
-        question: "টিউটরকোর কীভাবে টিউটরদের ভেরিফাই করে?",
+        question: "টিউটর কোর কীভাবে টিউটরদের ভেরিফাই করে?",
         answer: "টিউটরদের তাদের শিক্ষাগত যোগ্যতার প্রশংসাপত্র, বিশ্ববিদ্যালয়/প্রাতিষ্ঠানিক আইডি কার্ড এবং জাতীয় পরিচয়পত্র সাবমিট করতে হয়। আমাদের ভেরিফিকেশন টিম তথ্যগুলো ব্যক্তিগতভাবে যাচাই করার পরই কেবল প্রোফাইলে ভেরিভাইড ব্যাজ প্রদান করে।"
       },
       {

@@ -154,13 +154,18 @@ const MobileBottomNav = () => {
         <div className="grid grid-cols-5 h-16 max-w-lg mx-auto">
           
           {/* Tab 1: Auth / Profile */}
-          <Link 
-            to={authTarget}
-            className={`flex flex-col items-center justify-center space-y-1 ${isActive(authTarget) ? 'text-[#86c240]' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            <authIcon className="w-6 h-6" />
-            <span className="text-[10px] font-bold">{authLabel}</span>
-          </Link>
+          {(() => {
+            const AuthIcon = authIcon;
+            return (
+              <Link 
+                to={authTarget}
+                className={`flex flex-col items-center justify-center space-y-1 ${isActive(authTarget) ? 'text-[#86c240]' : 'text-slate-500 hover:text-slate-800'}`}
+              >
+                <AuthIcon className="w-6 h-6" />
+                <span className="text-[10px] font-bold">{authLabel}</span>
+              </Link>
+            );
+          })()}
 
           {/* Tab 2: Jobs */}
           <Link 

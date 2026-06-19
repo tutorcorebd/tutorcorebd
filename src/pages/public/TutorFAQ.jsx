@@ -9,12 +9,12 @@ const TutorFAQ = () => {
   const faqData = {
     en: [
       {
-        question: "How do I become a tutor on TutorCore?",
+        question: "How do I become a tutor on Tutor Core?",
         answer: "Register an account as a Tutor on the Sign Up page. After registration, verify your email/phone number and complete your profile details (education history, preference options, NID/certificates) to at least 80% to be eligible to apply for jobs."
       },
       {
         question: "Is there any registration fee?",
-        answer: "No, registration and profile creation on TutorCore is completely free. We do not charge upfront fees to create your tutoring profile."
+        answer: "No, registration and profile creation on Tutor Core is completely free. We do not charge upfront fees to create your tutoring profile."
       },
       {
         question: "What is the matching commission / platform fee?",
@@ -35,12 +35,12 @@ const TutorFAQ = () => {
     ],
     bn: [
       {
-        question: "টিউটরকোর-এ কীভাবে টিউটর হিসেবে যুক্ত হব?",
+        question: "টিউটর কোর-এ কীভাবে টিউটর হিসেবে যুক্ত হব?",
         answer: "টিউটর হিসেবে রেজিস্ট্রেশন করতে আমাদের প্ল্যাটফর্মের 'Sign Up' পেজে গিয়ে অ্যাকাউন্ট তৈরি করুন। এরপর আপনার মোবাইল নাম্বার ভেরিফাই করে আপনার প্রোফাইলের বিস্তারিত তথ্য (শিক্ষাগত যোগ্যতা, টিউশন লোকেশন, বিষয় এবং জাতীয় পরিচয়পত্র) অন্তত ৮০% সম্পন্ন করুন। এডমিন প্যানেল থেকে প্রোফাইলটি ভেরিফাই করার পর আপনি টিউশন জবের জন্য আবেদন করতে পারবেন।"
       },
       {
         question: "রেজিস্ট্রেশন করতে কোনো ফি লাগবে কি?",
-        answer: "না, টিউটরকোর বিডি-তে রেজিস্ট্রেশন করা এবং টিউটর প্রোফাইল তৈরি করা সম্পূর্ণ ফ্রি। অ্যাকাউন্ট তৈরি বা প্রোফাইল খোলার জন্য কোনো অগ্রিম ফি দিতে হয় না।"
+        answer: "না, টিউটর কোর-এ রেজিস্ট্রেশন করা এবং টিউটর প্রোফাইল তৈরি করা সম্পূর্ণ ফ্রি। অ্যাকাউন্ট তৈরি বা প্রোফাইল খোলার জন্য কোনো অগ্রিম ফি দিতে হয় না।"
       },
       {
         question: "ম্যাচিং কমিশন বা প্ল্যাটফর্ম সার্ভিস চার্জ কত?",

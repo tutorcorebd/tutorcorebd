@@ -479,10 +479,11 @@ const TutorProfileForm = () => {
       // Calculate new completeness
       const nextCompleteness = calculateCompleteness();
 
-      // Perform update query
+      // Perform upsert query
       const { error } = await supabase
         .from('tutor_profiles')
-        .update({
+        .upsert({
+          user_id: user.id,
           current_city: city,
           preferred_locations: preferredLocations,
           living_location: livingLocation,
@@ -537,8 +538,7 @@ const TutorProfileForm = () => {
           photo_url: finalPhotoUrl,
           profile_completeness: nextCompleteness,
           education_status: formattedEduStatus
-        })
-        .eq('user_id', user.id);
+        });
 
       if (error) throw error;
 

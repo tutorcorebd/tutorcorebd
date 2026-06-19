@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Search, Filter, MapPin, Users, User, CheckCircle, Award, Compass, Sparkles, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -25,6 +25,18 @@ const getTutorProfile = (tutor) => {
   if (!tp) return {};
   return Array.isArray(tp) ? (tp[0] || {}) : tp;
 };
+
+const VerifiedBadge = ({ size = 16 }) => (
+  <svg 
+    className="inline-block text-[#86c240] fill-current shrink-0 ml-1.5 align-middle" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M23 12l-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-13 5l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
+  </svg>
+);
 
 const FindTutors = () => {
   const navigate = useNavigate();
@@ -195,47 +207,73 @@ const FindTutors = () => {
     const tp = getTutorProfile(tutor);
     const userInitial = tutor.full_name ? tutor.full_name.charAt(0).toUpperCase() : 'T';
     const isVerified = tp.is_verified || tp.tutor_category === 'Verified Tutors';
+    const isPremium = tp.tutor_category === 'Premium Tutors';
     
     return (
-      <div className={`bg-white rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow overflow-hidden flex flex-col items-center pt-8 cursor-pointer relative ${isGrid ? 'w-full' : 'flex-shrink-0 w-[240px]'}`}
-           onClick={() => navigate(`/tutor/${tutor.id}`)}>
+      <div 
+        className={`group/card bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col items-center pt-8 pb-5 cursor-pointer relative ${isGrid ? 'w-full' : 'flex-shrink-0 w-[240px]'}`}
+        onClick={() => navigate(`/tutor/${tutor.id}`)}
+      >
         
-        {/* Avatar with Badge */}
-        <div className="relative mb-4">
-          {tp.photo_url ? (
-            <img 
-              src={tp.photo_url} 
-              alt={tutor.full_name} 
-              className="w-24 h-24 rounded-full object-cover border-4 border-slate-50 shadow-sm"
-            />
-          ) : (
-            <div className="w-24 h-24 rounded-full bg-[#1e293b] flex items-center justify-center text-white text-4xl font-extrabold shadow-sm border-4 border-slate-50">
-              {userInitial}
-            </div>
-          )}
-          {isVerified && (
-            <div className="absolute -bottom-2 right-1/2 translate-x-1/2 bg-white rounded-full p-0.5 shadow-sm">
-              <Award className="w-6 h-6 text-[#86c240] fill-current text-white" />
+        {/* Profile Image with Organic/Stylized Border or Ring */}
+        <div className="relative mb-5">
+          <div className="relative">
+            {tp.photo_url ? (
+              <img 
+                src={tp.photo_url} 
+                alt={tutor.full_name} 
+                className="w-24 h-24 rounded-full object-cover border-4 border-slate-50 shadow-md group-hover/card:scale-105 transition-transform duration-300"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white text-3xl font-black shadow-md border-4 border-slate-50 group-hover/card:scale-105 transition-transform duration-300">
+                {userInitial}
+              </div>
+            )}
+            
+            {/* Organic curved shape wrapper / outline around avatar */}
+            <div className="absolute inset-0 rounded-full border-2 border-dashed border-[#86c240]/40 -m-1.5 animate-[spin_20s_linear_infinite] group-hover/card:border-solid group-hover/card:border-[#86c240]/70 transition-all duration-300"></div>
+          </div>
+
+          {/* Badge under profile image */}
+          {isPremium && (
+            <div className="absolute -bottom-3 right-1/2 translate-x-1/2 bg-amber-500 text-white rounded-full p-1 shadow-md border border-white flex items-center justify-center">
+              <Award className="w-4 h-4 fill-current" />
             </div>
           )}
         </div>
 
         {/* Info */}
-        <div className="text-center px-4 mb-6 w-full">
-          <h4 className="font-bold text-slate-800 text-lg md:text-xl truncate">{tutor.full_name}</h4>
-          <p className="text-sm font-semibold text-slate-500 truncate mt-1.5">
+        <div className="text-center px-4 mb-5 w-full flex-grow flex flex-col justify-center">
+          {/* Category Tag */}
+          <div className="mb-2">
+            {isPremium ? (
+              <span className="inline-block text-[10px] font-black tracking-wider uppercase text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full">Premium Tutor</span>
+            ) : isVerified ? (
+              <span className="inline-block text-[10px] font-black tracking-wider uppercase text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">Verified Tutor</span>
+            ) : (
+              <span className="inline-block text-[10px] font-black tracking-wider uppercase text-slate-500 bg-slate-50 px-2.5 py-0.5 rounded-full">Tutor</span>
+            )}
+          </div>
+
+          <h4 className="font-extrabold text-slate-800 text-base md:text-lg tracking-tight truncate flex items-center justify-center gap-0.5">
+            {tutor.full_name}
+            {isVerified && <VerifiedBadge size={16} />}
+          </h4>
+          
+          <p className="text-xs font-bold text-slate-500 truncate mt-1">
             {tp.university || 'No education info'}
           </p>
-          <div className="flex items-center justify-center gap-1.5 mt-2 text-sm font-semibold text-slate-600 truncate">
-            <MapPin className="w-4 h-4 text-[#86c240]" />
+          
+          <div className="flex items-center justify-center gap-1 mt-2 text-xs font-bold text-slate-400">
+            <MapPin className="w-3.5 h-3.5 text-[#86c240]" />
             <span className="truncate">{tp.current_city || 'N/A'}</span>
           </div>
         </div>
 
         {/* Bottom Button */}
-        <div className="w-full mt-auto">
-          <button className="w-full bg-[#1e293b] hover:bg-slate-800 text-white font-extrabold py-4 text-base transition-colors rounded-b-xl">
-            See
+        <div className="w-full px-4">
+          <button className="w-full bg-[#1e293b] hover:bg-[#86c240] group-hover/card:bg-[#86c240] text-white font-extrabold py-3 text-sm transition-all duration-300 rounded-xl shadow-md">
+            View Profile
           </button>
         </div>
       </div>
@@ -243,24 +281,61 @@ const FindTutors = () => {
   };
 
   const TutorRowCarousel = ({ title, list }) => {
+    const internalRef = useRef(null);
     if (list.length === 0) return null;
     
+    const scroll = (direction) => {
+      if (internalRef.current) {
+        const { scrollLeft, clientWidth } = internalRef.current;
+        const scrollAmount = clientWidth * 0.75;
+        internalRef.current.scrollTo({
+          left: direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
+          behavior: 'smooth'
+        });
+      }
+    };
+
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 relative group/carousel">
         <div className="flex items-center justify-between">
           <h3 className="text-3xl font-black text-slate-800 tracking-tight">{title}</h3>
           <button 
             onClick={() => setShowAllTutors(true)}
-            className="flex items-center gap-1.5 bg-[#86c240] hover:bg-[#6a9c31] text-white text-base font-bold px-5 py-2 rounded-full transition-colors shadow-sm"
+            className="flex items-center gap-1.5 bg-[#86c240] hover:bg-[#6a9c31] text-white text-sm font-bold px-4 py-2 rounded-full transition-colors shadow-sm"
           >
             See all <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide">
-          {list.map(tutor => (
-            <VerticalTutorCard key={tutor.id} tutor={tutor} />
-          ))}
+        <div className="relative flex items-center w-full">
+          {/* Left Arrow Button */}
+          <button 
+            onClick={() => scroll('left')}
+            className="absolute -left-4 sm:-left-6 z-20 w-12 h-12 rounded-full bg-white border border-slate-200 shadow-lg flex items-center justify-center text-slate-700 hover:text-[#86c240] hover:scale-105 transition-all opacity-0 group-hover/carousel:opacity-100 focus:opacity-100"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+
+          {/* Carousel container */}
+          <div 
+            ref={internalRef}
+            className="flex gap-6 overflow-x-auto w-full pb-4 scroll-smooth no-scrollbar scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {list.map(tutor => (
+              <VerticalTutorCard key={tutor.id} tutor={tutor} />
+            ))}
+          </div>
+
+          {/* Right Arrow Button */}
+          <button 
+            onClick={() => scroll('right')}
+            className="absolute -right-4 sm:-right-6 z-20 w-12 h-12 rounded-full bg-white border border-slate-200 shadow-lg flex items-center justify-center text-slate-700 hover:text-[#86c240] hover:scale-105 transition-all opacity-0 group-hover/carousel:opacity-100 focus:opacity-100"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
         </div>
       </div>
     );
@@ -303,6 +378,12 @@ const FindTutors = () => {
               }
               .animate-marquee-loop:hover {
                 animation-play-state: paused;
+              }
+              .no-scrollbar::-webkit-scrollbar {
+                display: none;
+              }
+              .scrollbar-hide::-webkit-scrollbar {
+                display: none;
               }
             `}} />
 
@@ -503,11 +584,11 @@ const FindTutors = () => {
           
           /* HUB CATEGORIES VIEW */
           <div className="space-y-16 pb-16 max-w-6xl mx-auto">
-            <TutorRowCarousel title="All Tutors" list={tutors} />
-            <TutorRowCarousel title="Exclusive Tutors" list={exclusiveTutors} />
             <TutorRowCarousel title="Premium Tutors" list={premiumTutors} />
             <TutorRowCarousel title="Verified Tutors" list={verifiedTutors} />
             <TutorRowCarousel title="New Tutors" list={newTutors} />
+            <TutorRowCarousel title="All Tutors" list={tutors} />
+            {exclusiveTutors.length > 0 && <TutorRowCarousel title="Exclusive Tutors" list={exclusiveTutors} />}
           </div>
         )}
       </div>

@@ -9,23 +9,23 @@ const FAQ = () => {
   const faqData = {
     en: [
       {
-        question: "What is TutorCore?",
-        answer: "TutorCore is a premium online edutech matching platform that connects students and parents with top-tier, private home and online tutors. We help match educational requirements with experienced educators to optimize learning outcomes."
+        question: "What is Tutor Core?",
+        answer: "Tutor Core is a premium online edutech matching platform that connects students and parents with top-tier, private home and online tutors. We help match educational requirements with experienced educators to optimize learning outcomes."
       },
       {
-        question: "Why choose TutorCore?",
-        answer: "Unlike standard listings, TutorCore acts as a trusted facilitator. We manually verify the credentials, academic history, and background of all tutors. We also offer group batch tutoring, performance monitoring, and secure payment handling."
+        question: "Why choose Tutor Core?",
+        answer: "Unlike standard listings, Tutor Core acts as a trusted facilitator. We manually verify the credentials, academic history, and background of all tutors. We also offer group batch tutoring, performance monitoring, and secure payment handling."
       },
       {
         question: "How does the matching process work?",
         answer: "Parents/Guardians post a tuition request specifying the subject, class, location, and budget. Our platform matches these requirements with qualified tutors. Tutors can apply, and our administrators review applications before proposing the best matches."
       },
       {
-        question: "Is there any fee to use TutorCore?",
+        question: "Is there any fee to use Tutor Core?",
         answer: "For parents and guardians, posting a tuition request is completely free. Tutors may be subject to a platform matching fee or commission from their first month's salary upon successfully securing a tuition, which is disclosed upfront."
       },
       {
-        question: "How does TutorCore verify tutors?",
+        question: "How does Tutor Core verify tutors?",
         answer: "Tutors are required to submit their educational certificates, institutional IDs, and background checks. Our verification team personally reviews these documents before granting verified badges on our platform."
       },
       {
@@ -33,29 +33,29 @@ const FAQ = () => {
         answer: "Tuition fees/salaries are finalized between the guardian and the tutor during the matching stage. We recommend transparent monthly payments, but tutors and guardians can choose weekly or custom options based on mutual agreement."
       },
       {
-        question: "What subjects are available on TutorCore?",
+        question: "What subjects are available on Tutor Core?",
         answer: "We support a wide array of categories including primary/secondary school subjects (Math, Science, English, physics), test preparations (SAT, IELTS, HSC/SSC board exams), language learning, computer coding, and skill development."
       }
     ],
     bn: [
       {
-        question: "টিউটরকোর কী?",
-        answer: "টিউটরকোর হলো একটি প্রিমিয়াম অনলাইন এডুটেক ম্যাচিং প্ল্যাটফর্ম যা ছাত্র-ছাত্রী ও অভিভাবকদের দেশের সেরা গৃহশিক্ষক ও অনলাইন টিউটরদের সাথে যুক্ত করে। আমরা শিক্ষার্থীদের ভালো ফলাফলোর জন্য পড়ালেখার প্রয়োজনীয়তা অনুযায়ী অভিজ্ঞ শিক্ষকদের খুঁজে পেতে সাহায্য করি।"
+        question: "টিউটর কোর কী?",
+        answer: "টিউটর কোর হলো একটি প্রিমিয়াম অনলাইন এডুটেক ম্যাচিং প্ল্যাটফর্ম যা ছাত্র-ছাত্রী ও অভিভাবকদের দেশের সেরা গৃহশিক্ষক ও অনলাইন টিউটরদের সাথে যুক্ত করে। আমরা শিক্ষার্থীদের ভালো ফলাফলোর জন্য পড়ালেখার প্রয়োজনীয়তা অনুযায়ী অভিজ্ঞ শিক্ষকদের খুঁজে পেতে সাহায্য করি।"
       },
       {
-        question: "কেন টিউটরকোর বেছে নেবেন?",
-        answer: "সাধারণ লিস্টিং ওয়েবসাইটের বিপরীতে, টিউটরকোর একটি বিশ্বস্ত মাধ্যম হিসেবে কাজ করে। আমরা প্রতিটি শিক্ষকের প্রশংসাপত্র, প্রাতিষ্ঠানিক পরিচয় এবং ব্যাকগ্রাউন্ড ব্যক্তিগতভাবে যাচাই করি। এছাড়া আমাদের এখানে গ্রুপ ব্যাচ টিউটরিং, নিয়মিত পারফরম্যান্স মনিটরিং এবং নিরাপদ পেমেন্ট সুবিধা রয়েছে।"
+        question: "কেন টিউটর কোর বেছে নেবেন?",
+        answer: "সাধারণ লিস্টিং ওয়েবসাইটের বিপরীতে, টিউটর কোর একটি বিশ্বস্ত মাধ্যম হিসেবে কাজ করে। আমরা প্রতিটি শিক্ষকের প্রশংসাপত্র, প্রাতিষ্ঠানিক পরিচয় এবং ব্যাকগ্রাউন্ড ব্যক্তিগতভাবে যাচাই করি। এছাড়া আমাদের এখানে গ্রুপ ব্যাচ টিউটরিং, নিয়মিত পারফরম্যান্স মনিটরিং এবং নিরাপদ পেমেন্ট সুবিধা রয়েছে।"
       },
       {
         question: "টিউটর ম্যাচিং প্রক্রিয়া কীভাবে কাজ করে?",
         answer: "অভিভাবকগণ শিক্ষার্থীর ক্লাস, বিষয়, স্থান এবং বাজেট উল্লেখ করে একটি টিউশন রিকোয়েস্ট পোস্ট করেন। আমাদের প্ল্যাটফর্ম সেই অনুযায়ী যোগ্য টিউটরদের ম্যাচ করে। টিউটররা আবেদন করার পর আমাদের অ্যাডমিন টিম আবেদনসমূহ রিভিউ করে সেরা প্রার্থীদের অভিভাবকদের কাছে প্রস্তাব করে।"
       },
       {
-        question: "টিউটরকোর ব্যবহার করতে কোনো ফি দিতে হয় কি?",
+        question: "টিউটর কোর ব্যবহার করতে কোনো ফি দিতে হয় কি?",
         answer: "অভিভাবক ও শিক্ষার্থীদের জন্য টিউশন রিকোয়েস্ট পোস্ট করা সম্পূর্ণ ফ্রি। সফলভাবে টিউশন পাওয়ার পর প্রথম মাসের বেতন থেকে টিউটরদের একটি নির্দিষ্ট প্ল্যাটফর্ম ফি বা ম্যাচিং কমিশন দিতে হয়, যা আবেদনের পূর্বেই জানিয়ে দেওয়া হয়।"
       },
       {
-        question: "টিউটরকোর কীভাবে টিউটরদের ভেরিফাই করে?",
+        question: "টিউটর কোর কীভাবে টিউটরদের ভেরিফাই করে?",
         answer: "টিউটরদের তাদের শিক্ষাগত যোগ্যতার সার্টিফিকেট, প্রাতিষ্ঠানিক আইডি কার্ড এবং ব্যাকগ্রাউন্ড ভেরিফিকেশনের তথ্য সাবমিট করতে হয়। আমাদের ভেরিফিকেশন টিম তথ্যগুলো ব্যক্তিগতভাবে যাচাই করে প্রোফাইলে ভেরিফাইড ব্যাজ প্রদান করে।"
       },
       {
@@ -63,7 +63,7 @@ const FAQ = () => {
         answer: "টিউশন ম্যাচিং পর্যায়ে অভিভাবক এবং টিউটরের মধ্যে আলোচনা করে বেতন নির্ধারণ করা হয়। আমরা সরাসরি মাসিক পেমেন্ট করতে সুপারিশ করি, তবে অভিভাবক ও টিউটরের পারস্পরিক আলোচনার ভিত্তিতে সাপ্তাহিক বা কাস্টম পেমেন্ট পদ্ধতিও নির্ধারণ করা যেতে পারে।"
       },
       {
-        question: "টিউটরকোর-এ কোন কোন বিষয় শেখানো হয়?",
+        question: "টিউটর কোর-এ কোন কোন বিষয় শেখানো হয়?",
         answer: "আমরা প্রাথমিক/মাধ্যমিক বিদ্যালয়ের সকল বিষয় (গণিত, বিজ্ঞান, ইংরেজি, পদার্থবিজ্ঞান), বোর্ড পরীক্ষার প্রস্তুতি (SAT, IELTS, HSC/SSC), ভাষা শিক্ষা, কম্পিউটার কোডিং এবং দক্ষতা উন্নয়ন সহ সব ধরণের বিষয় সাপোর্ট করি।"
       }
     ]
@@ -115,8 +115,8 @@ const FAQ = () => {
         <div className="w-24 h-1 bg-[#86c240] mx-auto rounded-full"></div>
         <p className="text-slate-500 font-medium max-w-xl mx-auto">
           {language === 'en' 
-            ? "Find answers to common questions about how TutorCore works for students, parents, and tutors."
-            : "ছাত্র-ছাত্রী, অভিভাবক এবং টিউটরদের জন্য টিউটরকোর কীভাবে কাজ করে সে সম্পর্কে সাধারণ প্রশ্নগুলির উত্তর খুঁজুন।"
+            ? "Find answers to common questions about how Tutor Core works for students, parents, and tutors."
+            : "ছাত্র-ছাত্রী, অভিভাবক এবং টিউটরদের জন্য টিউটর কোর কীভাবে কাজ করে সে সম্পর্কে সাধারণ প্রশ্নগুলির উত্তর খুঁজুন।"
           }
         </p>
       </div>

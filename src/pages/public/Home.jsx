@@ -115,7 +115,7 @@ const Home = () => {
               </motion.div>
               <motion.h1 variants={fadeInUp} className="text-5xl md:text-6xl font-extrabold leading-tight mb-6 text-white drop-shadow-sm">
                 LEARN. GROW. ACHIEVE. <br className="hidden md:block" /> 
-                <span className="text-black bg-white px-2 mt-2 inline-block rounded-md shadow-lg transform -rotate-1">With TutorCore</span>
+                <span className="text-black bg-white px-2 mt-2 inline-block rounded-md shadow-lg transform -rotate-1">With Tutor Core</span>
               </motion.h1>
               <motion.p variants={fadeInUp} className="text-lg md:text-xl text-white/90 mb-10 max-w-2xl mx-auto lg:mx-0 font-medium">
                 Connect with verified, expert tutors across the country for home, online, or group tuition. Making your children's learning fun and comprehensive.
@@ -242,7 +242,7 @@ const Home = () => {
             viewport={{ once: true }}
             className="text-center mb-20"
           >
-            <h2 className="text-3xl md:text-5xl font-black text-black mb-4">How TutorCore Works</h2>
+            <h2 className="text-3xl md:text-5xl font-black text-black mb-4">How Tutor Core Works</h2>
             <div className="w-24 h-1.5 bg-primary mx-auto mb-6 rounded-full"></div>
             <p className="text-lg text-neutral-600 max-w-2xl mx-auto font-medium">Get your desired tutor in three simple steps.</p>
           </motion.div>
@@ -296,13 +296,13 @@ const Home = () => {
               className="flex-1 space-y-8"
             >
               <div className="inline-block px-4 py-1.5 bg-neutral-100 text-black font-black rounded-full text-sm tracking-widest border border-neutral-200">
-                WHY CHOOSE TUTORCORE
+                WHY CHOOSE TUTOR CORE
               </div>
               <h2 className="text-4xl md:text-5xl font-black text-black leading-tight">
                 We Ensure <span className="text-primary underline decoration-4 underline-offset-4 decoration-black">Quality Education</span> For Everyone
               </h2>
               <p className="text-lg text-neutral-600 leading-relaxed font-medium">
-                TutorCore is not just a platform; it's a commitment to your academic success. We act as a reliable middleman to ensure safety, quality, and guaranteed results.
+                Tutor Core is not just a platform; it's a commitment to your academic success. We act as a reliable middleman to ensure safety, quality, and guaranteed results.
               </p>
               
               <ul className="space-y-6">
@@ -378,7 +378,7 @@ const Home = () => {
         >
           <h2 className="text-4xl md:text-6xl font-black text-white mb-6">Ready to Start Learning?</h2>
           <div className="w-32 h-2 bg-primary mx-auto mb-8 rounded-full"></div>
-          <p className="text-xl text-white/80 mb-12 font-medium max-w-2xl mx-auto">Join thousands of students who have already boosted their grades with TutorCore.</p>
+          <p className="text-xl text-white/80 mb-12 font-medium max-w-2xl mx-auto">Join thousands of students who have already boosted their grades with Tutor Core.</p>
           <Link to="/register" className="inline-block bg-primary text-black py-5 px-12 rounded-2xl font-black text-xl hover:bg-primary-dark transition-colors shadow-[0_0_40px_rgba(134,194,64,0.5)] hover:shadow-[0_0_60px_rgba(134,194,64,0.7)] hover:-translate-y-2 transform border-2 border-black">
             GET STARTED NOW
           </Link>

@@ -48,7 +48,7 @@ const TermsOfUse = () => {
           <>
             <section className="space-y-3">
               <p>
-                Welcome to <strong>TutorCore BD</strong>. Please read these terms and conditions carefully before using this site, registering an account, or utilizing any match-making services from TutorCore BD. By accessing or using our website, you agree to be bound by this Agreement.
+                Welcome to <strong>Tutor Core</strong>. Please read these terms and conditions carefully before using this site, registering an account, or utilizing any match-making services from Tutor Core. By accessing or using our website, you agree to be bound by this Agreement.
               </p>
               <p>
                 This agreement applies to all users of the platform, including students, parents/guardians, and tutors who register or browse our website.
@@ -64,7 +64,7 @@ const TermsOfUse = () => {
                 <li>If a parent cancels the tutoring service due to a tutor's negligence, voluntary cancellation, or lack of dedication, the tutor assumes full responsibility and may be liable to pay platform service charges.</li>
                 <li>For safety, tutors (especially female tutors) are advised to bring a relative, friend, or well-wisher to the initial face-to-face meeting with guardians.</li>
                 <li>Violations of any platform terms will result in the permanent deactivation of your tutor profile, restricting access to future matching services.</li>
-                <li>TutorCore BD is a matching marketplace platform and does not assume responsibility for individual physical safety or personal disputes.</li>
+                <li>Tutor Core is a matching marketplace platform and does not assume responsibility for individual physical safety or personal disputes.</li>
               </ul>
             </section>
 
@@ -87,7 +87,7 @@ const TermsOfUse = () => {
             <section className="space-y-3">
               <h2 className="text-2xl font-black text-slate-850">Platform Role as a Matching Marketplace</h2>
               <p>
-                TutorCore BD serves as an online directory and matching marketplace. Initial conditions, budgets, and scheduling are set entirely by the parent or guardian. TutorCore BD has no direct authority to modify these parameters and does not guarantee tuition fees or tutor conduct. Matching services are utilized at your own risk.
+                Tutor Core serves as an online directory and matching marketplace. Initial conditions, budgets, and scheduling are set entirely by the parent or guardian. Tutor Core has no direct authority to modify these parameters and does not guarantee tuition fees or tutor conduct. Matching services are utilized at your own risk.
               </p>
             </section>
 
@@ -102,8 +102,8 @@ const TermsOfUse = () => {
               <h2 className="text-2xl font-black text-slate-850">Parent and Student Guidelines</h2>
               <ul className="list-decimal list-inside space-y-2 pl-2">
                 <li>Parents and students must be legally eligible to solicit services and agree to provide comprehensive, accurate descriptions of tutoring requirements.</li>
-                <li>Parents are strongly encouraged to verify the credentials of matched tutors by requesting photocopies of their national IDs, university registration cards, and academic certificates. TutorCore BD is not liable for misconduct, safety incidents, or disputes.</li>
-                <li>Tuition salary terms and payment modes are agreed upon directly between parents and tutors. TutorCore BD is not responsible for salary disputes or collection.</li>
+                <li>Parents are strongly encouraged to verify the credentials of matched tutors by requesting photocopies of their national IDs, university registration cards, and academic certificates. Tutor Core is not liable for misconduct, safety incidents, or disputes.</li>
+                <li>Tuition salary terms and payment modes are agreed upon directly between parents and tutors. Tutor Core is not responsible for salary disputes or collection.</li>
                 <li>Tutor matching requests are free to post. Registered details will be displayed on the public Job Board for tutors to review and apply.</li>
               </ul>
             </section>
@@ -118,7 +118,7 @@ const TermsOfUse = () => {
             <section className="space-y-3">
               <h2 className="text-2xl font-black text-slate-850">Disclaimer of Warranties & Limitation of Liability</h2>
               <p>
-                TutorCore BD does not guarantee that matches will meet your specific educational expectations. We make no representations regarding the uninterrupted accessibility or error-free operation of our web services. TutorCore BD, along with its founders, team members, and ISPs, shall not be held liable for any direct, indirect, incidental, or consequential damages resulting from the use of our services.
+                Tutor Core does not guarantee that matches will meet your specific educational expectations. We make no representations regarding the uninterrupted accessibility or error-free operation of our web services. Tutor Core, along with its founders, team members, and ISPs, shall not be held liable for any direct, indirect, incidental, or consequential damages resulting from the use of our services.
               </p>
             </section>
           </>
@@ -126,7 +126,7 @@ const TermsOfUse = () => {
           <>
             <section className="space-y-3">
               <p>
-                <strong>টিউটরকোর বিডি (TutorCore BD)</strong>-তে আপনাকে স্বাগতম। আমাদের ওয়েবসাইট ব্যবহার করার, কোনো অ্যাকাউন্ট রেজিস্টার করার অথবা টিউটরকোর বিডি-র ম্যাচিং সেবা গ্রহণ করার পূর্বে অনুগ্রহ করে ব্যবহারের শর্তাবলী ও নিয়মনীতি সতর্কতার সাথে পড়ুন। আমাদের ওয়েবসাইট ব্যবহার বা অ্যাক্সেস করার মাধ্যমে, আপনি এই চুক্তির শর্তাবলীতে সম্মতি জ্ঞাপন করছেন।
+                <strong>টিউটর কোর (Tutor Core)</strong>-তে আপনাকে স্বাগতম। আমাদের ওয়েবসাইট ব্যবহার করার, কোনো অ্যাকাউন্ট রেজিস্টার করার অথবা টিউটর কোর-এর ম্যাচিং সেবা গ্রহণ করার পূর্বে অনুগ্রহ করে ব্যবহারের শর্তাবলী ও নিয়মনীতি সতর্কতার সাথে পড়ুন। আমাদের ওয়েবসাইট ব্যবহার বা অ্যাক্সেস করার মাধ্যমে, আপনি এই চুক্তির শর্তাবলীতে সম্মতি জ্ঞাপন করছেন।
               </p>
               <p>
                 এই চুক্তিটি প্ল্যাটফর্মের সমস্ত ব্যবহারকারীর জন্য প্রযোজ্য, যার মধ্যে ছাত্র-ছাত্রী, অভিভাবক এবং আমাদের ওয়েবসাইটে রেজিস্টার করা বা ব্রাউজ করা শিক্ষকরা অন্তর্ভুক্ত রয়েছেন।
@@ -142,7 +142,7 @@ const TermsOfUse = () => {
                 <li>টিউটরের অবহেলা, ইচ্ছাকৃত অবহেলা বা দায়িত্বহীনতার কারণে যদি অভিভাবক টিউশন বাতিল করেন, তবে টিউটর এর জন্য সম্পূর্ণ দায়ী থাকবেন এবং তাকে প্ল্যাটফর্মের সার্ভিস চার্জ পরিশোধ করতে হতে পারে।</li>
                 <li>নিরাপত্তার স্বার্থে, টিউটরদের (বিশেষ করে মহিলা টিউটরদের) অভিভাবকদের সাথে প্রথম মিটিংয়ের সময় কোনো অভিভাবক, বন্ধু বা শুভাকাঙ্ক্ষীকে সাথে রাখার পরামর্শ দেওয়া হচ্ছে।</li>
                 <li>প্ল্যাটফর্মের যেকোনো নিয়মনীতি ভঙ্গ করলে আপনার টিউটর প্রোফাইলটি স্থায়ীভাবে নিষ্ক্রিয় (Deactivate) করে দেওয়া হবে এবং আপনি ভবিষ্যতে কোনো টিউশন জবে আবেদন করতে পারবেন না।</li>
-                <li>টিউটরকোর বিডি একটি ম্যাচিং মার্কেটপ্লেস এবং এটি কোনো ব্যবহারকারীর ব্যক্তিগত নিরাপত্তা বা ব্যক্তিগত কোনো বিরোধের দায়িত্ব বহন করে না।</li>
+                <li>টিউটর কোর একটি ম্যাচিং মার্কেটপ্লেস এবং এটি কোনো ব্যবহারকারীর ব্যক্তিগত নিরাপত্তা বা ব্যক্তিগত কোনো বিরোধের দায়িত্ব বহন করে না।</li>
               </ul>
             </section>
 
@@ -165,7 +165,7 @@ const TermsOfUse = () => {
             <section className="space-y-3">
               <h2 className="text-2xl font-black text-slate-850">ম্যাচিং মার্কেটপ্লেস হিসেবে প্ল্যাটফর্মের ভূমিকা</h2>
               <p>
-                টিউটরকোর বিডি একটি অনলাইন ডিরেক্টরি এবং ম্যাচিং মার্কেটপ্লেস হিসেবে কাজ করে। টিউশনের প্রাথমিক প্রয়োজনীয়তা, বাজেট এবং সময়সূচী অভিভাবকরা নির্ধারণ করেন। টিউটরকোর বিডি-র এসব শর্তাবলী পরিবর্তন করার কোনো সরাসরি এক্তিয়ার নেই এবং এটি শিক্ষকের আচরণ বা অভিভাবকের বেতন পরিশোধের নিশ্চয়তা দেয় না। ব্যবহারকারীরা তাদের নিজস্ব ঝুঁকিতে ম্যাচিং সেবা ব্যবহার করবেন।
+                টিউটর কোর একটি অনলাইন ডিরেক্টরি এবং ম্যাচিং মার্কেটপ্লেস হিসেবে কাজ করে। টিউশনের প্রাথমিক প্রয়োজনীয়তা, বাজেট এবং সময়সূচী অভিভাবকরা নির্ধারণ করেন। টিউটর কোর-এর এসব শর্তাবলী পরিবর্তন করার কোনো সরাসরি এক্তিয়ার নেই এবং এটি শিক্ষকের আচরণ বা অভিভাবকের বেতন পরিশোধের নিশ্চয়তা দেয় না। ব্যবহারকারীরা তাদের নিজস্ব ঝুঁকিতে ম্যাচিং সেবা ব্যবহার করবেন।
               </p>
             </section>
 
@@ -180,8 +180,8 @@ const TermsOfUse = () => {
               <h2 className="text-2xl font-black text-slate-850">অভিভাবক ও শিক্ষার্থীদের নির্দেশনাবলী</h2>
               <ul className="list-decimal list-inside space-y-2 pl-2">
                 <li>অভিভাবক এবং শিক্ষার্থীদের অবশ্যই আইনিভাবে সেবা চাওয়ার যোগ্যতা থাকতে হবে এবং তারা টিউশন জবের সঠিক বিবরণ প্রদান করতে সম্মত থাকবেন।</li>
-                <li>অভিভাবকদের বিশেষভাবে অনুরোধ করা হচ্ছে যে তারা নির্বাচিত টিউটরের ন্যাশনাল আইডি কার্ড (NID), বিশ্ববিদ্যালয়ের আইডি কার্ড এবং সার্টিফিকেটসমূহের ফটোকপি সংগ্রহ করে সত্যতা যাচাই করে নেবেন। টিউটরের কোনো আচরণ, দুর্ঘটনা বা বিরোধের জন্য টিউটরকোর বিডি দায়ী থাকবে না।</li>
-                <li>টিউশনের বেতন এবং তা পরিশোধের মাধ্যম অভিভাবক ও শিক্ষকরা সরাসরি নিজেরা ঠিক করবেন। বেতন সংক্রান্ত কোনো জটিলতার দায় টিউটরকোর বিডি বহন করবে না।</li>
+                <li>অভিভাবকদের বিশেষভাবে অনুরোধ করা হচ্ছে যে তারা নির্বাচিত টিউটরের ন্যাশনাল আইডি কার্ড (NID), বিশ্ববিদ্যালয়ের আইডি কার্ড এবং সার্টিফিকেটসমূহের ফটোকপি সংগ্রহ করে সত্যতা যাচাই করে নেবেন। টিউটরের কোনো আচরণ, দুর্ঘটনা বা বিরোধের জন্য টিউটর কোর দায়ী থাকবে না।</li>
+                <li>টিউশনের বেতন এবং তা পরিশোধের মাধ্যম অভিভাবক ও শিক্ষকরা সরাসরি নিজেরা ঠিক করবেন। বেতন সংক্রান্ত কোনো জটিলতার দায় টিউটর কোর বহন করবে না।</li>
                 <li>টিউটর ম্যাচিং রিকোয়েস্ট পোস্ট করা অভিভাবকদের জন্য সম্পূর্ণ ফ্রি। আপনার পোস্ট করা রিকোয়েস্টটি আমাদের পাবলিক জব বোর্ডে প্রদর্শিত হবে যাতে শিক্ষকরা আবেদন করতে পারেন।</li>
               </ul>
             </section>
@@ -196,7 +196,7 @@ const TermsOfUse = () => {
             <section className="space-y-3">
               <h2 className="text-2xl font-black text-slate-850">দায় ও ওয়ারেন্টির সীমাবদ্ধতা</h2>
               <p>
-                টিউটরকোর বিডি গ্যারান্টি দেয় না যে কোনো টিউটর বা ম্যাচ আপনার সুনির্দিষ্ট প্রত্যাশা পূরণ করতে পারবে। আমাদের অনলাইন সেবা সর্বদা নিরবচ্ছিন্ন বা ত্রুটিহীন থাকবে এমন কোনো নিশ্চয়তা দেওয়া হচ্ছে না। টিউটরকোর বিডি, এর প্রতিষ্ঠাতা, টিম মেম্বার এবং ইন্টারনেট সার্ভিস পার্টনাররা সেবা ব্যবহারের ফলে হওয়া কোনো প্রত্যক্ষ বা পরোক্ষ ক্ষতির জন্য আইনগতভাবে দায়ী থাকবেন না।
+                টিউটর কোর গ্যারান্টি দেয় না যে কোনো টিউটর বা ম্যাচ আপনার সুনির্দিষ্ট প্রত্যাশা পূরণ করতে পারবে। আমাদের অনলাইন সেবা সর্বদা নিরবচ্ছিন্ন বা ত্রুটিহীন থাকবে এমন কোনো নিশ্চয়তা দেওয়া হচ্ছে না। টিউটর কোর, এর প্রতিষ্ঠাতা, টিম মেম্বার এবং ইন্টারনেট সার্ভিস পার্টনাররা সেবা ব্যবহারের ফলে হওয়া কোনো প্রত্যক্ষ বা পরোক্ষ ক্ষতির জন্য আইনগতভাবে দায়ী থাকবেন না।
               </p>
             </section>
           </>

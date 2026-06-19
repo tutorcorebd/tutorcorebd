@@ -11,6 +11,11 @@ const AdminAssignmentHub = () => {
 
   const fetchRequests = async () => {
     setLoading(true);
+    try {
+      await supabase.auth.getSession();
+    } catch (e) {
+      console.error('Session refresh error in AssignmentHub:', e);
+    }
     const { data, error } = await supabase
       .from('tuition_requests')
       .select('*, guardian:guardian_id(full_name)')

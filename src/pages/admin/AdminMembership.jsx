@@ -31,6 +31,9 @@ const AdminMembership = () => {
     const timeout = setTimeout(() => setLoading(false), 4000);
 
     try {
+      // Ensure session is fresh before running request query
+      await supabase.auth.getSession();
+
       const { data, error } = await supabase
         .from('membership_requests')
         .select(`
@@ -93,11 +96,11 @@ const AdminMembership = () => {
 
         const { error: profileError } = await supabase
           .from('tutor_profiles')
-          .update({ 
+          .upsert({ 
+            user_id: request.user_id,
             tutor_status: profileStatus,
             is_verified: isVerified
-          })
-          .eq('user_id', request.user_id);
+          });
 
         if (profileError) throw profileError;
       }

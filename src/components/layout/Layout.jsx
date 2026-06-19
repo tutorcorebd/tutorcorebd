@@ -1,4 +1,4 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../../store/useAuthStore';
 import { LogOut, User, Menu, Send, Globe, Mail, Phone, ArrowRight, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
@@ -8,6 +8,7 @@ import MobileBottomNav from './MobileBottomNav';
 const Layout = () => {
   const { session, profile, signOut } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showRoleMismatchModal, setShowRoleMismatchModal] = useState(false);
 
@@ -45,7 +46,7 @@ const Layout = () => {
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="text-2xl font-bold text-primary flex items-center gap-2">
-                <span className="bg-primary text-white p-1 rounded-md">TC</span> TutorCore
+                <span className="bg-primary text-white p-1 rounded-md">TC</span> Tutor Core
               </Link>
             </div>
 
@@ -127,7 +128,7 @@ const Layout = () => {
 
       {/* Main Content */}
       <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
-        <Outlet context={{ setShowRoleMismatchModal }} />
+        <Outlet key={location.pathname} context={{ setShowRoleMismatchModal }} />
       </main>
 
       {/* Footer */}
@@ -138,10 +139,10 @@ const Layout = () => {
             {/* Column 1: Brand Info */}
             <div className="space-y-4">
               <Link to="/" className="text-2xl font-bold text-white flex items-center gap-2">
-                <span className="bg-[#86c240] text-white p-1 rounded-md text-sm font-black">TC</span> TutorCore
+                <span className="bg-[#86c240] text-white p-1 rounded-md text-sm font-black">TC</span> Tutor Core
               </Link>
               <p className="text-sm text-slate-400 leading-relaxed font-medium">
-                TutorCore connects students with premium, verified home and online educators. Making teaching and learning highly collaborative, safe, and effective.
+                Tutor Core connects students with premium, verified home and online educators. Making teaching and learning highly collaborative, safe, and effective.
               </p>
               {/* Social Icons */}
               <div className="flex space-x-3 pt-2">
@@ -272,7 +273,7 @@ const Layout = () => {
           {/* Bottom Bar */}
           <div className="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-semibold text-slate-500">
             <div>
-              &copy; {new Date().getFullYear()} TutorCore. All rights reserved.
+              &copy; {new Date().getFullYear()} Tutor Core. All rights reserved.
             </div>
             <div className="flex space-x-6">
               <Link to="/terms-of-use" className="hover:text-white transition-colors">Terms of Use</Link>

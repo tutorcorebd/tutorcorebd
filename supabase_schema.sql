@@ -1,123 +1,174 @@
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
 
--- 1. Create custom user roles enum
-CREATE TYPE user_role AS ENUM ('admin', 'tutor', 'guardian');
-
--- 2. Create users table that extends auth.users
 CREATE TABLE public.users (
-  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-  role user_role NOT NULL,
-  full_name TEXT NOT NULL,
-  phone_number TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  id uuid NOT NULL,
+  role USER-DEFINED NOT NULL,
+  full_name text NOT NULL,
+  phone_number text,
+  created_at timestamp with time zone DEFAULT now(),
+  status text NOT NULL DEFAULT 'active'::text,
+  email_notifications boolean DEFAULT true,
+  sms_notifications boolean DEFAULT false,
+  deactivation_reason text,
+  deletion_reason text,
+  deletion_requested_at timestamp with time zone,
+  CONSTRAINT users_pkey PRIMARY KEY (id),
+  CONSTRAINT users_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );
-
--- 3. Create tutor_profiles table
 CREATE TABLE public.tutor_profiles (
-  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE PRIMARY KEY,
-  education_status TEXT,
-  preferred_subjects TEXT[],
-  cv_url TEXT,
-  profile_completeness INTEGER DEFAULT 0,
-  is_verified BOOLEAN DEFAULT FALSE,
-  bio TEXT
+  user_id uuid NOT NULL,
+  education_status text,
+  preferred_subjects ARRAY,
+  cv_url text,
+  profile_completeness integer DEFAULT 0,
+  is_verified boolean DEFAULT false,
+  bio text,
+  current_city text,
+  preferred_locations ARRAY,
+  university text,
+  department text,
+  is_hsc_student boolean DEFAULT false,
+  living_location text,
+  preferred_category text,
+  preferred_courses ARRAY,
+  experience text,
+  available_days ARRAY,
+  teaching_method text,
+  available_from text,
+  available_to text,
+  expected_salary text,
+  school_name text,
+  school_group text,
+  school_curriculum text,
+  school_board text,
+  school_gpa text,
+  school_year text,
+  college_name text,
+  college_group text,
+  college_curriculum text,
+  college_board text,
+  college_gpa text,
+  college_year text,
+  grad_gpa text,
+  grad_year text,
+  post_grad_university text,
+  post_grad_department text,
+  post_grad_gpa text,
+  post_grad_year text,
+  gender text,
+  fathers_name text,
+  mothers_name text,
+  emergency_contact text,
+  address text,
+  nid text,
+  dob text,
+  photo_url text,
+  tutor_category text DEFAULT 'New Tutors'::text,
+  tutor_status text DEFAULT 'Normal Tutor'::text CHECK (tutor_status = ANY (ARRAY['Normal Tutor'::text, 'Verified Tutor'::text, 'Premium Tutor'::text])),
+  emergency_contact_name text,
+  emergency_contact_relationship text,
+  emergency_contact_phone text,
+  emergency_contact_additional text,
+  facebook_link text,
+  linkedin_link text,
+  whatsapp_number text,
+  about_yourself text,
+  reasons_for_hiring text,
+  tuition_experience_details text,
+  personal_motivation text,
+  CONSTRAINT tutor_profiles_pkey PRIMARY KEY (user_id),
+  CONSTRAINT tutor_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
-
--- 4. Create tuition_requests (Job Board Entries) table
 CREATE TABLE public.tuition_requests (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  guardian_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
-  student_class TEXT NOT NULL,
-  subject TEXT[] NOT NULL,
-  location TEXT NOT NULL,
-  guardian_whatsapp TEXT NOT NULL,
-  salary_range TEXT,
-  days_per_week INTEGER,
-  status TEXT CHECK (status IN ('open', 'assigned', 'closed')) DEFAULT 'open',
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  guardian_id uuid NOT NULL,
+  student_class text NOT NULL,
+  subject ARRAY NOT NULL,
+  location text NOT NULL,
+  guardian_whatsapp text NOT NULL,
+  salary_range text,
+  days_per_week integer,
+  status text DEFAULT 'open'::text CHECK (status = ANY (ARRAY['open'::text, 'assigned'::text, 'closed'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  preferred_gender text DEFAULT 'Any'::text,
+  preferred_university text DEFAULT 'Any'::text,
+  tutoring_mode text DEFAULT 'Home Tutoring'::text,
+  tutoring_time text DEFAULT 'Negotiable'::text,
+  preferred_category text DEFAULT 'Bangla Medium'::text,
+  duration text DEFAULT '1.5 Hour'::text,
+  number_of_students text DEFAULT 'One'::text,
+  hiring_from text,
+  other_requirement text,
+  full_address text,
+  views integer DEFAULT 0,
+  CONSTRAINT tuition_requests_pkey PRIMARY KEY (id),
+  CONSTRAINT tuition_requests_guardian_id_fkey FOREIGN KEY (guardian_id) REFERENCES public.users(id)
 );
-
--- 5. Create job_applications table
 CREATE TABLE public.job_applications (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  tutor_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
-  tuition_request_id UUID REFERENCES public.tuition_requests(id) ON DELETE CASCADE NOT NULL,
-  status TEXT CHECK (status IN ('pending', 'reviewed', 'selected', 'rejected', 'payment', 'due', 'refund')) DEFAULT 'pending',
-  applied_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(tutor_id, tuition_request_id) -- A tutor can apply only once per request
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  tutor_id uuid NOT NULL,
+  tuition_request_id uuid NOT NULL,
+  status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'reviewed'::text, 'selected'::text, 'rejected'::text])),
+  applied_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT job_applications_pkey PRIMARY KEY (id),
+  CONSTRAINT job_applications_tutor_id_fkey FOREIGN KEY (tutor_id) REFERENCES public.users(id),
+  CONSTRAINT job_applications_tuition_request_id_fkey FOREIGN KEY (tuition_request_id) REFERENCES public.tuition_requests(id)
 );
-
--- ==========================================
--- ROW LEVEL SECURITY (RLS) POLICIES
--- ==========================================
-
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.tutor_profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.tuition_requests ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.job_applications ENABLE ROW LEVEL SECURITY;
-
--- users policies
-CREATE POLICY "Users can view all users basic info" ON public.users FOR SELECT USING (true);
-CREATE POLICY "Users can update their own info" ON public.users FOR UPDATE USING (auth.uid() = id);
-
--- tutor_profiles policies
-CREATE POLICY "Anyone can view tutor profiles" ON public.tutor_profiles FOR SELECT USING (true);
-CREATE POLICY "Tutors can update their own profile" ON public.tutor_profiles FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Tutors can insert their own profile" ON public.tutor_profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
-
--- tuition_requests policies
-CREATE POLICY "Anyone can view open tuition requests" ON public.tuition_requests FOR SELECT USING (status = 'open' OR auth.uid() IN (
-    SELECT id FROM public.users WHERE role = 'admin'
-) OR auth.uid() = guardian_id);
-
-CREATE POLICY "Guardians can insert requests" ON public.tuition_requests FOR INSERT WITH CHECK (auth.uid() = guardian_id);
-CREATE POLICY "Admins can update requests" ON public.tuition_requests FOR UPDATE USING (
-    auth.uid() IN (SELECT id FROM public.users WHERE role = 'admin')
+CREATE TABLE public.tutorials (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  video_url text NOT NULL,
+  thumbnail_url text,
+  description text,
+  target_role text DEFAULT 'all'::text,
+  created_at timestamp with time zone DEFAULT now(),
+  show_on_job_board boolean DEFAULT false,
+  CONSTRAINT tutorials_pkey PRIMARY KEY (id)
 );
-
--- Ensure guardian_whatsapp is only visible to admins and the guardian themselves
--- (In Supabase, column level security is tricky, so we rely on the client not fetching it, but to be strictly secure, we create a view or use a function. For simplicity in RLS, we'll allow select but front-end won't fetch it unless admin/guardian). 
--- Actually, a better way is an RLS policy that prevents selecting the column entirely, but PG doesn't support column-level SELECT policies easily with RLS without custom views. 
--- We will handle this in the UI logic and API queries. Admin queries explicitly ask for it.
-
--- job_applications policies
-CREATE POLICY "Tutors can view their own applications" ON public.job_applications FOR SELECT USING (
-    auth.uid() = tutor_id OR auth.uid() IN (SELECT id FROM public.users WHERE role = 'admin')
+CREATE TABLE public.guardian_profiles (
+  user_id uuid NOT NULL,
+  alternative_phone text,
+  profession text,
+  address text,
+  city text,
+  number_of_children text,
+  profile_photo_url text,
+  profile_completeness integer DEFAULT 0,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT guardian_profiles_pkey PRIMARY KEY (user_id),
+  CONSTRAINT guardian_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
-CREATE POLICY "Tutors can insert their own applications" ON public.job_applications FOR INSERT WITH CHECK (auth.uid() = tutor_id);
-CREATE POLICY "Admins can update applications" ON public.job_applications FOR UPDATE USING (
-    auth.uid() IN (SELECT id FROM public.users WHERE role = 'admin')
+CREATE TABLE public.bookmarks (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  tutor_id uuid NOT NULL,
+  tuition_request_id uuid NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT bookmarks_pkey PRIMARY KEY (id),
+  CONSTRAINT bookmarks_tutor_id_fkey FOREIGN KEY (tutor_id) REFERENCES auth.users(id),
+  CONSTRAINT bookmarks_tuition_request_id_fkey FOREIGN KEY (tuition_request_id) REFERENCES public.tuition_requests(id)
 );
-
--- ==========================================
--- TRIGGERS & FUNCTIONS
--- ==========================================
-
--- Function to handle new user signup and insert into public.users
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger AS $$
-BEGIN
-  INSERT INTO public.users (id, role, full_name, phone_number)
-  VALUES (
-    new.id,
-    -- Default role mapping from metadata, default to tutor if not provided
-    COALESCE((new.raw_user_meta_data->>'role')::public.user_role, 'tutor'::public.user_role),
-    COALESCE(new.raw_user_meta_data->>'full_name', 'Unknown'),
-    new.raw_user_meta_data->>'phone_number'
-  );
-
-  -- If tutor, create an empty tutor profile
-  IF COALESCE((new.raw_user_meta_data->>'role')::public.user_role, 'tutor'::public.user_role) = 'tutor' THEN
-    INSERT INTO public.tutor_profiles (user_id) VALUES (new.id);
-  END IF;
-
-  RETURN new;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger on auth.users
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+CREATE TABLE public.notices (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  message text NOT NULL,
+  target_audience text NOT NULL CHECK (target_audience = ANY (ARRAY['all'::text, 'tutor'::text, 'guardian'::text, 'specific'::text])),
+  specific_user_ids ARRAY DEFAULT '{}'::uuid[],
+  expires_at timestamp with time zone NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT notices_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.membership_requests (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  user_id uuid NOT NULL,
+  plan_name text NOT NULL CHECK (plan_name = ANY (ARRAY['Basic'::text, 'Pro'::text, 'Premium'::text, 'Verified'::text])),
+  status text NOT NULL DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  payment_platform text,
+  transaction_id text,
+  phone_number text,
+  CONSTRAINT membership_requests_pkey PRIMARY KEY (id),
+  CONSTRAINT membership_requests_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);

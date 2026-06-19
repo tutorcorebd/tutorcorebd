@@ -263,7 +263,7 @@ const TuitionDetails = () => {
       {/* Back button */}
       <button 
         onClick={() => navigate(-1)} 
-        className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors"
+        className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Back
       </button>
@@ -275,150 +275,150 @@ const TuitionDetails = () => {
         <div className="lg:col-span-2 space-y-6">
           
           {/* Section 1: Student Informations */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 space-y-6 relative overflow-hidden">
-            <h3 className="text-[#86c240] font-bold text-lg mb-6">Student Informations</h3>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-8 space-y-6 relative overflow-hidden">
+            <h3 className="text-[#86c240] font-extrabold text-xl sm:text-2xl mb-6">Student Informations</h3>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4 text-xs font-semibold text-slate-600">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-sm font-semibold text-slate-600">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
-                  <Box className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
+                  <Box className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-0.5">Category</span>
-                  <span className="text-slate-800 text-sm font-extrabold">{job.preferred_category || 'Bangla Medium'}</span>
+                  <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Category</span>
+                  <span className="text-slate-800 text-sm sm:text-base font-extrabold">{job.preferred_category || 'Bangla Medium'}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
-                  <GraduationCap className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
+                  <GraduationCap className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-0.5">Course</span>
-                  <span className="text-slate-800 text-sm font-extrabold">{job.student_class}</span>
+                  <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Course</span>
+                  <span className="text-slate-800 text-sm sm:text-base font-extrabold">{job.student_class}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
-                  <BookOpen className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
+                  <BookOpen className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-0.5">Subject</span>
-                  <span className="text-slate-800 text-sm font-extrabold block" title={job.subject?.join(', ')}>
+                  <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Subject</span>
+                  <span className="text-slate-800 text-sm sm:text-base font-extrabold block" title={job.subject?.join(', ')}>
                     {job.subject?.join(', ')}
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
-                  <Calendar className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
+                  <Calendar className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-0.5">Days</span>
-                  <span className="text-slate-800 text-sm font-extrabold">{job.days_per_week} days</span>
+                  <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Days</span>
+                  <span className="text-slate-800 text-sm sm:text-base font-extrabold">{job.days_per_week} days</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
-                  <Clock className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
+                  <Clock className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-0.5">Time</span>
-                  <span className="text-slate-800 text-sm font-extrabold">{job.tutoring_time || 'Negotiable'}</span>
+                  <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Time</span>
+                  <span className="text-slate-800 text-sm sm:text-base font-extrabold">{job.tutoring_time || 'Negotiable'}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
-                  <Clock className="w-4 h-4 text-purple-500" />
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
+                  <Clock className="w-5 h-5 text-purple-500" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-0.5">Duration</span>
-                  <span className="text-slate-800 text-sm font-extrabold">{job.duration || '1.5 Hour'}</span>
+                  <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Duration</span>
+                  <span className="text-slate-800 text-sm sm:text-base font-extrabold">{job.duration || '1.5 Hour'}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
-                  <Box className="w-4 h-4 text-purple-500" />
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
+                  <Box className="w-5 h-5 text-purple-500" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-0.5">Method</span>
-                  <span className="text-slate-800 text-sm font-extrabold">{job.tutoring_mode || 'Home Tutoring'}</span>
+                  <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Method</span>
+                  <span className="text-slate-800 text-sm sm:text-base font-extrabold">{job.tutoring_mode || 'Home Tutoring'}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
-                  <Banknote className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
+                  <Banknote className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-0.5">Salary</span>
-                  <span className="text-[#86c240] text-sm font-black">{job.salary_range || 'Negotiable'}</span>
+                  <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Salary</span>
+                  <span className="text-[#86c240] text-sm sm:text-base font-black">{job.salary_range || 'Negotiable'}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
-                  <Users className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
+                  <Users className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-0.5">Students</span>
-                  <span className="text-slate-800 text-sm font-extrabold">{job.number_of_students || 'One'}</span>
+                  <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Students</span>
+                  <span className="text-slate-800 text-sm sm:text-base font-extrabold">{job.number_of_students || 'One'}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center text-pink-500 flex-shrink-0">
-                  <User className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center text-pink-500 flex-shrink-0">
+                  <User className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-0.5">Gender</span>
-                  <span className="text-pink-500 text-sm font-extrabold">{job.preferred_gender || 'Any'}</span>
+                  <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Gender</span>
+                  <span className="text-pink-500 text-sm sm:text-base font-extrabold">{job.preferred_gender || 'Any'}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Section 2: Tutor Requirements */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 space-y-6">
-            <h3 className="text-[#86c240] font-bold text-lg mb-6">Tutor Requirements</h3>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-8 space-y-6">
+            <h3 className="text-[#86c240] font-extrabold text-xl sm:text-2xl mb-6">Tutor Requirements</h3>
             
-            <div className="grid sm:grid-cols-2 gap-6 text-xs font-semibold text-slate-600">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm font-semibold text-slate-600">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center text-pink-500 flex-shrink-0">
-                  <User className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center text-pink-500 flex-shrink-0">
+                  <User className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-0.5">Gender</span>
-                  <span className="text-pink-500 text-sm font-extrabold">{job.preferred_gender || 'Any'}</span>
+                  <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Gender</span>
+                  <span className="text-pink-500 text-sm sm:text-base font-extrabold">{job.preferred_gender || 'Any'}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
-                  <Calendar className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
+                  <Calendar className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-0.5">Hiring From</span>
-                  <span className="text-slate-800 text-sm font-extrabold">
+                  <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Hiring From</span>
+                  <span className="text-slate-800 text-sm sm:text-base font-extrabold">
                     {job.hiring_from ? format(new Date(job.hiring_from), 'dd MMM yyyy') : 'Immediately'}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="border-t border-slate-50 pt-4 text-xs font-semibold text-slate-600">
+            <div className="border-t border-slate-50 pt-4 text-sm font-semibold text-slate-600">
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
-                  <Box className="w-4 h-4 text-[#86c240]" />
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-[#86c240] flex-shrink-0">
+                  <Box className="w-5 h-5 text-[#86c240]" />
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold block mb-1">Other Requirement</span>
-                  <p className="text-slate-700 font-medium italic">
+                  <span className="text-slate-400 font-bold block mb-1.5 text-xs sm:text-sm">Other Requirement</span>
+                  <p className="text-slate-700 text-sm sm:text-base font-medium italic">
                     {job.other_requirement || '"Highly Experienced" tutors are cordially invited to apply.'}
                   </p>
                 </div>
@@ -427,27 +427,27 @@ const TuitionDetails = () => {
           </div>
 
           {/* Section 3: Contact Informations */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 space-y-6">
-            <h3 className="text-[#86c240] font-bold text-lg mb-6">Contact Informations</h3>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-8 space-y-6">
+            <h3 className="text-[#86c240] font-extrabold text-xl sm:text-2xl mb-6">Contact Informations</h3>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-xs font-semibold text-slate-600">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm font-semibold text-slate-600">
               <div>
-                <span className="text-slate-400 font-bold block mb-1">Country</span>
-                <p className="text-slate-800 text-sm font-extrabold">Bangladesh</p>
+                <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Country</span>
+                <p className="text-slate-800 text-sm sm:text-base font-extrabold">Bangladesh</p>
               </div>
               <div>
-                <span className="text-slate-400 font-bold block mb-1">City</span>
-                <p className="text-slate-800 text-sm font-extrabold">{cityName}</p>
+                <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">City</span>
+                <p className="text-slate-800 text-sm sm:text-base font-extrabold">{cityName}</p>
               </div>
               <div>
-                <span className="text-slate-400 font-bold block mb-1">Location</span>
-                <p className="text-slate-800 text-sm font-extrabold">{areaName}</p>
+                <span className="text-slate-400 font-bold block mb-1 text-xs sm:text-sm">Location</span>
+                <p className="text-slate-800 text-sm sm:text-base font-extrabold">{areaName}</p>
               </div>
             </div>
 
-            <div className="border-t border-slate-50 pt-4 text-xs font-semibold text-slate-600">
-              <span className="text-slate-400 font-bold block mb-1">Full Address</span>
-              <p className="text-slate-800 text-sm font-extrabold">
+            <div className="border-t border-slate-50 pt-4 text-sm font-semibold text-slate-600">
+              <span className="text-slate-400 font-bold block mb-1.5 text-xs sm:text-sm">Full Address</span>
+              <p className="text-slate-800 text-sm sm:text-base font-extrabold">
                 {job.full_address || `Near By ${areaName} Road`}
               </p>
             </div>
@@ -457,47 +457,47 @@ const TuitionDetails = () => {
 
         {/* Right Side: Quick Action Panel */}
         <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-6 space-y-4">
             
             {/* Get Direction Button (Google Maps) */}
             <a 
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${job.location}, Bangladesh`)}`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-md"
+              className="flex items-center justify-center gap-2 w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm sm:text-base font-bold transition-all shadow-md"
             >
-              <Navigation className="w-4 h-4" /> Get Direction
+              <Navigation className="w-5 h-5" /> Get Direction
             </a>
 
             {/* Location (Text box) */}
-            <div className="w-full py-3 text-center border border-slate-200 rounded-xl text-xs font-bold text-slate-700 bg-slate-50">
+            <div className="w-full py-3.5 text-center border border-slate-200 rounded-xl text-sm sm:text-base font-bold text-slate-700 bg-slate-50">
               {cityName} : {areaName}
             </div>
 
             {/* Share Button */}
             <button 
               onClick={handleShare}
-              className="flex items-center justify-center gap-2 w-full py-3 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all"
+              className="flex items-center justify-center gap-2 w-full py-3.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-sm sm:text-base font-bold transition-all"
             >
-              <Share2 className="w-4 h-4 text-slate-400" /> Share
+              <Share2 className="w-5 h-5 text-slate-400" /> Share
             </button>
 
             {/* Bookmark Button */}
             <button 
               onClick={handleToggleBookmark}
-              className={`flex items-center justify-center gap-2 w-full py-3 border rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center justify-center gap-2 w-full py-3.5 border rounded-xl text-sm sm:text-base font-bold transition-all ${
                 isBookmarked 
                   ? 'border-red-200 bg-red-50 text-red-600 hover:bg-red-100/50' 
                   : 'border-slate-200 hover:bg-slate-50 text-slate-700'
               }`}
             >
-              <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current text-red-500' : 'text-slate-400'}`} />
+              <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-current text-red-500' : 'text-slate-400'}`} />
               {isBookmarked ? 'Bookmarked' : 'Bookmark'}
             </button>
 
             {/* Warn tutor if requirements mismatch */}
             {profile?.role === 'tutor' && !reqCheck.match && (
-              <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-[11px] text-red-500 font-bold">
+              <div className="bg-red-50 border border-red-100 rounded-xl p-3.5 text-xs sm:text-sm text-red-500 font-bold">
                 ⚠️ {reqCheck.reason}
               </div>
             )}
@@ -507,7 +507,7 @@ const TuitionDetails = () => {
               <button 
                 onClick={handleApplyClick}
                 disabled={profile?.role === 'tutor' && !reqCheck.match}
-                className={`flex items-center justify-center gap-2 w-full py-3 text-white rounded-xl text-xs font-bold transition-all shadow-md ${
+                className={`flex items-center justify-center gap-2 w-full py-3.5 text-white rounded-xl text-sm sm:text-base font-bold transition-all shadow-md ${
                   profile?.role === 'tutor' && !reqCheck.match
                     ? 'bg-slate-300 cursor-not-allowed shadow-none'
                     : 'bg-[#86c240] hover:bg-[#6a9c31]'
@@ -522,7 +522,7 @@ const TuitionDetails = () => {
       </div>
 
       {/* Footer stats */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col sm:flex-row justify-around items-center text-xs font-black text-slate-500 gap-4">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col sm:flex-row justify-around items-center text-sm sm:text-base font-black text-slate-500 gap-4">
         <div>Job Id: {shortId}</div>
         <div className="hidden sm:block text-slate-200">|</div>
         <div>Total Views: {(job.views || 0)}</div>

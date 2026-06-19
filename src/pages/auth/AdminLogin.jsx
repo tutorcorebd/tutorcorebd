@@ -105,13 +105,13 @@ const AdminLogin = () => {
             <Shield className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight mb-5">
-            TutorCore BD<br />
+            Tutor Core<br />
             <span className="text-green-100 font-medium text-3xl md:text-4xl block mt-2">
               Enterprise admin portal
             </span>
           </h1>
           <p className="text-green-50/90 text-lg leading-relaxed font-medium">
-            Welcome back! This is the management workspace for TutorCore BD. Sign in here to manage tutors, process applications, and monitor platform activity.
+            Welcome back! This is the management workspace for Tutor Core. Sign in here to manage tutors, process applications, and monitor platform activity.
           </p>
         </motion.div>
 
@@ -121,7 +121,7 @@ const AdminLogin = () => {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="relative z-10 text-green-100/80 text-sm font-medium"
         >
-          &copy; {new Date().getFullYear()} TutorCore BD. Enterprise security system.
+          &copy; {new Date().getFullYear()} Tutor Core. Enterprise security system.
         </motion.div>
       </div>
 
@@ -134,7 +134,7 @@ const AdminLogin = () => {
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             <span className="text-xs font-semibold">Back to site</span>
           </Link>
-          <span className="text-xs font-bold text-[#86c240]">TutorCore Admin</span>
+          <span className="text-xs font-bold text-[#86c240]">Tutor Core Admin</span>
         </div>
 
         <motion.div 
@@ -238,7 +238,7 @@ const AdminLogin = () => {
           {/* Footer note */}
           <div className="pt-6 mt-6 border-t border-slate-100 text-center">
             <p className="text-[11px] text-slate-400 font-semibold leading-relaxed">
-              This area is restricted to TutorCore BD administrators. If you need assistance, please contact the system administrator.
+              This area is restricted to Tutor Core administrators. If you need assistance, please contact the system administrator.
             </p>
           </div>
 

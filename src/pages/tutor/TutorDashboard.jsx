@@ -22,6 +22,33 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomAlert from '../../components/layout/CustomAlert';
 
+const VerifiedBadge = ({ size = 16, position = 'top' }) => (
+  <span className="group relative inline-block cursor-help select-none">
+    <svg 
+      className="inline-block text-[#86c240] fill-current shrink-0 ml-1.5 align-middle" 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M23 12l-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-13 5l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
+    </svg>
+    
+    <span className={`pointer-events-none absolute ${
+      position === 'bottom' 
+        ? 'top-full mt-2' 
+        : 'bottom-full mb-2'
+    } left-1/2 -translate-x-1/2 w-60 bg-slate-900 text-white text-[11px] font-medium leading-relaxed p-3 rounded-xl shadow-xl border border-slate-800 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-[99] text-center normal-case tracking-normal`}>
+      Accounts with a verified badge have been authenticated and can be Tutor Core Verified subscribers or notable persons or brands.
+      <span className={`absolute ${
+        position === 'bottom'
+          ? 'bottom-full left-1/2 -translate-x-1/2 border-8 border-transparent border-b-slate-900'
+          : 'top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-900'
+      }`}></span>
+    </span>
+  </span>
+);
+
 const TutorDashboard = () => {
   const { profile } = useAuthStore();
   const [applications, setApplications] = useState([]);
@@ -256,11 +283,11 @@ const TutorDashboard = () => {
         {/* Welcome Card (Top Left, spans 2 columns) */}
         <div className="md:col-span-2 bg-white rounded-xl border border-slate-100 shadow-sm p-8 flex justify-between items-center relative overflow-hidden">
           <div className="z-10">
-            <h1 className="text-2xl text-slate-600 font-medium">
-              Good Morning, <span className="font-bold text-slate-800">{profile?.full_name || 'Tushar Undefined'}</span>
+            <h1 className="text-2xl text-slate-600 font-medium flex items-center gap-1">
+              Good Morning, <span className="font-bold text-slate-800 flex items-center gap-1.5">{profile?.full_name || 'Tushar Undefined'}{profile?.role === 'tutor' && profile?.tutor_profile?.is_verified && <VerifiedBadge size={20} />}</span>
             </h1>
             <h2 className="text-3xl font-black text-slate-800 mt-1 mb-3">
-              Welcome to TutorCore BD
+              Welcome to Tutor Core
             </h2>
             <p className="text-slate-500 text-sm max-w-lg leading-relaxed">
               We are so delighted about your arrival on our platform. You can apply your desired "Tuition Job" from your personalized dashboard. So, don't be late apply & enjoy your tutoring journey!!!

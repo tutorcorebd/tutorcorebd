@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { supabase } from './lib/supabase';
 import useAuthStore from './store/useAuthStore';
 import Layout from './components/layout/Layout';
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -54,6 +55,24 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminNotices from './pages/admin/AdminNotices';
 import AdminMembership from './pages/admin/AdminMembership';
 
+function SessionRefresher() {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Refresh Supabase session on navigation to prevent RLS query drops
+    const refreshSession = async () => {
+      try {
+        await supabase.auth.getSession();
+      } catch (err) {
+        console.error('Session refresh error on navigation:', err);
+      }
+    };
+    refreshSession();
+  }, [location.pathname]);
+
+  return null;
+}
+
 function App() {
   const { initialize } = useAuthStore();
 
@@ -63,6 +82,7 @@ function App() {
 
   return (
     <Router>
+      <SessionRefresher />
       <Routes>
         {/* Public Routes with standard Header/Footer Layout */}
         <Route element={<Layout />}>
