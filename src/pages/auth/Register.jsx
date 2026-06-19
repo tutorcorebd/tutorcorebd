@@ -62,8 +62,8 @@ const Register = () => {
     } else {
       showAlert(
         'success', 
-        'Registration Successful!', 
-        'Your account has been created successfully.', 
+        'Verify Your Email Address', 
+        'A confirmation email has been sent. Please check your inbox (and spam folder) and click the link to activate your account.', 
         () => navigate(redirectTo || '/')
       );
     }
