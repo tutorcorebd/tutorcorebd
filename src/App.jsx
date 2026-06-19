@@ -22,6 +22,7 @@ import JobBoard from './pages/public/JobBoard';
 import FindTutors from './pages/public/FindTutors';
 import PublicTutorProfile from './pages/public/PublicTutorProfile';
 import TuitionDetails from './pages/public/TuitionDetails';
+import Categories from './pages/public/Categories';
 
 // Tutor Pages
 import TutorDashboard from './pages/tutor/TutorDashboard';
@@ -56,6 +57,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminNotices from './pages/admin/AdminNotices';
 import AdminMembership from './pages/admin/AdminMembership';
 import AdminSupport from './pages/admin/AdminSupport';
+import AdminCategories from './pages/admin/AdminCategories';
 
 function SessionRefresher() {
   const location = useLocation();
@@ -101,6 +103,7 @@ function App() {
           <Route path="/job-board" element={<JobBoard />} />
           <Route path="/find-tutors" element={<FindTutors />} />
           <Route path="/tutor/:id" element={<PublicTutorProfile />} />
+          <Route path="/categories" element={<Categories />} />
           <Route path="/tuition/:id" element={<TuitionDetails />} />
         </Route>
 
@@ -148,6 +151,7 @@ function App() {
             <Route path="/admin/membership" element={<AdminMembership />} />
             <Route path="/admin/notices" element={<AdminNotices />} />
             <Route path="/admin/support" element={<AdminSupport />} />
+            <Route path="/admin/categories" element={<AdminCategories />} />
           </Route>
         </Route>
       </Routes>

@@ -163,12 +163,14 @@ const TuitionJobsBoard = ({ isPublic }) => {
     const queryParams = new URLSearchParams(locationState.search);
     const queryLocation = queryParams.get('location') || '';
     const queryClass = queryParams.get('class') || '';
+    const queryCategory = queryParams.get('category') || '';
     
-    if (queryLocation || queryClass) {
+    if (queryLocation || queryClass || queryCategory) {
       setAdvFilters(prev => ({
         ...prev,
         location: queryLocation,
-        courseClass: queryClass
+        courseClass: queryClass,
+        category: queryCategory
       }));
       setActiveFilters({
         dateFrom: '',
@@ -176,7 +178,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
         country: 'Bangladesh',
         city: '',
         location: queryLocation,
-        category: '',
+        category: queryCategory,
         courseClass: queryClass,
         subject: ''
       });

@@ -53,6 +53,7 @@ const Layout = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8 items-center">
               <Link to="/" className="text-slate-600 hover:text-primary font-medium">Home</Link>
+              <Link to="/categories" className="text-slate-600 hover:text-primary font-medium">Categories</Link>
               <Link to="/job-board" className="text-slate-600 hover:text-primary font-medium">Find Tuitions</Link>
               <Link to="/find-tutors" className="text-slate-600 hover:text-primary font-medium">Find Tutors</Link>
               <Link to="/faq" className="text-slate-600 hover:text-primary font-medium">FAQ</Link>
@@ -96,6 +97,7 @@ const Layout = () => {
           <div className="md:hidden border-t border-slate-100 bg-white">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
               <Link to="/" className="block px-3 py-2 text-slate-700 font-medium hover:bg-slate-50 hover:text-primary rounded-md">Home</Link>
+              <Link to="/categories" className="block px-3 py-2 text-slate-700 font-medium hover:bg-slate-50 hover:text-primary rounded-md">Categories</Link>
               <Link to="/job-board" className="block px-3 py-2 text-slate-700 font-medium hover:bg-slate-50 hover:text-primary rounded-md">Find Tuitions</Link>
               <Link to="/find-tutors" className="block px-3 py-2 text-slate-700 font-medium hover:bg-slate-50 hover:text-primary rounded-md">Find Tutors</Link>
               <Link to="/faq" className="block px-3 py-2 text-slate-700 font-medium hover:bg-slate-50 hover:text-primary rounded-md">FAQ</Link>

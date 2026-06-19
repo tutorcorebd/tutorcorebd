@@ -100,6 +100,7 @@ const DashboardLayout = () => {
       { name: 'Notice Board', path: '/admin/notices', icon: Megaphone },
       { name: 'Help & Support', path: '/admin/support', icon: HelpCircle },
       { name: 'Tutorial Management', path: '/admin/tutorials', icon: Video },
+      { name: 'Category Management', path: '/admin/categories', icon: LayoutGrid },
     ]
   };
 

@@ -1315,7 +1315,7 @@ BEGIN
     COALESCE(new.raw_user_meta_data->>'full_name', 'New User'),
     new.raw_user_meta_data->>'phone_number',
     new.email,
-    COALESCE((new.raw_user_meta_data->>'role')::text, 'tutor'),
+    COALESCE((new.raw_user_meta_data->>'role')::text, 'tutor')::user_role,
     'active'
   );
   RETURN new;
@@ -1326,7 +1326,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;`}</pre>
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => {
-                    const sql = `ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email text;\n\nUPDATE public.users u\nSET email = a.email\nFROM auth.users a\nWHERE u.id = a.id AND u.email IS NULL;\n\nCREATE OR REPLACE FUNCTION public.handle_new_user()\nRETURNS trigger AS $$\nBEGIN\n  INSERT INTO public.users (id, full_name, phone_number, email, role, status)\n  VALUES (\n    new.id,\n    COALESCE(new.raw_user_meta_data->>'full_name', 'New User'),\n    new.raw_user_meta_data->>'phone_number',\n    new.email,\n    COALESCE((new.raw_user_meta_data->>'role')::text, 'tutor'),\n    'active'\n  );\n  RETURN new;\nEND;\n$$ LANGUAGE plpgsql SECURITY DEFINER;`;
+                    const sql = `ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email text;\n\nUPDATE public.users u\nSET email = a.email\nFROM auth.users a\nWHERE u.id = a.id AND u.email IS NULL;\n\nCREATE OR REPLACE FUNCTION public.handle_new_user()\nRETURNS trigger AS $$\nBEGIN\n  INSERT INTO public.users (id, full_name, phone_number, email, role, status)\n  VALUES (\n    new.id,\n    COALESCE(new.raw_user_meta_data->>'full_name', 'New User'),\n    new.raw_user_meta_data->>'phone_number',\n    new.email,\n    COALESCE((new.raw_user_meta_data->>'role')::text, 'tutor')::user_role,\n    'active'\n  );\n  RETURN new;\nEND;\n$$ LANGUAGE plpgsql SECURITY DEFINER;`;
                     navigator.clipboard.writeText(sql);
                     alert("SQL script copied to clipboard!");
                   }}
