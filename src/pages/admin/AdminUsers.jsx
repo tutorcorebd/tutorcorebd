@@ -1328,13 +1328,19 @@ BEGIN
 
   RETURN new;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;`}</pre>
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Re-bind the trigger to auth.users
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();`}</pre>
               </div>
 
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => {
-                    const sql = `ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email text;\n\nUPDATE public.users u\nSET email = a.email\nFROM auth.users a\nWHERE u.id = a.id AND u.email IS NULL;\n\nCREATE OR REPLACE FUNCTION public.handle_new_user()\nRETURNS trigger AS $$\nBEGIN\n  INSERT INTO public.users (id, full_name, phone_number, email, role, status)\n  VALUES (\n    new.id,\n    COALESCE(new.raw_user_meta_data->>'full_name', 'New User'),\n    new.raw_user_meta_data->>'phone_number',\n    new.email,\n    COALESCE((new.raw_user_meta_data->>'role')::text, 'tutor')::user_role,\n    'active'\n  );\n\n  -- Automatically insert corresponding empty profiles\n  IF COALESCE((new.raw_user_meta_data->>'role')::text, 'tutor') = 'tutor' THEN\n    INSERT INTO public.tutor_profiles (user_id) VALUES (new.id);\n  ELSIF COALESCE((new.raw_user_meta_data->>'role')::text, 'tutor') = 'guardian' THEN\n    INSERT INTO public.guardian_profiles (user_id) VALUES (new.id);\n  END IF;\n\n  RETURN new;\nEND;\n$$ LANGUAGE plpgsql SECURITY DEFINER;`;
+                    const sql = `ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email text;\n\nUPDATE public.users u\nSET email = a.email\nFROM auth.users a\nWHERE u.id = a.id AND u.email IS NULL;\n\nCREATE OR REPLACE FUNCTION public.handle_new_user()\nRETURNS trigger AS $$\nBEGIN\n  INSERT INTO public.users (id, full_name, phone_number, email, role, status)\n  VALUES (\n    new.id,\n    COALESCE(new.raw_user_meta_data->>'full_name', 'New User'),\n    new.raw_user_meta_data->>'phone_number',\n    new.email,\n    COALESCE((new.raw_user_meta_data->>'role')::text, 'tutor')::user_role,\n    'active'\n  );\n\n  -- Automatically insert corresponding empty profiles\n  IF COALESCE((new.raw_user_meta_data->>'role')::text, 'tutor') = 'tutor' THEN\n    INSERT INTO public.tutor_profiles (user_id) VALUES (new.id);\n  ELSIF COALESCE((new.raw_user_meta_data->>'role')::text, 'tutor') = 'guardian' THEN\n    INSERT INTO public.guardian_profiles (user_id) VALUES (new.id);\n  END IF;\n\n  RETURN new;\nEND;\n$$ LANGUAGE plpgsql SECURITY DEFINER;\n\nDROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;\nCREATE TRIGGER on_auth_user_created\n  AFTER INSERT ON auth.users\n  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();`;
                     navigator.clipboard.writeText(sql);
                     alert("SQL script copied to clipboard!");
                   }}
