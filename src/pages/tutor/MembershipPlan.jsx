@@ -106,7 +106,10 @@ const MembershipPlan = () => {
   };
 
   const fetchActiveRequest = async () => {
-    if (!profile?.id) return;
+    if (!profile?.id) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const { data, error } = await supabase

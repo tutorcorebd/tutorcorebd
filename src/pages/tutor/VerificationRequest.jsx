@@ -45,7 +45,10 @@ const VerificationRequest = () => {
   };
 
   const fetchRequestStatus = async () => {
-    if (!profile?.id) return;
+    if (!profile?.id) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const { data, error } = await supabase

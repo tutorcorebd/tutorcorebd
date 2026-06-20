@@ -76,7 +76,10 @@ const TutorDashboard = () => {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!profile?.id) return;
+      if (!profile?.id) {
+        setLoading(false);
+        return;
+      }
       try {
         setLoading(true);
         // Fetch tutor's applications

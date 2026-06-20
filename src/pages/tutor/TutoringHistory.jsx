@@ -30,7 +30,10 @@ const TutoringHistory = () => {
 
   useEffect(() => {
     const fetchHistory = async () => {
-      if (!profile?.id) return;
+      if (!profile?.id) {
+        setLoading(false);
+        return;
+      }
       
       setLoading(true);
       try {
