@@ -78,6 +78,16 @@ const PrivacyPolicy = () => {
               </p>
             </section>
 
+            <section className="space-y-3 border-l-4 border-[#86c240] pl-4 bg-green-50/10 py-1">
+              <h2 className="text-2xl font-black text-slate-855">Tutor Verification & Profile Authenticity</h2>
+              <p>
+                To maintain the safety and integrity of our community, <strong>Tutor Core</strong> mandates identity verification for all tutors. Every registered tutor is required to upload a clear and authentic copy of their National Identity Card (NID) and University Student ID Card.
+              </p>
+              <p>
+                We perform rigorous background audits and match details against academic records. <strong>Providing false, forged, or misleading documents or information is strictly prohibited and constitutes a direct breach of our Terms. Doing so will lead to the immediate, permanent suspension of your account, and we reserve the right to report such incidents to the appropriate authorities.</strong>
+              </p>
+            </section>
+
             <section className="space-y-3">
               <h2 className="text-2xl font-black text-slate-850">How We Use Your Information</h2>
               <p>We leverage the data we collect in a variety of ways to support our operations, including to:</p>
@@ -187,6 +197,17 @@ const PrivacyPolicy = () => {
                 একটি টিউটর কোর অ্যাকাউন্টের জন্য রেজিস্টার করার সময়, আমরা আপনার যোগাযোগের তথ্য চাইতে পারি, যার মধ্যে নাম, ঠিকানা, ইমেল ঠিকানা এবং ফোন নম্বরের মতো বিষয় অন্তর্ভুক্ত রয়েছে।
               </p>
             </section>
+
+            <section className="space-y-3 border-l-4 border-[#86c240] pl-4 bg-green-50/10 py-1">
+              <h2 className="text-2xl font-black text-slate-855">টিউটর ভেরিফিকেশন ও প্রোফাইলের সত্যতা</h2>
+              <p>
+                আমাদের প্ল্যাটফর্মের নিরাপত্তা এবং সততা বজায় রাখার জন্য, <strong>টিউটর কোর</strong> সকল টিউটরদের পরিচয়পত্র ভেরিফিকেশন করা বাধ্যতামূলক করেছে। প্রতিটি রেজিস্টার্ড টিউটরকে তাদের জাতীয় পরিচয়পত্র (NID) এবং বিশ্ববিদ্যালয় স্টুডেন্ট আইডি কার্ডের স্পষ্ট ও আসল কপি আপলোড করতে হবে।
+              </p>
+              <p>
+                আমরা সংগৃহীত ডকুমেন্টস পুঙ্খানুপুঙ্খভাবে নিরীক্ষণ করি। <strong>কোনো প্রকার মিথ্যা, জাল বা বিভ্রান্তিকর কাগজপত্র বা তথ্য প্রদান করা কঠোরভাবে নিষিদ্ধ এবং এটি আমাদের নীতিমালার পরিপন্থী। এই ধরণের কোনো অসদুপায় বা প্রতারণার আশ্রয় নিলে সংশ্লিষ্ট টিউটরের অ্যাকাউন্টটি অবিলম্বে স্থায়ীভাবে স্থগিত (Suspended) করা হবে এবং প্রয়োজনে আমরা যথাযথ আইনি ব্যবস্থা গ্রহণের অধিকার সংরক্ষণ করি।</strong>
+              </p>
+            </section>
+
 
             <section className="space-y-3">
               <h2 className="text-2xl font-black text-slate-850">আপনার তথ্য যেভাবে ব্যবহার করা হয়</h2>

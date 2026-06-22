@@ -13,6 +13,7 @@ CREATE TABLE public.users (
   deactivation_reason text,
   deletion_reason text,
   deletion_requested_at timestamp with time zone,
+  email text,
   CONSTRAINT users_pkey PRIMARY KEY (id),
   CONSTRAINT users_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );
@@ -77,6 +78,12 @@ CREATE TABLE public.tutor_profiles (
   reasons_for_hiring text,
   tuition_experience_details text,
   personal_motivation text,
+  blood_group text,
+  religion text,
+  nid_url text,
+  varsity_id_url text,
+  hsc_cert_url text,
+  ssc_cert_url text,
   CONSTRAINT tutor_profiles_pkey PRIMARY KEY (user_id),
   CONSTRAINT tutor_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
@@ -171,4 +178,54 @@ CREATE TABLE public.membership_requests (
   phone_number text,
   CONSTRAINT membership_requests_pkey PRIMARY KEY (id),
   CONSTRAINT membership_requests_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.support_tickets (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  category text NOT NULL CHECK (category = ANY (ARRAY['Verified Tutors/Guardians'::text, 'Premium Tutors/Guardians'::text, 'Others'::text])),
+  subject text NOT NULL,
+  message text NOT NULL,
+  status text NOT NULL DEFAULT 'open'::text CHECK (status = ANY (ARRAY['open'::text, 'in-progress'::text, 'resolved'::text, 'closed'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  ticket_no text,
+  CONSTRAINT support_tickets_pkey PRIMARY KEY (id),
+  CONSTRAINT support_tickets_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.categories (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL UNIQUE,
+  slug text NOT NULL UNIQUE,
+  icon_name text DEFAULT 'BookOpen'::text,
+  show_on_homepage boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT categories_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.courses (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  category_id uuid,
+  name text NOT NULL,
+  slug text NOT NULL,
+  is_popular boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT courses_pkey PRIMARY KEY (id),
+  CONSTRAINT courses_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id)
+);
+CREATE TABLE public.platform_settings (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  homepage_category_mode text DEFAULT 'default'::text CHECK (homepage_category_mode = ANY (ARRAY['default'::text, 'custom'::text, 'active_tuitions'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT platform_settings_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.support_messages (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  ticket_id uuid NOT NULL,
+  sender_id uuid NOT NULL,
+  sender_name text NOT NULL,
+  sender_role text NOT NULL,
+  message text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT support_messages_pkey PRIMARY KEY (id),
+  CONSTRAINT support_messages_ticket_id_fkey FOREIGN KEY (ticket_id) REFERENCES public.support_tickets(id),
+  CONSTRAINT support_messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id)
 );

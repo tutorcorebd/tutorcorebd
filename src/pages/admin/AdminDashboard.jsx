@@ -137,19 +137,64 @@ const AdminDashboard = () => {
               { label: 'Guardians', count: stats.guardians, icon: <Users className="w-4 h-4 text-blue-600" />, bg: 'bg-blue-50/50 border-blue-100' },
               { label: 'Open Requests', count: stats.openRequests, icon: <FileText className="w-4 h-4 text-amber-600" />, bg: 'bg-amber-50/50 border-amber-100' },
               { label: 'Matches', count: stats.assignedRequests, icon: <CheckCircle className="w-4 h-4 text-green-600" />, bg: 'bg-green-50/50 border-green-100' },
-              { label: 'Pending Upgrades', count: stats.pendingMemberships, icon: <ShieldCheck className="w-4 h-4 text-purple-600" />, bg: 'bg-purple-50/50 border-purple-100' },
-              { label: 'Support Tickets', count: stats.openTickets, icon: <AlertTriangle className="w-4 h-4 text-rose-600" />, bg: 'bg-rose-50/50 border-rose-100' }
-            ].map((card, idx) => (
-              <div key={idx} className={`p-5 rounded-2xl border bg-white shadow-sm flex flex-col justify-between ${card.bg.split(' ')[1]}`}>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-medium text-slate-400">{card.label}</span>
-                  <div className={`p-2 rounded-xl ${card.bg.split(' ')[0]}`}>
-                    {card.icon}
+              { label: 'Pending Upgrades', count: stats.pendingMemberships, icon: <ShieldCheck className="w-4 h-4 text-purple-600" />, bg: 'bg-purple-50/50 border-purple-100', link: '/admin/membership', isUpgrade: true },
+              { label: 'Support Tickets', count: stats.openTickets, icon: <AlertTriangle className="w-4 h-4 text-rose-600" />, bg: 'bg-rose-50/50 border-rose-100', link: '/admin/support', isTicket: true }
+            ].map((card, idx) => {
+              const cardContent = (
+                <>
+                  <div className="flex justify-between items-center relative">
+                    <span className="text-xs font-medium text-slate-400">{card.label}</span>
+                    <div className="flex items-center gap-2">
+                      {card.isUpgrade && card.count > 0 && (
+                        <span className="relative flex h-2.5 w-2.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
+                        </span>
+                      )}
+                      {card.isTicket && card.count > 0 && (
+                        <span className="relative flex h-2.5 w-2.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                        </span>
+                      )}
+                      <div className={`p-2 rounded-xl ${card.bg.split(' ')[0]}`}>
+                        {card.icon}
+                      </div>
+                    </div>
                   </div>
+                  <span className="text-2xl font-semibold text-slate-800 mt-4 block leading-none">{card.count}</span>
+                </>
+              );
+
+              const baseClasses = `p-5 rounded-2xl border bg-white shadow-sm flex flex-col justify-between transition-all duration-300 ${card.bg.split(' ')[1]}`;
+              
+              let animatedClasses = '';
+              if (card.isUpgrade && card.count > 0) {
+                animatedClasses = ' animate-pulse-purple border-purple-300 hover:shadow-purple-100/50 hover:shadow-md';
+              } else if (card.isTicket && card.count > 0) {
+                animatedClasses = ' animate-pulse-rose border-rose-300 hover:shadow-rose-100/50 hover:shadow-md';
+              } else {
+                animatedClasses = ' hover:shadow-md hover:border-slate-300';
+              }
+
+              if (card.link) {
+                return (
+                  <Link 
+                    key={idx} 
+                    to={card.link}
+                    className={`${baseClasses}${animatedClasses} block cursor-pointer select-none`}
+                  >
+                    {cardContent}
+                  </Link>
+                );
+              }
+
+              return (
+                <div key={idx} className={`${baseClasses}${animatedClasses}`}>
+                  {cardContent}
                 </div>
-                <span className="text-2xl font-semibold text-slate-800 mt-4 block leading-none">{card.count}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Core Analytics Blocks */}

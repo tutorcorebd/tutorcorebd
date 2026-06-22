@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Search, Filter, MapPin, Users, User, CheckCircle, Award, Compass, Sparkles, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Search, Filter, MapPin, Users, User, CheckCircle, Award, Compass, Sparkles, Clock, ChevronRight, ChevronLeft, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import VerifiedBadge from '../../components/common/VerifiedBadge';
 
 const cities = [
   'All', 'Dhaka', 'Chittagong', 'Khulna', 'Gazipur', 'Narayanganj',
@@ -25,18 +26,6 @@ const getTutorProfile = (tutor) => {
   if (!tp) return {};
   return Array.isArray(tp) ? (tp[0] || {}) : tp;
 };
-
-const VerifiedBadge = ({ size = 16 }) => (
-  <svg 
-    className="inline-block text-[#86c240] fill-current shrink-0 ml-1.5 align-middle" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M23 12l-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-13 5l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
-  </svg>
-);
 
 const FindTutors = () => {
   const navigate = useNavigate();
@@ -211,7 +200,7 @@ const FindTutors = () => {
     
     return (
       <div 
-        className={`group/card bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col items-center pt-8 pb-5 cursor-pointer relative ${isGrid ? 'w-full' : 'flex-shrink-0 w-[240px]'}`}
+        className={`group/card bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-visible flex flex-col items-center pt-8 pb-5 cursor-pointer relative ${isGrid ? 'w-full' : 'flex-shrink-0 w-[240px]'}`}
         onClick={() => navigate(`/tutor/${tutor.id}`)}
       >
         
@@ -259,6 +248,18 @@ const FindTutors = () => {
             {tutor.full_name}
             {isVerified && <VerifiedBadge size={16} />}
           </h4>
+          {tp.rating > 0 && (
+            <div className="flex gap-0.5 mt-1.5 justify-center">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={`w-3.5 h-3.5 ${
+                    i < tp.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
           
           <p className="text-xs font-bold text-slate-500 truncate mt-1">
             {tp.university || 'No education info'}

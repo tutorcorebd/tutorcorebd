@@ -31,16 +31,24 @@ import {
   CheckCircle,
   Presentation,
   Bell,
-  Megaphone
+  Megaphone,
+  GraduationCap,
+  MessageSquare
 } from 'lucide-react';
 import ScrollToTop from '../common/ScrollToTop';
 import MobileBottomNav from './MobileBottomNav';
+import VerifiedBadge from '../common/VerifiedBadge';
+
+import { supabase } from '../../lib/supabase';
 
 const DashboardLayout = () => {
   const { profile, signOut } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({ 'My Profile': true });
+  const [pendingTicketsCount, setPendingTicketsCount] = useState(0);
+  const [pendingInstitutionsCount, setPendingInstitutionsCount] = useState(0);
+  const [pendingFeedbacksCount, setPendingFeedbacksCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -48,6 +56,105 @@ const DashboardLayout = () => {
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
+
+  // Fetch and subscribe to pending tickets count for admins
+  useEffect(() => {
+    if (profile?.role === 'admin') {
+      const fetchPendingCount = async () => {
+        try {
+          const { count, error } = await supabase
+            .from('support_tickets')
+            .select('*', { count: 'exact', head: true })
+            .in('status', ['open', 'in-progress']);
+          if (!error && count !== null) {
+            setPendingTicketsCount(count);
+          }
+        } catch (err) {
+          console.error("Error fetching pending tickets count:", err);
+        }
+      };
+
+      fetchPendingCount();
+
+      // Subscribe to real-time changes
+      const channel = supabase
+        .channel('support-tickets-menu-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'support_tickets' }, () => {
+          fetchPendingCount();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [profile]);
+
+  // Fetch and subscribe to pending institutions count for admins
+  useEffect(() => {
+    if (profile?.role === 'admin') {
+      const fetchPendingInstCount = async () => {
+        try {
+          const { count, error } = await supabase
+            .from('institutions')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'pending');
+          if (!error && count !== null) {
+            setPendingInstitutionsCount(count);
+          }
+        } catch (err) {
+          console.error("Error fetching pending institutions count:", err);
+        }
+      };
+
+      fetchPendingInstCount();
+
+      // Subscribe to real-time changes on institutions
+      const channel = supabase
+        .channel('institutions-menu-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'institutions' }, () => {
+          fetchPendingInstCount();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [profile]);
+
+  // Fetch and subscribe to pending feedbacks count for admins
+  useEffect(() => {
+    if (profile?.role === 'admin') {
+      const fetchPendingFeedbacksCount = async () => {
+        try {
+          const { count, error } = await supabase
+            .from('feedbacks')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'pending');
+          if (!error && count !== null) {
+            setPendingFeedbacksCount(count);
+          }
+        } catch (err) {
+          console.error("Error fetching pending feedbacks count:", err);
+        }
+      };
+
+      fetchPendingFeedbacksCount();
+
+      // Subscribe to real-time changes on feedbacks
+      const channel = supabase
+        .channel('feedbacks-menu-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'feedbacks' }, () => {
+          fetchPendingFeedbacksCount();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [profile]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -90,6 +197,8 @@ const DashboardLayout = () => {
       { name: 'Post A Tuition', path: '/guardian/post-request', icon: PlusCircle },
       { name: 'Find Tutors', path: '/find-tutors', icon: Search },
       { name: 'My Profile', path: '/guardian/profile', icon: User },
+      { name: 'Submit Feedback', path: '/guardian/feedback', icon: MessageSquare },
+      { name: 'Help & Support', path: '/guardian/support', icon: HelpCircle },
       { name: 'Settings', path: '/guardian/settings', icon: Settings },
     ],
     admin: [
@@ -99,8 +208,10 @@ const DashboardLayout = () => {
       { name: 'Membership Management', path: '/admin/membership', icon: ShieldCheck },
       { name: 'Notice Board', path: '/admin/notices', icon: Megaphone },
       { name: 'Help & Support', path: '/admin/support', icon: HelpCircle },
+      { name: 'Feedbacks', path: '/admin/feedbacks', icon: MessageSquare },
       { name: 'Tutorial Management', path: '/admin/tutorials', icon: Video },
       { name: 'Category Management', path: '/admin/categories', icon: LayoutGrid },
+      { name: 'Institution Queue', path: '/admin/institutions', icon: GraduationCap },
     ]
   };
 
@@ -211,14 +322,7 @@ const DashboardLayout = () => {
             <div className="relative group flex items-center gap-1 mt-3 justify-center">
               <h3 className="font-bold text-slate-800 text-lg">{profile?.full_name || 'Tushar'}</h3>
               {(profile?.tutor_profile?.is_verified || profile?.tutor_profile?.tutor_status === 'Verified Tutor' || profile?.tutor_profile?.tutor_status === 'Premium Tutor') && (
-                <div className="relative flex items-center">
-                  <ShieldCheck className="w-5 h-5 text-[#86c240] fill-current" />
-                  {/* Tooltip */}
-                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none w-max">
-                    <span className="bg-slate-800 text-white text-xs font-semibold py-1 px-2.5 rounded-lg shadow-lg">Verified Account</span>
-                    <div className="w-2 h-2 bg-slate-800 rotate-45 -mt-1"></div>
-                  </div>
-                </div>
+                <VerifiedBadge size={18} position="bottom" align="right" />
               )}
             </div>
             <p className="text-sm font-medium text-slate-500 mt-1 truncate max-w-[200px]">{profile?.phone_number || profile?.email || 'email@example.com'}</p>
@@ -250,9 +354,26 @@ const DashboardLayout = () => {
                     onClick={toggleMenu}
                     className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${isActive && !item.subItems ? 'bg-[#86c240] text-white shadow-md shadow-[#86c240]/20' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'}`}
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`w-5 h-5 ${isActive && !item.subItems ? 'text-white' : 'text-slate-400'}`} />
-                      {item.name}
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon className={`w-5 h-5 ${isActive && !item.subItems ? 'text-white' : 'text-slate-400'}`} />
+                        {item.name}
+                      </div>
+                      {item.name === 'Help & Support' && role === 'admin' && pendingTicketsCount > 0 && (
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black min-w-[20px] h-5 flex items-center justify-center transition-all ${isActive ? 'bg-white text-red-650' : 'bg-red-500 text-white shadow-sm shadow-red-500/20'}`}>
+                          {pendingTicketsCount}
+                        </span>
+                      )}
+                      {item.name === 'Institution Queue' && role === 'admin' && pendingInstitutionsCount > 0 && (
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black min-w-[20px] h-5 flex items-center justify-center transition-all ${isActive ? 'bg-white text-red-650' : 'bg-red-500 text-white shadow-sm shadow-red-500/20'}`}>
+                          {pendingInstitutionsCount}
+                        </span>
+                      )}
+                      {item.name === 'Feedbacks' && role === 'admin' && pendingFeedbacksCount > 0 && (
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black min-w-[20px] h-5 flex items-center justify-center transition-all ${isActive ? 'bg-white text-red-650' : 'bg-red-500 text-white shadow-sm shadow-red-500/20'}`}>
+                          {pendingFeedbacksCount}
+                        </span>
+                      )}
                     </div>
                     {item.subItems && (
                       <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />

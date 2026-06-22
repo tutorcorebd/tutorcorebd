@@ -1,34 +1,7 @@
-import { useState } from 'react';
 import useAuthStore from '../../store/useAuthStore';
 import { Link } from 'react-router-dom';
-import { Download, Eye, Calendar, Phone, User, Droplet, Moon, CreditCard, MapPin, Edit } from 'lucide-react';
-
-const VerifiedBadge = ({ size = 16, position = 'top' }) => (
-  <span className="group relative inline-block cursor-help select-none">
-    <svg 
-      className="inline-block text-[#86c240] fill-current shrink-0 ml-1.5 align-middle" 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M23 12l-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-13 5l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
-    </svg>
-    
-    <span className={`pointer-events-none absolute ${
-      position === 'bottom' 
-        ? 'top-full mt-2' 
-        : 'bottom-full mb-2'
-    } left-1/2 -translate-x-1/2 w-60 bg-slate-900 text-white text-[11px] font-medium leading-relaxed p-3 rounded-xl shadow-xl border border-slate-800 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-[99] text-center normal-case tracking-normal`}>
-      Accounts with a verified badge have been authenticated and can be Tutor Core Verified subscribers or notable persons or brands.
-      <span className={`absolute ${
-        position === 'bottom'
-          ? 'bottom-full left-1/2 -translate-x-1/2 border-8 border-transparent border-b-slate-900'
-          : 'top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-900'
-      }`}></span>
-    </span>
-  </span>
-);
+import { Download, Eye, Calendar, Phone, User, Droplet, Moon, CreditCard, MapPin, Edit, Star } from 'lucide-react';
+import VerifiedBadge from '../../components/common/VerifiedBadge';
 
 const TutorProfileView = () => {
   const { profile } = useAuthStore();
@@ -63,8 +36,15 @@ const TutorProfileView = () => {
                 {profile?.tutor_profile?.is_verified && <VerifiedBadge size={20} />}
               </h2>
               <p className="text-xs font-semibold text-slate-400 mt-0.5">User ID : A{shortId}</p>
-              <div className="flex gap-1 mt-2 text-slate-200">
-                ★ ★ ★ ★ ★
+              <div className="flex gap-0.5 mt-2">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-3.5 h-3.5 ${
+                      i < (tp.rating || 0) ? 'fill-amber-400 text-amber-400' : 'text-slate-200'
+                    }`}
+                  />
+                ))}
               </div>
             </div>
           </div>

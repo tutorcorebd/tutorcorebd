@@ -6,9 +6,13 @@ const useAuthStore = create((set, get) => ({
   user: null,
   profile: null,
   isLoading: true,
+  isInitialized: false,
   realtimeChannel: null,
   
   initialize: async () => {
+    if (get().isInitialized) return;
+    set({ isInitialized: true });
+    
     try {
       set({ isLoading: true });
       const { data: { session } } = await supabase.auth.getSession();
@@ -21,7 +25,7 @@ const useAuthStore = create((set, get) => ({
       }
 
       // Listen for auth changes
-      supabase.auth.onAuthStateChange(async (event, session) => {
+      supabase.auth.onAuthStateChange((event, session) => {
         console.log(`Auth state change event: ${event}`);
         
         if (event === 'SIGNED_OUT' || !session) {
@@ -36,12 +40,17 @@ const useAuthStore = create((set, get) => ({
 
         set({ session, user: session.user });
         
-        // Fetch profile and setup realtime if we don't have it or on login
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          await get().fetchProfile(session.user, true);
-        } else {
-          await get().fetchProfile(session.user, false);
-        }
+        // Defer profile fetch to next tick to avoid re-entrancy database query deadlocks inside Supabase client
+        setTimeout(async () => {
+          if (event === 'TOKEN_REFRESHED') {
+            await get().fetchProfile(session.user, false);
+          } else if (event === 'SIGNED_IN') {
+            const currentProfile = get().profile;
+            await get().fetchProfile(session.user, !currentProfile);
+          } else {
+            await get().fetchProfile(session.user, false);
+          }
+        }, 0);
       });
     } catch (error) {
       console.error('Error initializing auth:', error);

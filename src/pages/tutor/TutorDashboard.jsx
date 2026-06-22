@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import useAuthStore from '../../store/useAuthStore';
 import { Link, useNavigate } from 'react-router-dom';
+import VerifiedBadge from '../../components/common/VerifiedBadge';
 import {
   Bell,
   Users,
@@ -22,32 +23,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomAlert from '../../components/layout/CustomAlert';
 
-const VerifiedBadge = ({ size = 16, position = 'top' }) => (
-  <span className="group relative inline-block cursor-help select-none">
-    <svg 
-      className="inline-block text-[#86c240] fill-current shrink-0 ml-1.5 align-middle" 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M23 12l-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-13 5l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
-    </svg>
-    
-    <span className={`pointer-events-none absolute ${
-      position === 'bottom' 
-        ? 'top-full mt-2' 
-        : 'bottom-full mb-2'
-    } left-1/2 -translate-x-1/2 w-60 bg-slate-900 text-white text-[11px] font-medium leading-relaxed p-3 rounded-xl shadow-xl border border-slate-800 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-[99] text-center normal-case tracking-normal`}>
-      Accounts with a verified badge have been authenticated and can be Tutor Core Verified subscribers or notable persons or brands.
-      <span className={`absolute ${
-        position === 'bottom'
-          ? 'bottom-full left-1/2 -translate-x-1/2 border-8 border-transparent border-b-slate-900'
-          : 'top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-900'
-      }`}></span>
-    </span>
-  </span>
-);
+// Reusable VerifiedBadge is now imported from common components
 
 const TutorDashboard = () => {
   const { profile } = useAuthStore();
@@ -231,6 +207,18 @@ const TutorDashboard = () => {
       return;
     }
 
+    const tp = profile?.tutor_profile;
+    if (!tp?.nid_url || !tp?.varsity_id_url) {
+      showAlert(
+        'error',
+        'Verification Documents Required',
+        'To apply for a tuition, you must upload your NID Card and Varsity ID Card as proof under the Credentials section.',
+        () => navigate('/tutor/profile/update'),
+        'Upload Now'
+      );
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('job_applications')
@@ -284,7 +272,7 @@ const TutorDashboard = () => {
       <div className="grid md:grid-cols-3 gap-6">
 
         {/* Welcome Card (Top Left, spans 2 columns) */}
-        <div className="md:col-span-2 bg-white rounded-xl border border-slate-100 shadow-sm p-8 flex justify-between items-center relative overflow-hidden">
+        <div className="md:col-span-2 bg-white rounded-xl border border-slate-100 shadow-sm p-8 flex justify-between items-center relative">
           <div className="z-10">
             <h1 className="text-2xl text-slate-600 font-medium flex items-center gap-1">
               Good Morning, <span className="font-bold text-slate-800 flex items-center gap-1.5">{profile?.full_name || 'Tushar Undefined'}{profile?.role === 'tutor' && profile?.tutor_profile?.is_verified && <VerifiedBadge size={20} />}</span>

@@ -21,6 +21,7 @@ import {
   Image as ImageIcon,
   CheckCircle2
 } from 'lucide-react';
+import ImageCropperModal from '../../components/common/ImageCropperModal';
 
 const CITIES = ['Dhaka', 'Chattogram', 'Rajshahi', 'Sylhet', 'Khulna', 'Barishal', 'Rangpur', 'Mymensingh'];
 
@@ -170,6 +171,28 @@ const TutorProfileForm = () => {
   const [showPgUnivDropdown, setShowPgUnivDropdown] = useState(false);
   const [showPgDeptDropdown, setShowPgDeptDropdown] = useState(false);
 
+  // Database university suggestions
+  const [institutionsList, setInstitutionsList] = useState([]);
+  const [univSearch, setUnivSearch] = useState('');
+  const [pgUnivSearch, setPgUnivSearch] = useState('');
+
+  useEffect(() => {
+    const fetchInstitutions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('institutions')
+          .select('*')
+          .order('name', { ascending: true });
+        if (!error && data) {
+          setInstitutionsList(data);
+        }
+      } catch (err) {
+        console.error("Error loading institutions:", err);
+      }
+    };
+    fetchInstitutions();
+  }, []);
+
   // Step 3: Personal Information
   const [gender, setGender] = useState('');
   const [fathersName, setFathersName] = useState('');
@@ -184,6 +207,8 @@ const TutorProfileForm = () => {
   const [address, setAddress] = useState('');
   const [nid, setNid] = useState('');
   const [dob, setDob] = useState('');
+  const [bloodGroup, setBloodGroup] = useState('');
+  const [religion, setReligion] = useState('');
 
   // Step 4: Credential
   const [photoFile, setPhotoFile] = useState(null);
@@ -196,6 +221,110 @@ const TutorProfileForm = () => {
   const [reasonsForHiring, setReasonsForHiring] = useState('');
   const [tuitionExperienceDetails, setTuitionExperienceDetails] = useState('');
   const [personalMotivation, setPersonalMotivation] = useState('');
+
+  const [nidUrl, setNidUrl] = useState('');
+  const [varsityIdUrl, setVarsityIdUrl] = useState('');
+  const [hscCertUrl, setHscCertUrl] = useState('');
+  const [sscCertUrl, setSscCertUrl] = useState('');
+
+  const [nidFile, setNidFile] = useState(null);
+  const [varsityIdFile, setVarsityIdFile] = useState(null);
+  const [hscCertFile, setHscCertFile] = useState(null);
+  const [sscCertFile, setSscCertFile] = useState(null);
+
+  // Image Cropper states
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [cropperSrc, setCropperSrc] = useState(null);
+  const [cropperTarget, setCropperTarget] = useState(''); // 'nid' | 'varsity_id' | 'hsc' | 'ssc' | 'photo'
+
+  const handleImageSelected = (e, target) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+
+      // 1. Format check: Only JPG, JPEG, and PNG are allowed
+      const fileExt = file.name.split('.').pop()?.toLowerCase();
+      const allowedExts = ['jpg', 'jpeg', 'png'];
+      const allowedFormats = ['image/jpeg', 'image/png', 'image/jpg'];
+      if (!allowedFormats.includes(file.type) && !allowedExts.includes(fileExt)) {
+        setErrorMsg('Invalid image format! Only JPG, JPEG, and PNG are allowed.');
+        e.target.value = '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      // 2. Size check: Must be less than 1MB (1,048,576 bytes)
+      const maxSize = 1024 * 1024;
+      if (file.size >= maxSize) {
+        setErrorMsg('Image size must be less than 1MB! Please upload a smaller file.');
+        e.target.value = '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      setErrorMsg('');
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        setCropperSrc(reader.result);
+        setCropperTarget(target);
+        setCropperOpen(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePdfSelected = (e, target) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop()?.toLowerCase();
+      
+      // 1. Format check: Only PDF is allowed
+      if (file.type !== 'application/pdf' && fileExt !== 'pdf') {
+        setErrorMsg('Invalid file format! Only PDF is allowed for certificates.');
+        e.target.value = '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      // 2. Size check: Max 100KB (102,400 bytes)
+      const maxSize = 100 * 1024;
+      if (file.size > maxSize) {
+        setErrorMsg('File size exceeds 100KB! Please upload a PDF smaller than 100KB.');
+        e.target.value = '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      setErrorMsg('');
+      if (target === 'hsc') {
+        setHscCertFile(file);
+      } else if (target === 'ssc') {
+        setSscCertFile(file);
+      }
+    }
+  };
+
+  const handleCropComplete = (croppedFile) => {
+    switch (cropperTarget) {
+      case 'photo':
+        setPhotoFile(croppedFile);
+        break;
+      case 'nid':
+        setNidFile(croppedFile);
+        break;
+      case 'varsity_id':
+        setVarsityIdFile(croppedFile);
+        break;
+      case 'hsc':
+        setHscCertFile(croppedFile);
+        break;
+      case 'ssc':
+        setSscCertFile(croppedFile);
+        break;
+      default:
+        break;
+    }
+  };
 
   // UI States
   const [loading, setLoading] = useState(false);
@@ -248,10 +377,12 @@ const TutorProfileForm = () => {
     if (hasPersonalInfo) score += 40;
 
     // 8. Credential (10%)
-    // Profile picture is completely optional, so CV alone completes Step 4.
+    // Profile picture, HSC and SSC certificates are completely optional, CV, NID and Varsity ID are mandatory.
     const hasCv = cvFile || existingCvUrl || (cvOption === 'link' && cvLinkInput.trim() !== '');
+    const hasNid = nidFile || nidUrl;
+    const hasVarsityId = varsityIdFile || varsityIdUrl;
     const hasAboutMe = aboutYourself.length >= 50 && reasonsForHiring && tuitionExperienceDetails && personalMotivation;
-    if (hasCv && hasAboutMe) score += 10;
+    if (hasCv && hasNid && hasVarsityId && hasAboutMe) score += 10;
 
     return Math.min(100, score);
   };
@@ -295,11 +426,13 @@ const TutorProfileForm = () => {
 
         setIsHscStudent(!!tp.is_hsc_student);
         setUniversity(tp.university || '');
+        setUnivSearch(tp.university || '');
         setDepartment(tp.department || '');
         setGradGpa(tp.grad_gpa || '');
         setGradYear(tp.grad_year || '');
 
         setPostGradUniversity(tp.post_grad_university || '');
+        setPgUnivSearch(tp.post_grad_university || '');
         setPostGradDepartment(tp.post_grad_department || '');
         setPostGradGpa(tp.post_grad_gpa || '');
         setPostGradYear(tp.post_grad_year || '');
@@ -317,6 +450,12 @@ const TutorProfileForm = () => {
         setAddress(tp.address || '');
         setNid(tp.nid || '');
         setDob(tp.dob || '');
+        setBloodGroup(tp.blood_group || '');
+        setReligion(tp.religion || '');
+        setNidUrl(tp.nid_url || '');
+        setVarsityIdUrl(tp.varsity_id_url || '');
+        setHscCertUrl(tp.hsc_cert_url || '');
+        setSscCertUrl(tp.ssc_cert_url || '');
         setAboutYourself(tp.about_yourself || '');
         setReasonsForHiring(tp.reasons_for_hiring || '');
         setTuitionExperienceDetails(tp.tuition_experience_details || '');
@@ -430,7 +569,34 @@ const TutorProfileForm = () => {
     setLoading(true);
     setErrorMsg('');
 
+    const ensureInstitution = async (searchVal) => {
+      const trimmed = searchVal.trim();
+      if (!trimmed) return '';
+      const existing = institutionsList.find(i => i.name.toLowerCase() === trimmed.toLowerCase());
+      if (existing) return existing.name;
+      try {
+        const { data, error } = await supabase
+          .from('institutions')
+          .insert([{ name: trimmed, status: 'pending' }])
+          .select();
+        if (!error && data && data[0]) {
+          setInstitutionsList(prev => [...prev, data[0]].sort((a,b) => a.name.localeCompare(b.name)));
+          return data[0].name;
+        }
+        return trimmed;
+      } catch (err) {
+        console.error("Error inserting custom university:", err);
+        return trimmed;
+      }
+    };
+
     try {
+      const finalUndergradUniv = await ensureInstitution(univSearch);
+      const finalPgUniv = await ensureInstitution(pgUnivSearch);
+
+      setUniversity(finalUndergradUniv);
+      setPostGradUniversity(finalPgUniv);
+
       let finalCvUrl = cvOption === 'link' ? cvLinkInput.trim() : existingCvUrl;
       let finalPhotoUrl = photoUrl;
 
@@ -464,12 +630,73 @@ const TutorProfileForm = () => {
         setPhotoFile(null);
       }
 
+      let finalNidUrl = nidUrl;
+      let finalVarsityIdUrl = varsityIdUrl;
+      let finalHscCertUrl = hscCertUrl;
+      let finalSscCertUrl = sscCertUrl;
+
+      // Upload NID
+      if (nidFile) {
+        const fileExt = nidFile.name.split('.').pop();
+        const fileName = `${user.id}-nid-${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('cvs')
+          .upload(fileName, nidFile, { upsert: true });
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('cvs').getPublicUrl(fileName);
+        finalNidUrl = publicUrl;
+        setNidUrl(publicUrl);
+        setNidFile(null);
+      }
+
+      // Upload Varsity ID
+      if (varsityIdFile) {
+        const fileExt = varsityIdFile.name.split('.').pop();
+        const fileName = `${user.id}-varsity-${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('cvs')
+          .upload(fileName, varsityIdFile, { upsert: true });
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('cvs').getPublicUrl(fileName);
+        finalVarsityIdUrl = publicUrl;
+        setVarsityIdUrl(publicUrl);
+        setVarsityIdFile(null);
+      }
+
+      // Upload HSC Certificate
+      if (hscCertFile) {
+        const fileExt = hscCertFile.name.split('.').pop();
+        const fileName = `${user.id}-hsc-${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('cvs')
+          .upload(fileName, hscCertFile, { upsert: true });
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('cvs').getPublicUrl(fileName);
+        finalHscCertUrl = publicUrl;
+        setHscCertUrl(publicUrl);
+        setHscCertFile(null);
+      }
+
+      // Upload SSC Certificate
+      if (sscCertFile) {
+        const fileExt = sscCertFile.name.split('.').pop();
+        const fileName = `${user.id}-ssc-${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('cvs')
+          .upload(fileName, sscCertFile, { upsert: true });
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('cvs').getPublicUrl(fileName);
+        finalSscCertUrl = publicUrl;
+        setSscCertUrl(publicUrl);
+        setSscCertFile(null);
+      }
+
       // Format education status preview string
       let formattedEduStatus = '';
       if (isHscStudent) {
         formattedEduStatus = 'Running HSC Student';
-      } else if (university && department) {
-        formattedEduStatus = `${department} at ${university}`;
+      } else if (finalUndergradUniv && department) {
+        formattedEduStatus = `${department} at ${finalUndergradUniv}`;
       } else if (collegeName) {
         formattedEduStatus = `College: ${collegeName}`;
       } else if (schoolName) {
@@ -509,11 +736,11 @@ const TutorProfileForm = () => {
           college_gpa: collegeGpa,
           college_year: collegeYear,
           is_hsc_student: isHscStudent,
-          university,
+          university: finalUndergradUniv,
           department,
           grad_gpa: gradGpa,
           grad_year: gradYear,
-          post_grad_university: postGradUniversity,
+          post_grad_university: finalPgUniv,
           post_grad_department: postGradDepartment,
           post_grad_gpa: postGradGpa,
           post_grad_year: postGradYear,
@@ -530,6 +757,12 @@ const TutorProfileForm = () => {
           address,
           nid,
           dob,
+          blood_group: bloodGroup,
+          religion: religion,
+          nid_url: finalNidUrl,
+          varsity_id_url: finalVarsityIdUrl,
+          hsc_cert_url: finalHscCertUrl,
+          ssc_cert_url: finalSscCertUrl,
           about_yourself: aboutYourself,
           reasons_for_hiring: reasonsForHiring,
           tuition_experience_details: tuitionExperienceDetails,
@@ -565,6 +798,19 @@ const TutorProfileForm = () => {
   };
 
   const handleNextStep = async () => {
+    // Validate mandatory credentials before saving and advancing in Step 4, Sub-step 1
+    if (activeMainStep === 4 && activeSubStep === 1) {
+      const hasNid = nidFile || nidUrl;
+      const hasVarsityId = varsityIdFile || varsityIdUrl;
+      if (!hasNid || !hasVarsityId) {
+        setErrorMsg('NID Card and Varsity ID Card are mandatory. Please upload both files to proceed.');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+    }
+
+    setErrorMsg('');
+
     // Save current main step data before advancing
     let sectionName = 'Tutoring details';
     if (activeMainStep === 1) sectionName = 'Tutoring information';
@@ -939,12 +1185,12 @@ const TutorProfileForm = () => {
                     onClick={() => setActiveSubStep(1)}
                     className="w-full flex items-start gap-4 text-left relative py-2 outline-none group"
                   >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs z-10 transition-colors ${activeSubStep === 1 ? 'bg-[#86c240] text-white' : cvFile || existingCvUrl || (cvOption === 'link' && cvLinkInput) ? 'bg-[#eaf4df] text-[#86c240]' : 'bg-white border border-slate-200 text-slate-500'}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs z-10 transition-colors ${activeSubStep === 1 ? 'bg-[#86c240] text-white' : ((cvFile || existingCvUrl || (cvOption === 'link' && cvLinkInput)) && (nidFile || nidUrl) && (varsityIdFile || varsityIdUrl)) ? 'bg-[#eaf4df] text-[#86c240]' : 'bg-white border border-slate-200 text-slate-500'}`}>
                       1
                     </div>
                     <div className="flex-1">
                       <h4 className="text-xs font-bold text-slate-800 group-hover:text-slate-900 transition-colors">Documents 10%</h4>
-                      <p className="text-[10px] text-slate-455 mt-0.5">Profile Photo & CV Resume</p>
+                      <p className="text-[10px] text-slate-455 mt-0.5">CV, NID & Varsity ID</p>
                     </div>
                     {activeSubStep === 1 && (
                       <div className="hidden lg:block absolute -right-6 top-1/2 -translate-y-1/2 border-y-[10px] border-y-transparent border-r-[10px] border-r-white z-20"></div>
@@ -1630,30 +1876,64 @@ const TutorProfileForm = () => {
                       {/* University Selection Dropdown */}
                       <div className="relative" ref={univRef}>
                         <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">University Name*</label>
-                        <div 
-                          onClick={() => !isHscStudent && setShowUnivDropdown(!showUnivDropdown)}
-                          className="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 bg-white flex justify-between items-center cursor-pointer select-none"
-                        >
-                          <span className={university ? 'text-slate-800 font-bold' : 'text-slate-400'}>
-                            {university || 'Select your university'}
-                          </span>
-                          <span className="text-slate-400 text-xs">▼</span>
-                        </div>
-                        {showUnivDropdown && (
+                        <input
+                          type="text"
+                          placeholder="Search university or type custom..."
+                          disabled={isHscStudent}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#86c240] disabled:bg-slate-50 disabled:cursor-not-allowed"
+                          value={univSearch}
+                          onChange={(e) => {
+                            setUnivSearch(e.target.value);
+                            setShowUnivDropdown(true);
+                          }}
+                          onFocus={() => !isHscStudent && setShowUnivDropdown(true)}
+                        />
+                        
+                        {/* Display Pending Review Badge if it's pending */}
+                        {university && institutionsList.find(i => i.name.toLowerCase() === university.toLowerCase())?.status === 'pending' && (
+                          <div className="mt-1">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-50 border border-amber-100 text-amber-600 font-bold rounded-full text-[9px]">
+                              ⚠️ Pending Review: Custom suggestion being verified.
+                            </span>
+                          </div>
+                        )}
+
+                        {showUnivDropdown && !isHscStudent && (
                           <div className="absolute z-30 w-full bg-white border border-slate-100 rounded-xl shadow-xl mt-1 max-h-48 overflow-y-auto">
-                            {UNIVERSITIES.map((univ) => (
+                            {(univSearch.trim() === ''
+                              ? institutionsList
+                              : institutionsList.filter(u => u.name.toLowerCase().includes(univSearch.toLowerCase()))
+                            ).map((univ) => (
                               <button
-                                key={univ}
+                                key={univ.id}
                                 type="button"
                                 onClick={() => {
-                                  setUniversity(univ);
+                                  setUniversity(univ.name);
+                                  setUnivSearch(univ.name);
                                   setShowUnivDropdown(false);
                                 }}
-                                className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:bg-slate-50 transition-colors font-bold border-b border-slate-50 last:border-b-0"
+                                className="w-full text-left px-4 py-2.5 text-xs text-slate-750 hover:bg-slate-50 transition-colors font-bold border-b border-slate-50 last:border-b-0 flex justify-between items-center"
                               >
-                                {univ}
+                                <span>{univ.name}</span>
+                                {univ.status === 'pending' && (
+                                  <span className="text-[9px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full font-extrabold border border-amber-100">Pending Review</span>
+                                )}
                               </button>
                             ))}
+                            {univSearch.trim() !== '' && !institutionsList.some(i => i.name.toLowerCase() === univSearch.trim().toLowerCase()) && (
+                              <div className="p-2 text-center border-t border-slate-50">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setUniversity(univSearch.trim());
+                                    setShowUnivDropdown(false);
+                                  }}
+                                  className="bg-[#86c240]/10 hover:bg-[#86c240]/20 text-[#86c240] text-[10px] font-black px-3 py-1.5 rounded-lg transition-colors"
+                                >
+                                  + Add "{univSearch}" as custom institution
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -1733,30 +2013,64 @@ const TutorProfileForm = () => {
                       {/* PG University */}
                       <div className="relative" ref={pgUnivRef}>
                         <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">University Name</label>
-                        <div 
-                          onClick={() => !isHscStudent && setShowPgUnivDropdown(!showPgUnivDropdown)}
-                          className="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 bg-white flex justify-between items-center cursor-pointer select-none"
-                        >
-                          <span className={postGradUniversity ? 'text-slate-800 font-bold' : 'text-slate-400'}>
-                            {postGradUniversity || 'Select your university'}
-                          </span>
-                          <span className="text-slate-400 text-xs">▼</span>
-                        </div>
-                        {showPgUnivDropdown && (
+                        <input
+                          type="text"
+                          placeholder="Search university or type custom..."
+                          disabled={isHscStudent}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#86c240] disabled:bg-slate-50 disabled:cursor-not-allowed"
+                          value={pgUnivSearch}
+                          onChange={(e) => {
+                            setPgUnivSearch(e.target.value);
+                            setShowPgUnivDropdown(true);
+                          }}
+                          onFocus={() => !isHscStudent && setShowPgUnivDropdown(true)}
+                        />
+
+                        {/* Display Pending Review Badge if it's pending */}
+                        {postGradUniversity && institutionsList.find(i => i.name.toLowerCase() === postGradUniversity.toLowerCase())?.status === 'pending' && (
+                          <div className="mt-1">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-50 border border-amber-100 text-amber-600 font-bold rounded-full text-[9px]">
+                              ⚠️ Pending Review: Custom suggestion being verified.
+                            </span>
+                          </div>
+                        )}
+
+                        {showPgUnivDropdown && !isHscStudent && (
                           <div className="absolute z-30 w-full bg-white border border-slate-100 rounded-xl shadow-xl mt-1 max-h-48 overflow-y-auto">
-                            {UNIVERSITIES.map((univ) => (
+                            {(pgUnivSearch.trim() === ''
+                              ? institutionsList
+                              : institutionsList.filter(u => u.name.toLowerCase().includes(pgUnivSearch.toLowerCase()))
+                            ).map((univ) => (
                               <button
-                                key={univ}
+                                key={univ.id}
                                 type="button"
                                 onClick={() => {
-                                  setPostGradUniversity(univ);
+                                  setPostGradUniversity(univ.name);
+                                  setPgUnivSearch(univ.name);
                                   setShowPgUnivDropdown(false);
                                 }}
-                                className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:bg-slate-50 transition-colors font-bold border-b border-slate-50 last:border-b-0"
+                                className="w-full text-left px-4 py-2.5 text-xs text-slate-750 hover:bg-slate-50 transition-colors font-bold border-b border-slate-50 last:border-b-0 flex justify-between items-center"
                               >
-                                {univ}
+                                <span>{univ.name}</span>
+                                {univ.status === 'pending' && (
+                                  <span className="text-[9px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full font-extrabold border border-amber-100">Pending Review</span>
+                                )}
                               </button>
                             ))}
+                            {pgUnivSearch.trim() !== '' && !institutionsList.some(i => i.name.toLowerCase() === pgUnivSearch.trim().toLowerCase()) && (
+                              <div className="p-2 text-center border-t border-slate-50">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setPostGradUniversity(pgUnivSearch.trim());
+                                    setShowPgUnivDropdown(false);
+                                  }}
+                                  className="bg-[#86c240]/10 hover:bg-[#86c240]/20 text-[#86c240] text-[10px] font-black px-3 py-1.5 rounded-lg transition-colors"
+                                >
+                                  + Add "{pgUnivSearch}" as custom institution
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -1896,6 +2210,41 @@ const TutorProfileForm = () => {
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Blood Group</label>
+                    <select 
+                      value={bloodGroup} 
+                      onChange={(e) => setBloodGroup(e.target.value)}
+                      className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-bold focus:outline-none focus:border-[#86c240]"
+                    >
+                      <option value="">Select Blood Group</option>
+                      <option value="A+">A+</option>
+                      <option value="A-">A-</option>
+                      <option value="B+">B+</option>
+                      <option value="B-">B-</option>
+                      <option value="AB+">AB+</option>
+                      <option value="AB-">AB-</option>
+                      <option value="O+">O+</option>
+                      <option value="O-">O-</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Religion</label>
+                    <select 
+                      value={religion} 
+                      onChange={(e) => setReligion(e.target.value)}
+                      className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-bold focus:outline-none focus:border-[#86c240]"
+                    >
+                      <option value="">Select Religion</option>
+                      <option value="Islam">Islam</option>
+                      <option value="Hinduism">Hinduism</option>
+                      <option value="Christianity">Christianity</option>
+                      <option value="Buddhism">Buddhism</option>
+                      <option value="Others">Others</option>
+                    </select>
+                  </div>
+
                   <div className="md:col-span-2">
                     <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Address*</label>
                     <textarea 
@@ -1904,8 +2253,8 @@ const TutorProfileForm = () => {
                       onChange={(e) => setAddress(e.target.value)}
                       className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-750 min-h-[90px]"
                     />
-                              </div>
-                    </div>
+                  </div>
+                </div>
                   </>
                 )}
 
@@ -2031,17 +2380,24 @@ const TutorProfileForm = () => {
                   <>
                     <div>
                       <h3 className="text-lg font-bold text-slate-800">Upload Credentials</h3>
-                      <p className="text-slate-455 text-[11px] font-semibold">CV/Resume is required to complete profile credentials step. Profile photo is optional.</p>
+                      <p className="text-slate-455 text-[11px] font-semibold">NID Card, Varsity ID Card and CV/Resume are required to complete the credentials step. Profile photo, HSC and SSC certificates are optional.</p>
+                    </div>
+
+                    <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl p-4 mt-4 shadow-sm text-xs font-semibold leading-relaxed">
+                      ⚠️ <strong className="font-bold">Important Notice:</strong> Uploading your NID Card and Varsity ID Card is mandatory to apply for tuition jobs on this platform.
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-6 pt-3">
                   
                   {/* Profile Photo Upload Segment (COMPLETELY OPTIONAL) */}
                   <div className="space-y-3 bg-slate-50 p-4 border border-slate-100 rounded-2xl">
-                    <label className="block text-[11px] font-extrabold text-slate-600 tracking-wide flex items-center gap-1.5">
-                      <ImageIcon className="w-3.5 h-3.5 text-[#86c240]" />
-                      Profile Photo (Optional)
-                    </label>
+                    <div className="flex justify-between items-center">
+                      <label className="block text-[11px] font-extrabold text-slate-600 tracking-wide flex items-center gap-1.5">
+                        <ImageIcon className="w-3.5 h-3.5 text-[#86c240]" />
+                        Profile Photo
+                      </label>
+                      <span className="text-[9px] text-slate-450 font-bold uppercase tracking-wider bg-slate-200 px-2 py-0.5 rounded-md">Optional</span>
+                    </div>
                     
                     <div className="flex items-center gap-4 mt-2">
                       <div className="w-16 h-16 rounded-full border-2 border-white shadow-md bg-slate-200 flex items-center justify-center text-slate-400 overflow-hidden">
@@ -2053,28 +2409,28 @@ const TutorProfileForm = () => {
                           <User className="w-8 h-8" />
                         )}
                       </div>
-                      <label className="px-4 py-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-100 transition-colors bg-white rounded-xl text-xs font-bold text-slate-600 cursor-pointer select-none">
+                      <label className="px-4 py-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-100 transition-colors bg-white rounded-xl text-xs font-bold text-slate-665 cursor-pointer select-none">
                         Choose Photo
                         <input 
                           type="file" 
-                          accept="image/*"
+                          accept="image/jpeg,image/png,image/jpg"
                           className="hidden"
-                          onChange={(e) => {
-                            if (e.target.files && e.target.files[0]) {
-                              setPhotoFile(e.target.files[0]);
-                            }
-                          }}
+                          onChange={(e) => handleImageSelected(e, 'photo')}
                         />
                       </label>
                     </div>
+                    <p className="text-[9px] text-slate-400 font-semibold leading-normal">Allowed format: JPG, JPEG, PNG. Max size: 1MB.</p>
                   </div>
 
                   {/* CV/Resume Upload Segment */}
                   <div className="space-y-3 bg-slate-50 p-4 border border-slate-100 rounded-2xl">
-                    <label className="block text-[11px] font-extrabold text-slate-600 tracking-wide flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5 text-[#86c240]" />
-                      CV / Resume *
-                    </label>
+                    <div className="flex justify-between items-center">
+                      <label className="block text-[11px] font-extrabold text-slate-600 tracking-wide flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-[#86c240]" />
+                        CV / Resume *
+                      </label>
+                      <span className="text-[9px] text-[#86c240] font-bold uppercase tracking-wider bg-[#eaf4df] px-2 py-0.5 rounded-md">Required</span>
+                    </div>
 
                     <div className="flex gap-2 mb-2">
                       <button
@@ -2132,10 +2488,142 @@ const TutorProfileForm = () => {
                       </div>
                     )}
 
+                  </div>
+
+                  {/* NID Card Upload Segment (MUST) */}
+                  <div className="space-y-3 bg-slate-50 p-4 border border-slate-100 rounded-2xl">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-[11px] font-extrabold text-slate-600 tracking-wide flex items-center gap-1.5">
+                        <ImageIcon className="w-3.5 h-3.5 text-[#86c240]" />
+                        NID Card *
+                      </label>
+                      <span className="text-[9px] text-[#86c240] font-bold uppercase tracking-wider bg-[#eaf4df] px-2 py-0.5 rounded-md">Required</span>
                     </div>
+                    <div className="flex items-center gap-4 mt-2">
+                      <div className="w-16 h-16 rounded-xl border border-slate-200 bg-white flex items-center justify-center text-slate-400 overflow-hidden shadow-sm flex-shrink-0">
+                        {nidFile ? (
+                          <img src={URL.createObjectURL(nidFile)} alt="Preview" className="w-full h-full object-cover" />
+                        ) : nidUrl ? (
+                          <img src={nidUrl} alt="NID" className="w-full h-full object-cover" />
+                        ) : (
+                          <FileText className="w-6 h-6 text-slate-350" />
+                        )}
+                      </div>
+                      <label className="px-4 py-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-100 transition-colors bg-white rounded-xl text-xs font-bold text-slate-655 cursor-pointer select-none">
+                        Choose NID Image
+                        <input 
+                          type="file" 
+                          accept="image/jpeg,image/png,image/jpg"
+                          className="hidden"
+                          onChange={(e) => handleImageSelected(e, 'nid')}
+                        />
+                      </label>
                     </div>
-                  </>
-                )}
+                    <p className="text-[9px] text-slate-400 font-semibold leading-normal">Allowed format: JPG, JPEG, PNG. Max size: 1MB.</p>
+                  </div>
+
+                  {/* Varsity ID Card Upload Segment (MUST) */}
+                  <div className="space-y-3 bg-slate-50 p-4 border border-slate-100 rounded-2xl">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-[11px] font-extrabold text-slate-600 tracking-wide flex items-center gap-1.5">
+                        <ImageIcon className="w-3.5 h-3.5 text-[#86c240]" />
+                        Varsity ID Card *
+                      </label>
+                      <span className="text-[9px] text-[#86c240] font-bold uppercase tracking-wider bg-[#eaf4df] px-2 py-0.5 rounded-md">Required</span>
+                    </div>
+                    <div className="flex items-center gap-4 mt-2">
+                      <div className="w-16 h-16 rounded-xl border border-slate-200 bg-white flex items-center justify-center text-slate-400 overflow-hidden shadow-sm flex-shrink-0">
+                        {varsityIdFile ? (
+                          <img src={URL.createObjectURL(varsityIdFile)} alt="Preview" className="w-full h-full object-cover" />
+                        ) : varsityIdUrl ? (
+                          <img src={varsityIdUrl} alt="Varsity ID" className="w-full h-full object-cover" />
+                        ) : (
+                          <FileText className="w-6 h-6 text-slate-355" />
+                        )}
+                      </div>
+                      <label className="px-4 py-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-100 transition-colors bg-white rounded-xl text-xs font-bold text-slate-655 cursor-pointer select-none">
+                        Choose Varsity ID
+                        <input 
+                          type="file" 
+                          accept="image/jpeg,image/png,image/jpg"
+                          className="hidden"
+                          onChange={(e) => handleImageSelected(e, 'varsity_id')}
+                        />
+                      </label>
+                    </div>
+                    <p className="text-[9px] text-slate-400 font-semibold leading-normal">Allowed format: JPG, JPEG, PNG. Max size: 1MB.</p>
+                  </div>
+
+                  {/* HSC Certificate Upload Segment (OPTIONAL) */}
+                  <div className="space-y-3 bg-slate-50 p-4 border border-slate-100 rounded-2xl">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-[11px] font-extrabold text-slate-600 tracking-wide flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-[#86c240]" />
+                        HSC Certificate
+                      </label>
+                      <span className="text-[9px] text-slate-450 font-bold uppercase tracking-wider bg-slate-200 px-2 py-0.5 rounded-md">Optional</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl">
+                      <label className="cursor-pointer flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 py-2 px-3 rounded-lg text-[10px] font-bold text-slate-655 select-none flex-shrink-0">
+                        <Upload className="w-3.5 h-3.5 text-[#86c240]" /> Select PDF
+                        <input 
+                          type="file" 
+                          accept=".pdf" 
+                          className="hidden" 
+                          onChange={(e) => handlePdfSelected(e, 'hsc')}
+                        />
+                      </label>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] text-slate-800 font-bold truncate leading-tight">
+                          {hscCertFile ? hscCertFile.name : hscCertUrl ? 'HSC certificate uploaded' : 'No file chosen'}
+                        </p>
+                        {hscCertUrl && !hscCertFile && (
+                          <a href={hscCertUrl} target="_blank" rel="noreferrer" className="text-[9px] text-[#86c240] hover:underline font-bold">
+                            View Uploaded HSC Certificate
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-[9px] text-slate-400 font-semibold leading-normal">Allowed format: PDF only. Max size: 100KB.</p>
+                  </div>
+
+                  {/* SSC Certificate Upload Segment (OPTIONAL) */}
+                  <div className="space-y-3 bg-slate-50 p-4 border border-slate-100 rounded-2xl">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-[11px] font-extrabold text-slate-600 tracking-wide flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-[#86c240]" />
+                        SSC Certificate
+                      </label>
+                      <span className="text-[9px] text-slate-450 font-bold uppercase tracking-wider bg-slate-200 px-2 py-0.5 rounded-md">Optional</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl">
+                      <label className="cursor-pointer flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 py-2 px-3 rounded-lg text-[10px] font-bold text-slate-655 select-none flex-shrink-0">
+                        <Upload className="w-3.5 h-3.5 text-[#86c240]" /> Select PDF
+                        <input 
+                          type="file" 
+                          accept=".pdf" 
+                          className="hidden" 
+                          onChange={(e) => handlePdfSelected(e, 'ssc')}
+                        />
+                      </label>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] text-slate-800 font-bold truncate leading-tight">
+                          {sscCertFile ? sscCertFile.name : sscCertUrl ? 'SSC certificate uploaded' : 'No file chosen'}
+                        </p>
+                        {sscCertUrl && !sscCertFile && (
+                          <a href={sscCertUrl} target="_blank" rel="noreferrer" className="text-[9px] text-[#86c240] hover:underline font-bold">
+                            View Uploaded SSC Certificate
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-[9px] text-slate-400 font-semibold leading-normal">Allowed format: PDF only. Max size: 100KB.</p>
+                  </div>
+                </div>
+              </>
+            )}
 
                 {/* SUB-STEP 2: ABOUT ME */}
                 {activeSubStep === 2 && (
@@ -2248,6 +2736,19 @@ const TutorProfileForm = () => {
         </div>
       </div>
 
+      <ImageCropperModal
+        isOpen={cropperOpen}
+        onClose={() => setCropperOpen(false)}
+        imageSrc={cropperSrc}
+        onCropComplete={handleCropComplete}
+        title={`Crop ${
+          cropperTarget === 'photo' ? 'Profile Photo' :
+          cropperTarget === 'nid' ? 'NID Card' :
+          cropperTarget === 'varsity_id' ? 'Varsity ID Card' :
+          cropperTarget === 'hsc' ? 'HSC Certificate' :
+          cropperTarget === 'ssc' ? 'SSC Certificate' : 'Image'
+        }`}
+      />
     </div>
   );
 };

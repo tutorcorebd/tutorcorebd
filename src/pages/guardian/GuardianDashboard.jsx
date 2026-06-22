@@ -275,7 +275,14 @@ const GuardianDashboard = () => {
                   
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="font-bold text-base text-slate-800 leading-tight mb-1">{req.student_class}</h3>
+                      <h3 className="font-bold text-base text-slate-800 leading-tight mb-1 flex items-center gap-1.5 flex-wrap">
+                        <span>{req.student_class}</span>
+                        {req.has_custom_institution && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-600 font-extrabold rounded-md text-[8px] tracking-wide uppercase">
+                            Pending Review
+                          </span>
+                        )}
+                      </h3>
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         {req.subject.slice(0, 2).map(sub => (
                           <span key={sub} className="bg-slate-50 text-slate-600 border border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-md">

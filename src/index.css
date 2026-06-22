@@ -25,3 +25,34 @@
     @apply bg-white rounded-xl shadow-sm border border-slate-100 p-6;
   }
 }
+
+@keyframes borderPulsePurple {
+  0%, 100% { 
+    border-color: rgba(168, 85, 247, 0.4); 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(168, 85, 247, 0.2); 
+  }
+  50% { 
+    border-color: rgba(168, 85, 247, 0.95); 
+    box-shadow: 0 0 12px 3px rgba(168, 85, 247, 0.35); 
+  }
+}
+
+@keyframes borderPulseRose {
+  0%, 100% { 
+    border-color: rgba(244, 63, 94, 0.4); 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(244, 63, 94, 0.2); 
+  }
+  50% { 
+    border-color: rgba(244, 63, 94, 0.95); 
+    box-shadow: 0 0 12px 3px rgba(244, 63, 94, 0.35); 
+  }
+}
+
+.animate-pulse-purple {
+  animation: borderPulsePurple 2s infinite ease-in-out;
+}
+
+.animate-pulse-rose {
+  animation: borderPulseRose 2s infinite ease-in-out;
+}
+

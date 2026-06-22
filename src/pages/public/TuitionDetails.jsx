@@ -5,7 +5,7 @@ import useAuthStore from '../../store/useAuthStore';
 import { 
   MapPin, BookOpen, Clock, Banknote, User, GraduationCap, 
   Calendar, Box, Users, Share2, Bookmark, Check, ArrowLeft,
-  Navigation
+  Navigation, AlertTriangle, Layers
 } from 'lucide-react';
 import { format } from 'date-fns';
 import CustomAlert from '../../components/layout/CustomAlert';
@@ -268,6 +268,14 @@ const TuitionDetails = () => {
         <ArrowLeft className="w-4 h-4" /> Back
       </button>
 
+      {/* Warning banner for custom institution */}
+      {job.has_custom_institution && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-700 px-5 py-4 rounded-2xl font-bold flex items-center gap-3 shadow-sm animate-in fade-in duration-300">
+          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
+          <span>⚠️ Pending Review: This requirement contains a custom institution suggestion and is currently being audited to prevent spam.</span>
+        </div>
+      )}
+
       {/* Main Grid: Info Cards vs Actions Panel */}
       <div className="grid lg:grid-cols-3 gap-6">
         
@@ -382,6 +390,43 @@ const TuitionDetails = () => {
               </div>
             </div>
           </div>
+
+          {/* Section 1.5: Detailed Multi-Children Breakdown */}
+          {job.children && Array.isArray(job.children) && job.children.length > 0 && (
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-8 space-y-6 animate-in fade-in duration-300">
+              <h3 className="text-[#86c240] font-extrabold text-xl sm:text-2xl mb-2 flex items-center gap-2">
+                <Layers className="w-5 h-5" />
+                Detailed Children Breakdown
+              </h3>
+              <p className="text-slate-500 text-xs font-semibold">This tuition request is for multiple children. Here is the configuration per child:</p>
+              
+              <div className="grid gap-4 sm:grid-cols-2">
+                {job.children.map((child, i) => (
+                  <div key={i} className="border border-slate-150 rounded-xl p-4 bg-slate-50/50 hover:bg-[#86c240]/5 transition-all">
+                    <h4 className="font-extrabold text-sm text-[#86c240] mb-2 flex items-center gap-1.5">
+                      <span>👶</span> Child #{i + 1}
+                    </h4>
+                    <div className="space-y-2 text-xs text-slate-700">
+                      <div>
+                        <span className="text-slate-400 font-bold block">Class / Grade</span>
+                        <span className="text-slate-800 font-extrabold text-xs">{child.student_class} {child.student_group ? `(${child.student_group})` : ''}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 font-bold block">Subjects Needed</span>
+                        <div className="flex flex-wrap gap-1.5 mt-1">
+                          {child.subject && child.subject.map((s, idx) => (
+                            <span key={idx} className="px-2.5 py-1 bg-white border border-slate-200 text-[#86c240] font-bold rounded-lg text-[10px]">
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Section 2: Tutor Requirements */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-8 space-y-6">

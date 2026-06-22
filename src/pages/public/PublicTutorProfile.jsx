@@ -22,21 +22,11 @@ import {
   Compass,
   Check,
   Shield,
-  Layers
+  Layers,
+  Star
 } from 'lucide-react';
 import CustomAlert from '../../components/layout/CustomAlert';
-
-const VerifiedBadge = ({ size = 16 }) => (
-  <svg 
-    className="inline-block text-[#86c240] fill-current shrink-0 ml-1.5 align-middle" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M23 12l-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-13 5l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
-  </svg>
-);
+import VerifiedBadge from '../../components/common/VerifiedBadge';
 
 const PublicTutorProfile = () => {
   const { id } = useParams();
@@ -230,11 +220,6 @@ const PublicTutorProfile = () => {
                     {userInitial}
                   </div>
                 )}
-                {profile.is_verified && (
-                  <div className="absolute -bottom-1.5 -right-1.5 bg-white rounded-full p-0.5 shadow-md border border-slate-100">
-                    <VerifiedBadge size={26} />
-                  </div>
-                )}
               </div>
 
               <div className="text-center sm:text-left space-y-2 flex-grow">
@@ -243,12 +228,20 @@ const PublicTutorProfile = () => {
                     {tutorData.full_name}
                     {profile.is_verified && <VerifiedBadge size={22} />}
                   </h2>
-                  {profile.is_verified && (
-                    <span className="bg-[#eaf4df] text-[#6a9c31] text-[10px] font-extrabold px-3 py-1 rounded-full inline-flex items-center justify-center gap-1 self-center w-fit">
-                      <Shield className="w-3 h-3 fill-current" /> Verified Profile
-                    </span>
-                  )}
                 </div>
+
+                {profile.rating > 0 && (
+                  <div className="flex gap-0.5 justify-center sm:justify-start">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < profile.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
 
                 {profile.university && (
                   <p className="text-sm font-semibold text-slate-600 flex items-center justify-center sm:justify-start gap-1">

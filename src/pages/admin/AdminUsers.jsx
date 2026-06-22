@@ -7,6 +7,7 @@ import {
   Plus, Calendar, Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import VerifiedBadge from '../../components/common/VerifiedBadge';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -30,18 +31,6 @@ const itemVariants = {
     }
   }
 };
-
-const VerifiedBadge = ({ size = 16 }) => (
-  <svg 
-    className="inline-block text-[#86c240] fill-current shrink-0 ml-1.5 align-middle" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M23 12l-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-13 5l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
-  </svg>
-);
 
 const parsePgArray = (val) => {
   if (!val) return [];
@@ -73,6 +62,10 @@ const AdminUsers = () => {
   const [sendingNotice, setSendingNotice] = useState(false);
   const [showSchemaModal, setShowSchemaModal] = useState(false);
   const [rlsErrorTable, setRlsErrorTable] = useState(null);
+
+  // Document Viewer Modal state
+  const [viewerUrl, setViewerUrl] = useState(null);
+  const [viewerTitle, setViewerTitle] = useState('');
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -320,6 +313,47 @@ const AdminUsers = () => {
         setRlsErrorTable('tutor_profiles');
       } else {
         alert('Failed to update tutor status: ' + err.message);
+      }
+    }
+  };
+
+  const handleUpdateTutorRating = async (userId, newRating) => {
+    try {
+      const { error } = await supabase
+        .from('tutor_profiles')
+        .upsert({ 
+          user_id: userId,
+          rating: newRating
+        });
+
+      if (error) throw error;
+
+      // Update local state
+      setUsers(users.map(u => {
+        if (u.id === userId) {
+          const updatedProfiles = Array.isArray(u.tutor_profiles)
+            ? [{ ...u.tutor_profiles[0], rating: newRating }]
+            : { ...u.tutor_profiles, rating: newRating };
+          return { ...u, tutor_profiles: updatedProfiles };
+        }
+        return u;
+      }));
+
+      // Sync selected user drawer
+      if (selectedUser && selectedUser.id === userId) {
+        const updatedProfiles = Array.isArray(selectedUser.tutor_profiles)
+          ? [{ ...selectedUser.tutor_profiles[0], rating: newRating }]
+          : { ...selectedUser.tutor_profiles, rating: newRating };
+        setSelectedUser({ ...selectedUser, tutor_profiles: updatedProfiles });
+      }
+
+      showToast(`Tutor rating updated to ${newRating} Stars.`);
+    } catch (err) {
+      console.error('Error updating tutor rating:', err);
+      if (err.message?.toLowerCase().includes('row-level security') || err.message?.toLowerCase().includes('rls')) {
+        setRlsErrorTable('tutor_profiles');
+      } else {
+        alert('Failed to update rating: ' + err.message);
       }
     }
   };
@@ -727,7 +761,7 @@ const AdminUsers = () => {
                 {selectedUser.role === 'tutor' && (
                   <motion.div variants={itemVariants} className="bg-slate-50 border border-slate-200/60 rounded-2xl p-5 space-y-3 shadow-sm">
                     <h4 className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                      <Shield className="w-4 h-4 text-[#86c240]" /> Tutor status management
+                      <Shield className="w-4 h-4 text-[#86c240]" /> Tutor status & rating management
                     </h4>
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-xs font-medium text-slate-600">Tutor status:</span>
@@ -739,6 +773,21 @@ const AdminUsers = () => {
                         <option value="Normal Tutor">Normal Tutor</option>
                         <option value="Verified Tutor">Verified Tutor</option>
                         <option value="Premium Tutor">Premium Tutor</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center justify-between gap-4 pt-3 border-t border-slate-200/60">
+                      <span className="text-xs font-medium text-slate-600">Tutor rating:</span>
+                      <select
+                        value={getTutorProfile(selectedUser).rating || 0}
+                        onChange={(e) => handleUpdateTutorRating(selectedUser.id, parseInt(e.target.value, 10))}
+                        className="flex-1 p-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-850 focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer font-sans"
+                      >
+                        <option value={0}>No Rating (0 Stars)</option>
+                        <option value={1}>1 Star</option>
+                        <option value={2}>2 Stars</option>
+                        <option value={3}>3 Stars</option>
+                        <option value={4}>4 Stars</option>
+                        <option value={5}>5 Stars</option>
                       </select>
                     </div>
                   </motion.div>
@@ -806,33 +855,154 @@ const AdminUsers = () => {
                       const tp = getTutorProfile(selectedUser);
                       return (
                         <>
-                          {/* CV & Credentials - IMPORTANT FIRST */}
-                          {tp.cv_url && (
-                            <motion.div variants={itemVariants} className="space-y-3">
-                              <h4 className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
-                                <FileText className="w-4 h-4 text-primary" /> Curriculum vitae (CV)
-                              </h4>
-                              <div className="border border-slate-100 rounded-xl p-4 bg-slate-50/50 flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-9 h-9 bg-red-50 text-red-500 rounded-xl flex items-center justify-center shrink-0">
-                                    <FileText className="w-5 h-5" />
+                          {/* Tutor Credentials & Uploaded Documents */}
+                          <motion.div variants={itemVariants} className="space-y-3">
+                            <h4 className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                              <FileText className="w-5 h-5 text-[#86c240]" /> Credentials & Documents
+                            </h4>
+                            <div className="border border-slate-100 rounded-2xl p-4 bg-white space-y-3 shadow-sm">
+                              {/* CV */}
+                              {tp.cv_url && (
+                                <div className="border border-green-100 rounded-xl p-3.5 bg-green-50/20 flex items-center justify-between hover:bg-green-50/40 transition-colors">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-[#86c240]/10 text-[#86c240] rounded-xl flex items-center justify-center shrink-0 border border-[#86c240]/20">
+                                      <FileText className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-bold text-slate-800">Curriculum Vitae (CV)</p>
+                                      <p className="text-[10px] text-slate-400">Main profile CV attachment</p>
+                                    </div>
+                                  </div>
+                                  <button 
+                                    onClick={() => {
+                                      setViewerUrl(tp.cv_url);
+                                      setViewerTitle('Curriculum Vitae (CV) - ' + selectedUser.full_name);
+                                    }}
+                                    className="px-3.5 py-2 border border-[#86c240]/30 hover:bg-[#86c240] hover:text-white text-[#86c240] rounded-xl text-xs font-bold transition-all shadow-sm bg-white"
+                                  >
+                                    Open document
+                                  </button>
+                                </div>
+                              )}
+
+                              {/* NID Card */}
+                              <div className="border border-slate-100 rounded-xl p-3.5 bg-slate-50/50 flex items-center justify-between hover:border-green-200 transition-colors">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${tp.nid_url ? 'bg-[#86c240]/10 text-[#86c240] border-[#86c240]/20' : 'bg-slate-100 text-slate-400 border-slate-200'}`}>
+                                    <Shield className="w-5 h-5" />
                                   </div>
                                   <div>
-                                    <p className="text-xs font-semibold text-slate-800">Tutor CV attachment</p>
-                                    <p className="text-[10px] text-slate-400">Uploaded document / link</p>
+                                    <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                      National ID Card (NID)
+                                      <span className="text-[9px] px-1.5 py-0.5 bg-rose-50 text-rose-600 rounded font-bold border border-rose-100">Mandatory</span>
+                                    </p>
+                                    <p className="text-[10px] text-slate-400">{tp.nid_url ? 'Uploaded successfully' : 'Not uploaded yet'}</p>
                                   </div>
                                 </div>
-                                <a 
-                                  href={tp.cv_url} 
-                                  target="_blank" 
-                                  rel="noreferrer"
-                                  className="px-4 py-2 border border-slate-200 hover:border-primary hover:text-primary rounded-xl text-xs font-semibold transition-all shadow-sm bg-white"
-                                >
-                                  Open document
-                                </a>
+                                {tp.nid_url ? (
+                                  <button 
+                                    onClick={() => {
+                                      setViewerUrl(tp.nid_url);
+                                      setViewerTitle('National ID Card (NID) - ' + selectedUser.full_name);
+                                    }}
+                                    className="px-3.5 py-2 border border-[#86c240]/30 hover:bg-[#86c240] hover:text-white text-[#86c240] rounded-xl text-xs font-bold transition-all shadow-sm bg-white"
+                                  >
+                                    Open document
+                                  </button>
+                                ) : (
+                                  <span className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold border border-rose-100">
+                                    Missing
+                                  </span>
+                                )}
                               </div>
-                            </motion.div>
-                          )}
+
+                              {/* University ID Card */}
+                              <div className="border border-slate-100 rounded-xl p-3.5 bg-slate-50/50 flex items-center justify-between hover:border-green-200 transition-colors">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${tp.varsity_id_url ? 'bg-[#86c240]/10 text-[#86c240] border-[#86c240]/20' : 'bg-slate-100 text-slate-400 border-slate-200'}`}>
+                                    <GraduationCap className="w-5 h-5" />
+                                  </div>
+                                  <div>
+                                    <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                      University ID Card
+                                      <span className="text-[9px] px-1.5 py-0.5 bg-rose-50 text-rose-600 rounded font-bold border border-rose-100">Mandatory</span>
+                                    </p>
+                                    <p className="text-[10px] text-slate-400">{tp.varsity_id_url ? 'Uploaded successfully' : 'Not uploaded yet'}</p>
+                                  </div>
+                                </div>
+                                {tp.varsity_id_url ? (
+                                  <button 
+                                    onClick={() => {
+                                      setViewerUrl(tp.varsity_id_url);
+                                      setViewerTitle('University ID Card - ' + selectedUser.full_name);
+                                    }}
+                                    className="px-3.5 py-2 border border-[#86c240]/30 hover:bg-[#86c240] hover:text-white text-[#86c240] rounded-xl text-xs font-bold transition-all shadow-sm bg-white"
+                                  >
+                                    Open document
+                                  </button>
+                                ) : (
+                                  <span className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold border border-rose-100">
+                                    Missing
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* HSC Certificate */}
+                              {tp.hsc_cert_url && (
+                                <div className="border border-slate-100 rounded-xl p-3.5 bg-slate-50/50 flex items-center justify-between hover:border-green-200 transition-colors">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-[#86c240]/10 text-[#86c240] rounded-xl flex items-center justify-center shrink-0 border border-[#86c240]/20">
+                                      <Award className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        HSC Certificate
+                                        <span className="text-[9px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded font-bold border border-slate-200">Optional</span>
+                                      </p>
+                                      <p className="text-[10px] text-slate-400">PDF document attachment</p>
+                                    </div>
+                                  </div>
+                                  <button 
+                                    onClick={() => {
+                                      setViewerUrl(tp.hsc_cert_url);
+                                      setViewerTitle('HSC Certificate - ' + selectedUser.full_name);
+                                    }}
+                                    className="px-3.5 py-2 border border-[#86c240]/30 hover:bg-[#86c240] hover:text-white text-[#86c240] rounded-xl text-xs font-bold transition-all shadow-sm bg-white"
+                                  >
+                                    Open PDF
+                                  </button>
+                                </div>
+                              )}
+
+                              {/* SSC Certificate */}
+                              {tp.ssc_cert_url && (
+                                <div className="border border-slate-100 rounded-xl p-3.5 bg-slate-50/50 flex items-center justify-between hover:border-green-200 transition-colors">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-[#86c240]/10 text-[#86c240] rounded-xl flex items-center justify-center shrink-0 border border-[#86c240]/20">
+                                      <Award className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        SSC Certificate
+                                        <span className="text-[9px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded font-bold border border-slate-200">Optional</span>
+                                      </p>
+                                      <p className="text-[10px] text-slate-400">PDF document attachment</p>
+                                    </div>
+                                  </div>
+                                  <button 
+                                    onClick={() => {
+                                      setViewerUrl(tp.ssc_cert_url);
+                                      setViewerTitle('SSC Certificate - ' + selectedUser.full_name);
+                                    }}
+                                    className="px-3.5 py-2 border border-[#86c240]/30 hover:bg-[#86c240] hover:text-white text-[#86c240] rounded-xl text-xs font-bold transition-all shadow-sm bg-white"
+                                  >
+                                    Open PDF
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+
 
                           {/* Academic Status Box */}
                           <motion.div variants={itemVariants} className="space-y-3">
@@ -1052,6 +1222,14 @@ const AdminUsers = () => {
                                 <div>
                                   <span className="text-slate-400 text-[10px] block mb-0.5">Mother's name</span>
                                   <span className="text-slate-800 font-medium">{tp.mothers_name || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Blood Group</span>
+                                  <span className="text-rose-600 font-bold">{tp.blood_group || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-[10px] block mb-0.5">Religion</span>
+                                  <span className="text-slate-800 font-medium">{tp.religion || 'N/A'}</span>
                                 </div>
                               </div>
                               <div className="border-t border-slate-100 pt-3">
@@ -1434,6 +1612,104 @@ WITH CHECK ( public.is_admin() );`}</pre>
                 >
                   Dismiss
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Document Viewer Modal */}
+      <AnimatePresence>
+        {viewerUrl && (
+          <div className="fixed inset-0 z-[105] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.6 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setViewerUrl(null);
+                setViewerTitle('');
+              }}
+              className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm"
+            />
+            {/* Modal Content */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl border border-slate-150 p-6 max-w-4xl w-full h-[85vh] relative shadow-2xl z-10 flex flex-col font-sans text-left"
+            >
+              <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 mb-4">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-[#86c240]" />
+                  <h3 className="font-extrabold text-slate-800 text-base">{viewerTitle || 'View Document'}</h3>
+                </div>
+                <div className="flex items-center gap-3">
+                  <a 
+                    href={viewerUrl} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="text-xs px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all flex items-center gap-1.5"
+                  >
+                    Open in New Tab
+                  </a>
+                  <button 
+                    onClick={() => {
+                      setViewerUrl(null);
+                      setViewerTitle('');
+                    }}
+                    className="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-full transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-hidden bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-150 relative">
+                {(() => {
+                  const isPdf = viewerUrl.toLowerCase().split('?')[0].endsWith('.pdf');
+                  const isGoogleDrive = viewerUrl.includes('drive.google.com') || viewerUrl.includes('docs.google.com');
+
+                  if (isGoogleDrive) {
+                    return (
+                      <div className="text-center p-6 space-y-4">
+                        <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto" />
+                        <h4 className="text-sm font-bold text-slate-800">Google Drive Document</h4>
+                        <p className="text-xs text-slate-500 max-w-md">
+                          Google Drive documents cannot be embedded directly due to security restrictions. Please click the button below to view it.
+                        </p>
+                        <a 
+                          href={viewerUrl} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="inline-flex px-5 py-2.5 bg-[#86c240] hover:bg-[#6a9c31] text-white font-bold rounded-xl text-xs shadow-md transition-all"
+                        >
+                          Open in Google Drive
+                        </a>
+                      </div>
+                    );
+                  }
+
+                  if (isPdf) {
+                    return (
+                      <iframe 
+                        src={viewerUrl} 
+                        className="w-full h-full rounded-2xl border-0" 
+                        title={viewerTitle}
+                      />
+                    );
+                  }
+
+                  // Otherwise render as image
+                  return (
+                    <img 
+                      src={viewerUrl} 
+                      alt={viewerTitle} 
+                      className="max-w-full max-h-full object-contain rounded-2xl p-2 select-none"
+                    />
+                  );
+                })()}
               </div>
             </motion.div>
           </div>

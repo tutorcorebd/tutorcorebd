@@ -330,6 +330,18 @@ const TuitionJobsBoard = ({ isPublic }) => {
       return;
     }
 
+    const tp = profile?.tutor_profile;
+    if (!tp?.nid_url || !tp?.varsity_id_url) {
+      showAlert(
+        'error',
+        'Verification Documents Required',
+        'To apply for a tuition, you must upload your NID Card and Varsity ID Card as proof under the Credentials section.',
+        () => navigate('/tutor/profile/update'),
+        'Upload Now'
+      );
+      return;
+    }
+
     // Check Requirements Matching
     const reqCheck = checkRequirements(job);
     if (!reqCheck.match) {
@@ -494,10 +506,15 @@ const TuitionJobsBoard = ({ isPublic }) => {
                 
                 {/* Header */}
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-extrabold text-slate-800">
+                  <h3 className="text-xl font-extrabold text-slate-800 flex flex-col gap-1">
                     <Link to={`/tuition/${job.id}`} className="hover:text-[#86c240] transition-colors">
                       {job.student_class}
                     </Link>
+                    {job.has_custom_institution && (
+                      <span className="w-fit inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-50 border border-amber-200 text-amber-600 font-extrabold rounded-full text-[9px] tracking-wide animate-pulse">
+                        ⚠️ Pending Review
+                      </span>
+                    )}
                   </h3>
                   <div className="text-right">
                     <p className="text-xs font-semibold text-slate-500 mb-0.5">Job Id: {shortId}</p>

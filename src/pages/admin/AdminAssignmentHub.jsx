@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, BookOpen, Clock, Banknote, User, MessageCircle, CheckCircle, XCircle, Award, Eye, Settings, GraduationCap } from 'lucide-react';
+import { MapPin, BookOpen, Clock, Banknote, User, MessageCircle, CheckCircle, XCircle, Award, Eye, Settings, GraduationCap, AlertTriangle, Layers } from 'lucide-react';
 
 const AdminAssignmentHub = () => {
   const [requests, setRequests] = useState([]);
@@ -182,6 +182,13 @@ const AdminAssignmentHub = () => {
                 </div>
               </div>
 
+              {selectedRequest.has_custom_institution && (
+                <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-xl font-bold flex items-center gap-2 mb-4 text-xs">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span>⚠️ Pending Review: Contains custom institution suggestions being verified by admin.</span>
+                </div>
+              )}
+
               <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs font-semibold text-slate-600 mb-5">
                 <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-slate-400" /> <span className="text-slate-400">Location:</span> {selectedRequest.location}</div>
                 <div className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-slate-400" /> <span className="text-slate-400">Subjects:</span> {selectedRequest.subject?.join(', ')}</div>
@@ -201,6 +208,39 @@ const AdminAssignmentHub = () => {
                   <MessageCircle className="w-4 h-4" /> WhatsApp Guardian ({selectedRequest.guardian_whatsapp})
                 </a>
               </div>
+
+              {selectedRequest.children && Array.isArray(selectedRequest.children) && selectedRequest.children.length > 0 && (
+                <div className="mt-5 border-t border-slate-200 pt-4">
+                  <span className="text-slate-400 font-bold block mb-2 text-xs flex items-center gap-1">
+                    <Layers className="w-3.5 h-3.5 text-[#86c240]" /> Children Breakdown:
+                  </span>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {selectedRequest.children.map((child, i) => (
+                      <div key={i} className="border border-slate-150 rounded-xl p-3 bg-white hover:bg-slate-50 transition-all">
+                        <h4 className="font-extrabold text-xs text-[#86c240] mb-1.5 flex items-center gap-1">
+                          <span>👶</span> Child #{i + 1}
+                        </h4>
+                        <div className="space-y-1 text-[11px] text-slate-700">
+                          <div>
+                            <span className="text-slate-400 font-bold block">Class / Grade</span>
+                            <span className="text-slate-800 font-extrabold">{child.student_class} {child.student_group ? `(${child.student_group})` : ''}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 font-bold block">Subjects Needed</span>
+                            <div className="flex flex-wrap gap-1 mt-0.5">
+                              {child.subject && child.subject.map((s, idx) => (
+                                <span key={idx} className="px-1.5 py-0.5 bg-slate-50 border border-slate-200 text-[#86c240] font-bold rounded text-[9px]">
+                                  {s}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Applications List */}
