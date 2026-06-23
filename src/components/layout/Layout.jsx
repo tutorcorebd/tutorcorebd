@@ -1,7 +1,7 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../../store/useAuthStore';
 import { LogOut, User, Menu, Send, Globe, Mail, Phone, ArrowRight, ShieldAlert } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ScrollToTop from '../common/ScrollToTop';
 import MobileBottomNav from './MobileBottomNav';
 
@@ -11,6 +11,61 @@ const Layout = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showRoleMismatchModal, setShowRoleMismatchModal] = useState(false);
+
+  useEffect(() => {
+    const routeTitles = {
+      '/': "Tutor Core | Country's #1 Tutor Matching Platform",
+      '/find-tutors': "Find Best Tutors | Tutor Core",
+      '/job-board': "Available Tuition Jobs | Tutor Core",
+      '/categories': "Tutor Categories | Tutor Core",
+      '/faq': "Frequently Asked Questions | Tutor Core",
+      '/parent-faq': "Parent & Guardian FAQ | Tutor Core",
+      '/tutor-faq': "Tutor FAQ & Guidelines | Tutor Core",
+      '/terms-of-use': "Terms of Use | Tutor Core",
+      '/privacy-policy': "Privacy Policy | Tutor Core",
+      '/login': "Sign In | Tutor Core",
+      '/register': "Register Account | Tutor Core",
+    };
+
+    const currentTitle = routeTitles[location.pathname] || "Tutor Core | Find Best Tutors in Bangladesh";
+    document.title = currentTitle;
+
+    // Update meta description
+    let metaDescription = document.querySelector('meta[name="description"]');
+    if (!metaDescription) {
+      metaDescription = document.createElement('meta');
+      metaDescription.setAttribute('name', 'description');
+      document.head.appendChild(metaDescription);
+    }
+    
+    const routeDescriptions = {
+      '/': "Connect with thousands of verified experts across Bangladesh for home, online, or group tuition. Experience learning that guarantees results with Tutor Core.",
+      '/find-tutors': "Search and hire verified tutors for school, college, university admission, coding, language courses, and arts. Find your perfect tutor today.",
+      '/job-board': "Browse active tuition jobs and tutoring request boards across Bangladesh. Apply to become a home tutor or online instructor.",
+      '/categories': "Explore diverse learning categories on Tutor Core including Bangla Medium, English Medium, Admission Test, Skill Development, and Arts.",
+      '/faq': "Find answers to frequently asked questions about hiring a tutor, starting to teach, verification, fees, and safety rules on Tutor Core.",
+      '/parent-faq': "Frequently asked questions for parents and guardians looking to hire a home or online tutor on Tutor Core.",
+      '/tutor-faq': "Frequently asked questions for tutors, teachers, and instructors about joining Tutor Core, applying for jobs, and verification.",
+      '/terms-of-use': "Read the terms of use and service agreement for using the Tutor Core platform as a tutor, parent, or guardian.",
+      '/privacy-policy': "Learn about how Tutor Core collects, uses, and protects your personal information and account data.",
+    };
+    
+    const currentDesc = routeDescriptions[location.pathname] || "Connect with thousands of verified experts across Bangladesh for home, online, or group tuition. Experience learning that guarantees results with Tutor Core.";
+    metaDescription.setAttribute('content', currentDesc);
+
+    // Update Open Graph & Twitter Titles / Descriptions
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', currentTitle);
+    
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', currentDesc);
+
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle) twitterTitle.setAttribute('content', currentTitle);
+
+    const twitterDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twitterDesc) twitterDesc.setAttribute('content', currentDesc);
+  }, [location.pathname]);
 
   const handleSignOut = async () => {
     await signOut();
