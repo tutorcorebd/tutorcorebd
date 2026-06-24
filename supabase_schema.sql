@@ -84,6 +84,7 @@ CREATE TABLE public.tutor_profiles (
   varsity_id_url text,
   hsc_cert_url text,
   ssc_cert_url text,
+  rating integer DEFAULT 0 CHECK (rating >= 0 AND rating <= 5),
   CONSTRAINT tutor_profiles_pkey PRIMARY KEY (user_id),
   CONSTRAINT tutor_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
@@ -109,6 +110,13 @@ CREATE TABLE public.tuition_requests (
   other_requirement text,
   full_address text,
   views integer DEFAULT 0,
+  children jsonb,
+  salary_type text DEFAULT 'range'::text CHECK (salary_type = ANY (ARRAY['range'::text, 'fixed'::text])),
+  salary_amount numeric,
+  salary_frequency text,
+  days_count integer,
+  has_custom_institution boolean DEFAULT false,
+  student_gender text DEFAULT 'Any'::text,
   CONSTRAINT tuition_requests_pkey PRIMARY KEY (id),
   CONSTRAINT tuition_requests_guardian_id_fkey FOREIGN KEY (guardian_id) REFERENCES public.users(id)
 );
@@ -228,4 +236,34 @@ CREATE TABLE public.support_messages (
   CONSTRAINT support_messages_pkey PRIMARY KEY (id),
   CONSTRAINT support_messages_ticket_id_fkey FOREIGN KEY (ticket_id) REFERENCES public.support_tickets(id),
   CONSTRAINT support_messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.institutions (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL UNIQUE,
+  status text NOT NULL DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT institutions_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.feedbacks (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid,
+  name text NOT NULL,
+  rating integer NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comment text NOT NULL,
+  status text NOT NULL DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])),
+  is_published boolean NOT NULL DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT feedbacks_pkey PRIMARY KEY (id),
+  CONSTRAINT feedbacks_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.tuition_reports (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  reporter_id uuid NOT NULL,
+  tuition_request_id uuid NOT NULL,
+  issue_category text NOT NULL,
+  description text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT tuition_reports_pkey PRIMARY KEY (id),
+  CONSTRAINT tuition_reports_reporter_id_fkey FOREIGN KEY (reporter_id) REFERENCES public.users(id) ON DELETE CASCADE,
+  CONSTRAINT tuition_reports_tuition_request_id_fkey FOREIGN KEY (tuition_request_id) REFERENCES public.tuition_requests(id) ON DELETE CASCADE
 );

@@ -33,7 +33,8 @@ import {
   Bell,
   Megaphone,
   GraduationCap,
-  MessageSquare
+  MessageSquare,
+  Flag
 } from 'lucide-react';
 import ScrollToTop from '../common/ScrollToTop';
 import MobileBottomNav from './MobileBottomNav';
@@ -203,7 +204,9 @@ const DashboardLayout = () => {
     ],
     admin: [
       { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+      { name: 'Post A Tuition', path: '/guardian/post-request', icon: PlusCircle },
       { name: 'Assignment Hub', path: '/admin/requests', icon: Shield },
+      { name: 'Tuition Reports', path: '/admin/reports', icon: Flag },
       { name: 'User Management', path: '/admin/users', icon: Users },
       { name: 'Membership Management', path: '/admin/membership', icon: ShieldCheck },
       { name: 'Notice Board', path: '/admin/notices', icon: Megaphone },

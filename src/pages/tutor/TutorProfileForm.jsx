@@ -121,7 +121,7 @@ const TutorProfileForm = () => {
   const [showLocSuggestions, setShowLocSuggestions] = useState(false);
 
   // Step 1: Tutoring Info -> Tutoring Category
-  const [preferredCategory, setPreferredCategory] = useState('');
+  const [preferredCategory, setPreferredCategory] = useState([]);
   const [preferredCourses, setPreferredCourses] = useState([]);
   const [preferredSubjects, setPreferredSubjects] = useState([]);
   const [experience, setExperience] = useState('');
@@ -353,7 +353,7 @@ const TutorProfileForm = () => {
     if (hasLocation) score += 5;
 
     // 2. Tutoring Category (5%): category, courses (at least 1), subjects (at least 1), experience
-    const hasCategory = preferredCategory && preferredCourses && preferredCourses.length > 0 && preferredSubjects && preferredSubjects.length > 0 && experience;
+    const hasCategory = preferredCategory && preferredCategory.length > 0 && preferredCourses && preferredCourses.length > 0 && preferredSubjects && preferredSubjects.length > 0 && experience;
     if (hasCategory) score += 5;
 
     // 3. School (5%)
@@ -399,7 +399,12 @@ const TutorProfileForm = () => {
         setPreferredLocations(tp.preferred_locations || []);
         setLivingLocation(tp.living_location || '');
 
-        setPreferredCategory(tp.preferred_category || '');
+        if (tp.preferred_category) {
+          const cats = tp.preferred_category.split(',').map(c => c.trim()).filter(Boolean);
+          setPreferredCategory(cats);
+        } else {
+          setPreferredCategory([]);
+        }
         setPreferredCourses(tp.preferred_courses || []);
         setPreferredSubjects(tp.preferred_subjects || []);
         setExperience(tp.experience || '');
@@ -528,6 +533,14 @@ const TutorProfileForm = () => {
       }
       setLocationInput('');
       setShowLocSuggestions(false);
+    }
+  };
+
+  const toggleCategorySelection = (cat) => {
+    if (preferredCategory.includes(cat)) {
+      setPreferredCategory(preferredCategory.filter(c => c !== cat));
+    } else {
+      setPreferredCategory([...preferredCategory, cat]);
     }
   };
 
@@ -714,7 +727,7 @@ const TutorProfileForm = () => {
           current_city: city,
           preferred_locations: preferredLocations,
           living_location: livingLocation,
-          preferred_category: preferredCategory,
+          preferred_category: preferredCategory.join(', '),
           preferred_courses: preferredCourses,
           preferred_subjects: preferredSubjects,
           experience,
@@ -1377,25 +1390,39 @@ const TutorProfileForm = () => {
                           onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#86c240] text-xs font-semibold text-slate-700 bg-white flex justify-between items-center cursor-pointer select-none"
                         >
-                          <span className={preferredCategory ? 'text-slate-800 font-bold' : 'text-slate-400'}>
-                            {preferredCategory || 'Choose Category'}
+                          <span className="text-slate-400 truncate max-w-[90%]">
+                            {preferredCategory.length > 0 ? `${preferredCategory.length} selected` : 'Choose Categories'}
                           </span>
                           <span className="text-slate-400 text-xs">▼</span>
                         </div>
                         {showCategoryDropdown && (
-                          <div className="absolute z-30 w-full bg-white border border-slate-100 rounded-xl shadow-xl mt-1 max-h-48 overflow-y-auto">
-                            {PRESET_CATEGORIES.map((cat) => (
-                              <button
-                                key={cat}
-                                type="button"
-                                onClick={() => {
-                                  setPreferredCategory(cat);
-                                  setShowCategoryDropdown(false);
-                                }}
-                                className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:bg-slate-50 transition-colors font-bold border-b border-slate-50 last:border-b-0"
-                              >
+                          <div className="absolute z-30 w-full bg-white border border-slate-100 rounded-xl shadow-xl mt-1 max-h-48 overflow-y-auto p-2 space-y-1">
+                            {PRESET_CATEGORIES.map((cat) => {
+                              const checked = preferredCategory.includes(cat);
+                              return (
+                                <button
+                                  key={cat}
+                                  type="button"
+                                  onClick={() => toggleCategorySelection(cat)}
+                                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-all flex justify-between items-center ${checked ? 'bg-[#eaf4df] text-[#86c240]' : 'hover:bg-slate-50 text-slate-600'}`}
+                                >
+                                  {cat}
+                                  {checked && <Check className="w-3.5 h-3.5" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {preferredCategory.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-3 p-2 bg-slate-50 border border-slate-100 rounded-xl">
+                            {preferredCategory.map((cat) => (
+                              <span key={cat} className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg text-[10px]">
                                 {cat}
-                              </button>
+                                <button type="button" onClick={() => toggleCategorySelection(cat)} className="p-0.5 rounded-full hover:bg-slate-150 text-slate-400 hover:text-slate-600">
+                                  <X className="w-2.5 h-2.5" />
+                                </button>
+                              </span>
                             ))}
                           </div>
                         )}
@@ -1494,16 +1521,14 @@ const TutorProfileForm = () => {
                       {/* Tutoring Experience */}
                       <div>
                         <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">Tutoring Experience*</label>
-                        <select 
+                        <input 
+                          type="text"
                           value={experience} 
                           onChange={(e) => setExperience(e.target.value)}
+                          placeholder="e.g. 2 years, 3 years, etc."
                           className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-bold focus:outline-none focus:border-[#86c240]"
-                        >
-                          <option value="">Year of Experience</option>
-                          {PRESET_EXPERIENCE.map((exp) => (
-                            <option key={exp} value={exp}>{exp}</option>
-                          ))}
-                        </select>
+                          required
+                        />
                       </div>
 
                     </div>

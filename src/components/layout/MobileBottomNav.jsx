@@ -24,7 +24,12 @@ import {
   Search,
   PlusCircle,
   HelpCircle,
-  ShieldCheck
+  ShieldCheck,
+  Mail,
+  Share2,
+  MessageSquare,
+  GraduationCap,
+  Flag
 } from 'lucide-react';
 
 const MobileBottomNav = () => {
@@ -110,11 +115,14 @@ const MobileBottomNav = () => {
         { name: 'My Profile', path: '/tutor/profile', icon: Users },
         { name: 'Tutoring History', path: '/tutor/history', icon: Archive },
         { name: 'My Payment', path: '/tutor/payment', icon: CreditCard },
+        { name: 'Confirmation Letter', path: '/tutor/confirmation-letter', icon: Mail },
+        { name: 'Affiliate Partner', path: '/tutor/affiliate', icon: Share2 },
         { name: 'Membership Plan', path: '/tutor/membership', icon: ShieldCheck },
         { name: 'Premium Request', path: '/tutor/premium-request', icon: Award },
         { name: 'Verification Request', path: '/tutor/verification', icon: CheckCircle },
         { name: 'My Batches', path: '/tutor/batches', icon: Presentation },
         { name: 'Join Community', path: '/tutor/community', icon: Globe },
+        { name: 'Help & Support', path: '/tutor/support', icon: HelpCircle },
         { name: 'Settings', path: '/tutor/settings', icon: Settings },
       ];
     }
@@ -125,6 +133,8 @@ const MobileBottomNav = () => {
         { name: 'Post A Tuition', path: '/guardian/post-request', icon: PlusCircle },
         { name: 'Find Tutors', path: '/find-tutors', icon: Search },
         { name: 'My Profile', path: '/guardian/profile', icon: User },
+        { name: 'Submit Feedback', path: '/guardian/feedback', icon: MessageSquare },
+        { name: 'Help & Support', path: '/guardian/support', icon: HelpCircle },
         { name: 'Settings', path: '/guardian/settings', icon: Settings },
       ];
     }
@@ -132,11 +142,17 @@ const MobileBottomNav = () => {
     if (role === 'admin') {
       return [
         { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+        { name: 'Post A Tuition', path: '/guardian/post-request', icon: PlusCircle },
         { name: 'Assignment Hub', path: '/admin/requests', icon: Shield },
+        { name: 'Tuition Reports', path: '/admin/reports', icon: Flag },
         { name: 'User Management', path: '/admin/users', icon: Users },
         { name: 'Membership Management', path: '/admin/membership', icon: ShieldCheck },
         { name: 'Notice Board', path: '/admin/notices', icon: Megaphone },
+        { name: 'Help & Support', path: '/admin/support', icon: HelpCircle },
+        { name: 'Feedbacks', path: '/admin/feedbacks', icon: MessageSquare },
         { name: 'Tutorial Management', path: '/admin/tutorials', icon: Video },
+        { name: 'Category Management', path: '/admin/categories', icon: LayoutGrid },
+        { name: 'Institution Queue', path: '/admin/institutions', icon: GraduationCap },
       ];
     }
 

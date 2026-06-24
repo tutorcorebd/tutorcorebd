@@ -61,6 +61,7 @@ const AdminSupport = lazy(() => import('./pages/admin/AdminSupport'));
 const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
 const AdminInstitutions = lazy(() => import('./pages/admin/AdminInstitutions'));
 const AdminFeedbacks = lazy(() => import('./pages/admin/AdminFeedbacks'));
+const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
 
 let isCheckingSession = false;
 let lastSessionCheckTime = 0;
@@ -209,6 +210,7 @@ function App() {
               <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/institutions" element={<AdminInstitutions />} />
               <Route path="/admin/feedbacks" element={<AdminFeedbacks />} />
+              <Route path="/admin/reports" element={<AdminReports />} />
             </Route>
           </Route>
         </Routes>

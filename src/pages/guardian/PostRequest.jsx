@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import useAuthStore from '../../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
-import { Check, MapPin, BookOpen, Clock, DollarSign, Phone, GraduationCap, Users, X, Plus, AlertTriangle, Layers } from 'lucide-react';
+import { Check, MapPin, BookOpen, Clock, DollarSign, Phone, GraduationCap, Users, User, X, Plus, AlertTriangle, Layers, FileText } from 'lucide-react';
 
 const CITIES = ['Dhaka', 'Chattogram', 'Rajshahi', 'Sylhet', 'Khulna', 'Barishal', 'Rangpur', 'Mymensingh'];
 
@@ -60,6 +60,7 @@ const PostRequest = () => {
   // Single child states (legacy)
   const [studentClass, setStudentClass] = useState('');
   const [studentGroup, setStudentGroup] = useState('');
+  const [studentGender, setStudentGender] = useState('Any');
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [subjectInput, setSubjectInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -67,8 +68,8 @@ const PostRequest = () => {
   // Multi-children states
   const [isMultiChild, setIsMultiChild] = useState(false);
   const [childrenList, setChildrenList] = useState([
-    { id: 1, studentClass: '', studentGroup: '', selectedSubjects: [], subjectInput: '', showSuggestions: false },
-    { id: 2, studentClass: '', studentGroup: '', selectedSubjects: [], subjectInput: '', showSuggestions: false }
+    { id: 1, studentClass: '', studentGroup: '', studentGender: 'Any', selectedSubjects: [], subjectInput: '', showSuggestions: false },
+    { id: 2, studentClass: '', studentGroup: '', studentGender: 'Any', selectedSubjects: [], subjectInput: '', showSuggestions: false }
   ]);
 
   // Location details
@@ -96,6 +97,8 @@ const PostRequest = () => {
   const [tutoringTimeType, setTutoringTimeType] = useState('standard'); // 'standard' | 'custom'
   const [tutoringTime, setTutoringTime] = useState('Negotiable'); // standard time selection
   const [customTutoringTime, setCustomTutoringTime] = useState(''); // custom text input
+  const [duration, setDuration] = useState('1.5 Hour');
+  const [otherRequirement, setOtherRequirement] = useState('');
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -205,6 +208,7 @@ const PostRequest = () => {
       id: Date.now(),
       studentClass: '',
       studentGroup: '',
+      studentGender: 'Any',
       selectedSubjects: [],
       subjectInput: '',
       showSuggestions: false
@@ -226,6 +230,7 @@ const PostRequest = () => {
           id: Date.now(),
           studentClass: studentClass,
           studentGroup: studentGroup,
+          studentGender: studentGender,
           selectedSubjects: [...selectedSubjects],
           subjectInput: '',
           showSuggestions: false
@@ -234,6 +239,7 @@ const PostRequest = () => {
           id: Date.now() + 1,
           studentClass: '',
           studentGroup: '',
+          studentGender: 'Any',
           selectedSubjects: [],
           subjectInput: '',
           showSuggestions: false
@@ -244,6 +250,7 @@ const PostRequest = () => {
       if (childrenList.length > 0) {
         setStudentClass(childrenList[0].studentClass);
         setStudentGroup(childrenList[0].studentGroup);
+        setStudentGender(childrenList[0].studentGender || 'Any');
         setSelectedSubjects(childrenList[0].selectedSubjects);
       }
     }
@@ -417,6 +424,7 @@ const PostRequest = () => {
         guardian_id: profile.id,
         student_class: classStr,
         subject: combinedSubjects,
+        student_gender: isMultiChild ? childrenList.map(c => c.studentGender || 'Any').join(', ') : studentGender,
         location: locationStr,
         full_address: fullAddress || null,
         guardian_whatsapp: guardianWhatsapp,
@@ -431,9 +439,12 @@ const PostRequest = () => {
         has_custom_institution: hasCustomInstitution,
         tutoring_mode: tutoringMode,
         tutoring_time: finalTutoringTime,
+        duration: duration,
+        other_requirement: otherRequirement,
         children: isMultiChild ? childrenList.map(c => ({
           student_class: c.studentClass,
           student_group: c.studentGroup || null,
+          student_gender: c.studentGender || 'Any',
           subject: c.selectedSubjects
         })) : null
       }]);
@@ -523,7 +534,7 @@ const PostRequest = () => {
                     )}
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className={`grid gap-4 ${childRequiresGroup ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
                     <div>
                       <label className="block text-xs font-bold text-slate-655 mb-1.5">Student Class *</label>
                       <select
@@ -555,6 +566,20 @@ const PostRequest = () => {
                         </select>
                       </div>
                     )}
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-655 mb-1.5">Student Gender *</label>
+                      <select
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] text-xs font-medium"
+                        value={child.studentGender || 'Any'}
+                        onChange={(e) => updateChild(child.id, { studentGender: e.target.value })}
+                        required
+                      >
+                        <option value="Any">Any</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </div>
                   </div>
 
                   {/* Child Subjects Autocomplete */}
@@ -685,7 +710,7 @@ const PostRequest = () => {
         ) : (
           /* Single Child Layout */
           <div className="space-y-6">
-            <div className={`grid gap-6 ${requiresGroup ? 'md:grid-cols-2' : 'grid-cols-1'}`}>
+            <div className={`grid gap-6 ${requiresGroup ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
               <div>
                 <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
                   <GraduationCap className="w-4 h-4 text-[#86c240]" />
@@ -723,6 +748,23 @@ const PostRequest = () => {
                   </select>
                 </div>
               )}
+
+              <div>
+                <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
+                  <User className="w-4 h-4 text-[#86c240]" />
+                  Student Gender <span className="text-red-500">*</span>
+                </label>
+                <select 
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium"
+                  value={studentGender}
+                  onChange={(e) => setStudentGender(e.target.value)}
+                  required
+                >
+                  <option value="Any">Any</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
             </div>
 
             <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5">
@@ -1121,6 +1163,37 @@ const PostRequest = () => {
                 <option value="Group Tutoring">Group Tutoring</option>
               </select>
             </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
+                <Clock className="w-4 h-4 text-[#86c240]" />
+                Tutoring Duration (Hours)
+              </label>
+              <input
+                type="text"
+                value={duration}
+                onChange={e => setDuration(e.target.value)}
+                placeholder="e.g. 1.5 Hours, 2 Hours, or Negotiable"
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-semibold text-sm"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
+              <FileText className="w-4 h-4 text-[#86c240]" />
+              Additional Requirements
+            </label>
+            <textarea
+              placeholder="e.g. Must have physics background, female tutor preferred, etc."
+              className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium text-sm transition-all"
+              value={otherRequirement}
+              onChange={e => setOtherRequirement(e.target.value)}
+              rows={3}
+            />
           </div>
         </div>
 
