@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, User, Users, Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import useAuthStore from '../../store/useAuthStore';
+import ReCAPTCHA from '../../components/common/ReCAPTCHA';
 
 const Login = () => {
   const { session, profile, isLoading } = useAuthStore();
@@ -16,6 +17,8 @@ const Login = () => {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
   const redirectTo = searchParams.get('redirectTo');
+
+  const recaptchaRef = useRef(null);
 
   useEffect(() => {
     if (searchParams.get('suspended') === 'true') {
@@ -66,65 +69,88 @@ const Login = () => {
         loginEmail = userData.email;
       }
 
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
-      
-      if (signInError) {
-        setError(signInError.message);
-        setLoading(false);
-        return;
+      // 1. Execute reCAPTCHA v3 challenge
+      const token = await recaptchaRef.current?.execute();
+      if (!token) {
+        throw new Error('Security check failed. Please try again.');
       }
 
-      if (data?.user) {
-        // Fetch the user role and status from public.users
-        const { data: userData, error: roleError } = await supabase
-          .from('users')
-          .select('role, status')
-          .eq('id', data.user.id)
-          .single();
-
-        if (roleError) {
-          await supabase.auth.signOut();
-          setError('Failed to retrieve user profile.');
-          setLoading(false);
-          return;
+      // 2. Invoke custom Edge Function
+      const { data: functionData, error: functionError } = await supabase.functions.invoke('auth-with-recaptcha', {
+        body: {
+          action: 'signin',
+          email: loginEmail,
+          password,
+          token
         }
+      });
 
-        if (userData.status === 'suspended') {
-          await supabase.auth.signOut();
-          setError('Your account has been suspended. Please contact administration.');
-          setLoading(false);
-          return;
-        }
+      if (functionError) {
+        throw new Error(functionError.message || 'Verification service failed.');
+      }
 
-        // Selected UI role is 'parents' (guardian) or 'tutor'
-        const expectedDbRole = role === 'parents' ? 'guardian' : 'tutor';
-        if (userData.role !== expectedDbRole) {
-          await supabase.auth.signOut();
-          if (userData.role === 'tutor') {
-            setError('This email/phone is registered as a Tutor. Please sign in as a Tutor.');
-          } else if (userData.role === 'guardian') {
-            setError('This email/phone is registered as a Parent / Guardian. Please sign in as a Parent.');
-          } else {
-            setError('Invalid credentials for the selected role.');
-          }
-          setLoading(false);
-          return;
-        }
+      if (functionData?.error) {
+        throw new Error(functionData.error);
+      }
 
-        if (redirectTo) {
-          navigate(redirectTo, { replace: true });
-        } else if (userData.role === 'admin') {
-          navigate('/admin/dashboard', { replace: true });
-        } else if (userData.role === 'tutor') {
-          navigate('/tutor/dashboard', { replace: true });
+      const sessionData = functionData?.data?.session;
+      if (!sessionData) {
+        throw new Error('Authentication failed: session not created.');
+      }
+
+      // 3. Set the session on the client
+      const { error: setSessionError } = await supabase.auth.setSession({
+        access_token: sessionData.access_token,
+        refresh_token: sessionData.refresh_token
+      });
+
+      if (setSessionError) {
+        throw new Error(setSessionError.message);
+      }
+
+      // 4. Fetch the profile details to check role and status
+      const { data: userData, error: roleError } = await supabase
+        .from('users')
+        .select('role, status')
+        .eq('id', sessionData.user.id)
+        .single();
+
+      if (roleError) {
+        await supabase.auth.signOut();
+        throw new Error('Failed to retrieve user profile.');
+      }
+
+      if (userData.status === 'suspended') {
+        await supabase.auth.signOut();
+        throw new Error('Your account has been suspended. Please contact administration.');
+      }
+
+      const expectedDbRole = role === 'parents' ? 'guardian' : 'tutor';
+      if (userData.role !== expectedDbRole) {
+        await supabase.auth.signOut();
+        if (userData.role === 'tutor') {
+          throw new Error('This email/phone is registered as a Tutor. Please sign in as a Tutor.');
         } else if (userData.role === 'guardian') {
-          navigate('/guardian/dashboard', { replace: true });
+          throw new Error('This email/phone is registered as a Parent / Guardian. Please sign in as a Parent.');
         } else {
-          navigate('/', { replace: true });
+          throw new Error('Invalid credentials for the selected role.');
         }
+      }
+
+      // 5. Navigate to the dashboard
+      if (redirectTo) {
+        navigate(redirectTo, { replace: true });
+      } else if (userData.role === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (userData.role === 'tutor') {
+        navigate('/tutor/dashboard', { replace: true });
+      } else if (userData.role === 'guardian') {
+        navigate('/guardian/dashboard', { replace: true });
+      } else {
+        navigate('/', { replace: true });
       }
     } catch (err) {
-      setError('An unexpected error occurred during login.');
+      setError(err.message || 'An unexpected error occurred during login.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -285,6 +311,8 @@ const Login = () => {
                   Forgot Password?
                 </Link>
               </div>
+
+              <ReCAPTCHA ref={recaptchaRef} action="login" />
 
               <button 
                 type="submit" 

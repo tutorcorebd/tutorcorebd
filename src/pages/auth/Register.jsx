@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, User, Users, Mail, Lock, Phone, User as UserIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CustomAlert from '../../components/layout/CustomAlert';
+import ReCAPTCHA from '../../components/common/ReCAPTCHA';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -25,6 +26,8 @@ const Register = () => {
   const [alertConfig, setAlertConfig] = useState({ type: 'success', title: '', message: '', onAction: null });
   const navigate = useNavigate();
 
+  const recaptchaRef = useRef(null);
+
   const showAlert = (type, title, message, onAction = null) => {
     setAlertConfig({ type, title, message, onAction });
     setAlertOpen(true);
@@ -44,30 +47,48 @@ const Register = () => {
     setLoading(true);
     setError(null);
     
-    const { error } = await supabase.auth.signUp({ 
-      email, 
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          phone_number: phoneNumber,
-          role: role === 'parents' ? 'guardian' : 'tutor',
-          gender: gender
-        }
+    try {
+      // 1. Execute reCAPTCHA v3 challenge
+      const token = await recaptchaRef.current?.execute();
+      if (!token) {
+        throw new Error('Security check failed. Please try again.');
       }
-    });
-    
-    if (error) {
-      setError(error.message);
-    } else {
+
+      // 2. Invoke custom Edge Function
+      const { data: functionData, error: functionError } = await supabase.functions.invoke('auth-with-recaptcha', {
+        body: {
+          action: 'signup',
+          email,
+          password,
+          token,
+          userData: {
+            full_name: fullName,
+            phone_number: phoneNumber,
+            role: role === 'parents' ? 'guardian' : 'tutor',
+            gender: gender
+          }
+        }
+      });
+
+      if (functionError) {
+        throw new Error(functionError.message || 'Verification service failed.');
+      }
+
+      if (functionData?.error) {
+        throw new Error(functionData.error);
+      }
+
       showAlert(
         'success', 
         'Verify Your Email Address', 
         'A confirmation email has been sent. Please check your inbox (and spam folder) and click the link to activate your account.', 
         () => navigate(redirectTo || '/')
       );
+    } catch (err) {
+      setError(err.message || 'Registration failed');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -283,6 +304,8 @@ const Register = () => {
                 </button>
                 {passwordMismatch && <p className="absolute -bottom-5 left-0 text-xs text-red-500 font-medium">Passwords must match</p>}
               </div>
+
+              <ReCAPTCHA ref={recaptchaRef} action="signup" />
 
               <div className="pt-2">
                 <button 

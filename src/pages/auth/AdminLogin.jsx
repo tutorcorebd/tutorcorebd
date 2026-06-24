@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Shield, Lock, Mail, ArrowLeft, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../../store/useAuthStore';
+import ReCAPTCHA from '../../components/common/ReCAPTCHA';
 
 const AdminLogin = () => {
   const { session, profile, isLoading } = useAuthStore();
@@ -13,6 +14,8 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  const recaptchaRef = useRef(null);
 
   useEffect(() => {
     if (!isLoading && session && profile && !loading) {
@@ -30,41 +33,66 @@ const AdminLogin = () => {
     setError(null);
     
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      
-      if (signInError) {
-        console.error('Sign in error:', signInError);
-        setError(signInError.message);
-        setLoading(false);
-        return;
+      // 1. Execute reCAPTCHA v3 challenge
+      const token = await recaptchaRef.current?.execute();
+      if (!token) {
+        throw new Error('Security check failed. Please try again.');
       }
 
-      if (data?.user) {
-        const { data: userData, error: roleError } = await supabase
-          .from('users')
-          .select('role, status')
-          .eq('id', data.user.id)
-          .single();
-
-        if (roleError || userData.role !== 'admin') {
-          await supabase.auth.signOut();
-          setError('Access denied: Only administrators can sign in here.');
-          setLoading(false);
-          return;
+      // 2. Invoke custom Edge Function
+      const { data: functionData, error: functionError } = await supabase.functions.invoke('auth-with-recaptcha', {
+        body: {
+          action: 'signin',
+          email,
+          password,
+          token
         }
+      });
 
-        if (userData.status === 'suspended') {
-          await supabase.auth.signOut();
-          setError('Your account has been suspended. Please contact administration.');
-          setLoading(false);
-          return;
-        }
-
-        // Successfully verified as admin
-        navigate('/admin/dashboard', { replace: true });
+      if (functionError) {
+        throw new Error(functionError.message || 'Verification service failed.');
       }
+
+      if (functionData?.error) {
+        throw new Error(functionData.error);
+      }
+
+      const sessionData = functionData?.data?.session;
+      if (!sessionData) {
+        throw new Error('Authentication failed: session not created.');
+      }
+
+      // 3. Set the session on the client
+      const { error: setSessionError } = await supabase.auth.setSession({
+        access_token: sessionData.access_token,
+        refresh_token: sessionData.refresh_token
+      });
+
+      if (setSessionError) {
+        throw new Error(setSessionError.message);
+      }
+
+      // 4. Fetch the profile details to check role and status
+      const { data: userData, error: roleError } = await supabase
+        .from('users')
+        .select('role, status')
+        .eq('id', sessionData.user.id)
+        .single();
+
+      if (roleError || userData.role !== 'admin') {
+        await supabase.auth.signOut();
+        throw new Error('Access denied: Only administrators can sign in here.');
+      }
+
+      if (userData.status === 'suspended') {
+        await supabase.auth.signOut();
+        throw new Error('Your account has been suspended. Please contact administration.');
+      }
+
+      // Successfully verified as admin
+      navigate('/admin/dashboard', { replace: true });
     } catch (err) {
-      setError('Something went wrong. Please try again.');
+      setError(err.message || 'Something went wrong. Please try again.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -214,6 +242,8 @@ const AdminLogin = () => {
                 </button>
               </div>
             </div>
+
+            <ReCAPTCHA ref={recaptchaRef} action="admin_login" />
 
             {/* Action button */}
             <motion.button
