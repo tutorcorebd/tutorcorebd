@@ -16,7 +16,7 @@ const cities = [
 ];
 
 const LOCATIONS_BY_CITY = {
-  Dhaka: ['Uttara', 'Mirpur', 'Gulshan', 'Banani', 'Dhanmondi', 'Mohammadpur', 'Badda', 'Khilgaon', 'Motijheel', 'Shahbagh', 'Farmgate', 'Wari', 'Lalbagh', 'Old Dhaka', 'Bashundhara', 'Rampura', 'Malibagh', 'Mogbazar'],
+  Dhaka: ['Uttara', 'Mirpur', 'Gulshan', 'Banani', 'Dhanmondi', 'Mohammadpur', 'Badda', 'Khilgaon', 'Motijheel', 'Shahbagh', 'Farmgate', 'Wari', 'Lalbagh', 'Old Dhaka', 'Bashundhara', 'Rampura', 'Malibagh', 'Mogbazar', 'Savar', 'Hazaribagh', 'Jatrabari', 'Keraniganj', 'Mohakhali', 'Tejgaon', 'Paltan'],
   Chittagong: ['GEC Circle', 'Halishahar', 'Nasirabad', 'Agrabad', 'Khulshi', 'Chawkbazar', 'Chandgaon', 'Patenga', 'Lalkhan Bazar', 'Double Mooring'],
   Rajshahi: ['Motihar', 'Boalia', 'Kazihata', 'Shaheb Bazar', 'Sopura', 'Talaimari', 'Rajshahi University'],
   Sylhet: ['Zindabazar', 'Shibgonj', 'Amberkhana', 'Uposahar', 'Kumarpara', 'Pathantula', 'Sylhet Sadar'],
@@ -87,6 +87,11 @@ const TuitionJobsBoard = ({ isPublic }) => {
   const showAlert = (type, title, message, onAction = null, actionText = 'OK') => {
     setAlertConfig({ type, title, message, actionText, onAction });
     setAlertOpen(true);
+  };
+  const toSentenceCase = (str) => {
+    if (!str) return '';
+    const lower = str.toLowerCase();
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
   };
 
   // Compute profile completeness dynamically for tutor
@@ -406,41 +411,43 @@ const TuitionJobsBoard = ({ isPublic }) => {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       
-      {/* Top Controls */}
-      <div className="flex flex-col md:flex-row justify-between gap-4">
-        {tutorialVideo && (
-          <button 
-            onClick={() => setIsWatchModalOpen(true)}
-            className="flex items-center gap-2 bg-[#86c240] hover:bg-[#6a9c31] text-white px-6 py-2.5 rounded-lg font-bold text-sm transition-colors shadow-sm w-fit"
-          >
-            <Play className="w-4 h-4 fill-current" /> Watch Tutorial
-          </button>
-        )}
-        
-        <button 
-          onClick={() => setIsFilterModalOpen(true)}
-          className="flex items-center gap-2 bg-[#86c240] hover:bg-[#6a9c31] text-white px-6 py-2.5 rounded-lg font-bold text-sm transition-colors shadow-sm w-fit md:ml-auto"
-        >
-          <Filter className="w-4 h-4" /> Filter
-        </button>
-      </div>
-
-      {/* Search and Counts */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-100 pb-4">
-        <div className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 shadow-sm">
-          <Grid className="w-4 h-4" />
-          {filteredTuitions.length} Jobs found
+      {/* Search, Filter & Count Bar */}
+      <div className="flex flex-col gap-4 border-b border-slate-100 pb-4">
+        {/* Top Row: Count & Actions */}
+        <div className="flex justify-between items-center gap-3">
+          <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-4 py-2 rounded-xl text-xs font-bold text-slate-700 shadow-sm">
+            <Grid className="w-3.5 h-3.5 text-[#86c240]" />
+            <span>{filteredTuitions.length} jobs found</span>
+          </div>
+          
+          <div className="flex gap-2">
+            {tutorialVideo && (
+              <button 
+                onClick={() => setIsWatchModalOpen(true)}
+                className="flex items-center gap-1.5 bg-[#86c240] hover:bg-[#6a9c31] text-white px-3.5 py-2 rounded-xl font-bold text-xs transition-colors shadow-sm"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" /> Tutorial
+              </button>
+            )}
+            <button 
+              onClick={() => setIsFilterModalOpen(true)}
+              className="flex items-center gap-1.5 bg-[#86c240] hover:bg-[#6a9c31] text-white px-4 py-2 rounded-xl font-bold text-xs transition-colors shadow-sm"
+            >
+              <Filter className="w-3.5 h-3.5" /> Filter
+            </button>
+          </div>
         </div>
-        
-        <div className="relative w-full md:w-80">
+
+        {/* Bottom Row: Search Input */}
+        <div className="relative w-full">
           <input 
             type="text" 
-            placeholder="Search Subject, Location, Class..." 
+            placeholder="Search subject, location, class..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-4 pr-10 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#86c240] focus:border-transparent shadow-sm"
+            className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#86c240] focus:border-transparent shadow-sm font-semibold text-slate-800"
           />
-          <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
+          <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3" />
         </div>
       </div>
 
@@ -511,8 +518,8 @@ const TuitionJobsBoard = ({ isPublic }) => {
                 {/* Header */}
                 <div className="flex justify-between items-start gap-3 mb-4">
                   <div className="space-y-1">
-                    <span className="inline-block text-[10px] font-black tracking-wider uppercase bg-[#86c240]/10 text-[#86c240] px-2.5 py-1 rounded-full">
-                      {job.tutoring_mode || 'Home Tutoring'}
+                    <span className="inline-block text-[10px] font-black tracking-wider bg-[#86c240]/10 text-[#86c240] px-2.5 py-1 rounded-full">
+                      {toSentenceCase(job.tutoring_mode || 'Home tutoring')}
                     </span>
                     <h3 className="text-lg font-black text-slate-800 tracking-tight mt-1">
                       <Link to={`/tuition/${job.id}`} className="hover:text-[#86c240] transition-colors">
@@ -526,7 +533,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
                     )}
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="text-[10px] font-bold text-slate-400 tracking-wide">ID: {shortId}</p>
+                    <p className="text-[10px] font-bold text-slate-400 tracking-wide">Job id: {shortId}</p>
                     <p className="text-[10px] font-semibold text-slate-400 flex items-center gap-1 justify-end mt-1">
                       <Clock className="w-3 h-3 text-slate-400" /> {relativeTime}
                     </p>
@@ -542,7 +549,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
 
                 {/* Subjects Badges */}
                 <div className="mb-5">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Subjects</p>
+                  <p className="text-[10px] font-black text-slate-400 tracking-wider mb-2">Subjects</p>
                   <div className="flex flex-wrap gap-1.5 max-h-16 overflow-y-auto pr-1">
                     {job.subject && job.subject.length > 0 ? (
                       job.subject.map((sub, idx) => (
@@ -566,7 +573,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
                       <Calendar className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Per Week</p>
+                      <p className="text-[9px] font-black text-slate-400 tracking-wider">Per week</p>
                       <p className="text-xs font-extrabold text-slate-700 mt-0.5">{job.days_per_week || 'N/A'} days</p>
                     </div>
                   </div>
@@ -576,7 +583,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
                       <Banknote className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Salary</p>
+                      <p className="text-[9px] font-black text-slate-400 tracking-wider">Salary</p>
                       <p className="text-xs font-extrabold text-[#86c240] mt-0.5">{job.salary_range || 'Negotiable'}</p>
                     </div>
                   </div>
@@ -586,7 +593,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
                       <User className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Tutor Gender</p>
+                      <p className="text-[9px] font-black text-slate-400 tracking-wider">Tutor gender</p>
                       <p className="text-xs font-extrabold text-slate-700 mt-0.5">{job.preferred_gender || 'Any'}</p>
                     </div>
                   </div>
@@ -596,7 +603,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
                       <Clock className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Time</p>
+                      <p className="text-[9px] font-black text-slate-400 tracking-wider">Time</p>
                       <p className="text-xs font-extrabold text-slate-700 mt-0.5">{job.tutoring_time || 'Negotiable'}</p>
                     </div>
                   </div>
