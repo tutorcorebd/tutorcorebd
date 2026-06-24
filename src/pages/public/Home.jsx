@@ -52,6 +52,8 @@ const Home = () => {
   const [dbClasses, setDbClasses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loadingCats, setLoadingCats] = useState(true);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [activeFeedbackIndex, setActiveFeedbackIndex] = useState(0);
 
   useEffect(() => {
     const fetchSearchOptions = async () => {
@@ -150,6 +152,40 @@ const Home = () => {
 
     fetchHomepageCategories();
   }, []);
+
+  useEffect(() => {
+    const fetchFeedbacks = async () => {
+      try {
+        const { data } = await supabase
+          .from('feedbacks')
+          .select('*')
+          .eq('status', 'approved')
+          .eq('is_published', true)
+          .order('created_at', { ascending: false });
+        
+        if (data && data.length > 0) {
+          setFeedbacks(data);
+        } else {
+          setFeedbacks([
+            { name: "Rafiqul Islam", comment: "Tutor Core found the perfect math tutor for my son. His grades improved significantly within a month. Highly professional service!", rating: 5 },
+            { name: "Nusrat Jahan", comment: "The process was so smooth. I posted my requirement and got verified CVs the same day. The tutor is excellent and very punctual.", rating: 5 },
+            { name: "Ahmed Chowdhury", comment: "I appreciate how they verify every tutor. It gave me peace of mind knowing my daughter is learning from a safe, qualified professional.", rating: 5 }
+          ]);
+        }
+      } catch (err) {
+        console.error("Error fetching feedbacks:", err);
+      }
+    };
+    fetchFeedbacks();
+  }, []);
+
+  useEffect(() => {
+    if (feedbacks.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveFeedbackIndex((prev) => (prev + 1) % feedbacks.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [feedbacks]);
 
   const handleBecomeTutorClick = (e) => {
     if (!session) {
@@ -415,40 +451,67 @@ const Home = () => {
       {/* 5. PARENT TESTIMONIALS */}
       <section className="py-20 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="text-3xl font-semibold text-slate-800 mb-4">What Parents Say</h2>
-              <div className="w-20 h-1 bg-primary rounded-full"></div>
-            </div>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-semibold text-slate-800 mb-2">What Parents Say</h2>
+            <div className="w-20 h-1 bg-primary mx-auto mb-2 rounded-full"></div>
+            <p className="text-sm text-neutral-500 font-medium">Hear success stories directly from guardians and families matched by Tutor Core.</p>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { name: "Rafiqul Islam", role: "Parent", comment: "Tutor Core found the perfect math tutor for my son. His grades improved significantly within a month. Highly professional service!" },
-              { name: "Nusrat Jahan", role: "Parent", comment: "The process was so smooth. I posted my requirement and got verified CVs the same day. The tutor is excellent and very punctual." },
-              { name: "Ahmed Chowdhury", role: "Parent", comment: "I appreciate how they verify every tutor. It gave me peace of mind knowing my daughter is learning from a safe, qualified professional." }
-            ].map((testimonial, idx) => (
-              <motion.div 
-                key={idx}
-                whileHover={{ y: -3 }}
-                className="bg-slate-50/50 p-8 rounded-3xl border border-slate-100 relative"
-              >
-                <Quote className="absolute top-6 right-6 w-10 h-10 text-primary/10" />
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary-dark font-bold text-lg">
-                    {testimonial.name.charAt(0)}
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-slate-800">{testimonial.name}</h4>
-                    <p className="text-xs text-neutral-500 font-medium">{testimonial.role}</p>
-                  </div>
+ 
+          <div className="relative max-w-2xl mx-auto min-h-[300px] flex flex-col justify-between">
+            {feedbacks.length > 0 && (
+              <div className="relative">
+                <div className="overflow-hidden py-4">
+                  <motion.div
+                    key={activeFeedbackIndex}
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -30 }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                    className="bg-slate-50/50 p-8 md:p-12 rounded-3xl border border-slate-100 relative text-center flex flex-col items-center shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)]"
+                  >
+                    <Quote className="w-10 h-10 text-primary/10 mb-6" />
+                    
+                    <div className="flex gap-1 mb-4 text-[#86c240]">
+                      {[...Array(feedbacks[activeFeedbackIndex].rating || 5)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-[#86c240] text-[#86c240]" />
+                      ))}
+                    </div>
+ 
+                    <p className="text-slate-650 font-medium text-sm md:text-base leading-relaxed italic mb-8 max-w-lg">
+                      "{feedbacks[activeFeedbackIndex].comment}"
+                    </p>
+ 
+                    <div className="flex items-center gap-3 text-left">
+                      <div className="w-11 h-11 bg-[#86c240]/10 text-[#86c240] rounded-full flex items-center justify-center font-black text-sm shadow-sm">
+                        {feedbacks[activeFeedbackIndex].name.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-slate-800 text-xs md:text-sm">{feedbacks[activeFeedbackIndex].name}</h4>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Parent / Guardian</p>
+                      </div>
+                    </div>
+                  </motion.div>
                 </div>
-                <div className="flex gap-1 mb-4 text-primary">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-primary" />)}
-                </div>
-                <p className="text-neutral-600 font-medium text-sm leading-relaxed">"{testimonial.comment}"</p>
-              </motion.div>
-            ))}
+ 
+                {/* Navigation dots */}
+                {feedbacks.length > 1 && (
+                  <div className="flex justify-center gap-2 mt-4">
+                    {feedbacks.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveFeedbackIndex(idx)}
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          idx === activeFeedbackIndex 
+                            ? 'w-5 bg-[#86c240]' 
+                            : 'w-2 bg-slate-200 hover:bg-slate-300'
+                        }`}
+                        aria-label={`Go to slide ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </section>

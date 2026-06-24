@@ -72,7 +72,7 @@ const checkAndRefreshSessionSafe = async () => {
   if (now - lastSessionCheckTime < 5000) {
     return;
   }
-  
+
   if (isCheckingSession) return;
   isCheckingSession = true;
   lastSessionCheckTime = now;

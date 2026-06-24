@@ -189,140 +189,178 @@ const Layout = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-slate-950 text-slate-400 pt-16 pb-8 border-t border-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+      <footer className="relative bg-slate-950 text-slate-450 pt-20 pb-10 border-t border-slate-900 overflow-hidden font-sans">
+        
+        {/* Glowing visual accents */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#86c240]/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#86c240]/5 rounded-full blur-[100px] pointer-events-none" />
+        
+        {/* Glowing top line border */}
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#86c240]/30 to-transparent" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-16">
             
-            {/* Column 1: Brand Info */}
-            <div className="space-y-4">
-              <Link to="/" className="text-2xl font-bold text-white flex items-center gap-2">
-                <span className="bg-[#86c240] text-white p-1 rounded-md text-sm font-black">TC</span> Tutor Core
+            {/* Column 1: Brand Info (4 cols) */}
+            <div className="lg:col-span-4 space-y-6">
+              <Link to="/" className="text-2xl font-black text-white flex items-center gap-2 group w-fit">
+                <span className="bg-[#86c240] text-white w-9 h-9 rounded-xl flex items-center justify-center text-sm font-black shadow-lg shadow-[#86c240]/25 group-hover:scale-105 transition-transform duration-300">TC</span>
+                <span className="tracking-tight text-white font-extrabold">Tutor <span className="text-[#86c240]">Core</span></span>
               </Link>
               <p className="text-sm text-slate-400 leading-relaxed font-medium">
-                Tutor Core connects students with premium, verified home and online educators. Making teaching and learning highly collaborative, safe, and effective.
+                Tutor Core is Bangladesh's premier direct tutor matching platform. We connect student families with verified expert educators for customized home, online, and group learning environments.
               </p>
-              {/* Social Icons */}
-              <div className="flex space-x-3 pt-2">
-                {/* Facebook */}
-                <a 
-                  href="https://www.facebook.com/profile.php?id=61577836200027" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 hover:border-[#86c240] hover:text-[#86c240] flex items-center justify-center transition-all hover:scale-110"
-                  title="Facebook Page"
-                >
-                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                  </svg>
-                </a>
-                
-                {/* Whatsapp */}
-                <a 
-                  href="https://wa.me/+8801785346691" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 hover:border-[#86c240] hover:text-[#86c240] flex items-center justify-center transition-all hover:scale-110"
-                  title="Whatsapp Contact"
-                >
-                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19.001 4.908A11.117 11.117 0 0012 2c-6.156 0-11.16 5.004-11.164 11.168 0 1.968.514 3.89 1.493 5.589L.15 24l5.37-.1.354-.21a11.1 11.1 0 005.588 1.488h.002C17.618 25.178 22.62 20.174 22.624 14a11.085 11.085 0 00-3.623-9.092zm-7.001 17.653h-.001a9.23 9.23 0 01-4.708-1.288l-.338-.201-3.499.092.934-3.412-.22-.35a9.215 9.215 0 01-1.413-4.914c.001-5.099 4.15-9.248 9.253-9.248 2.472 0 4.795.963 6.541 2.71a9.183 9.183 0 012.706 6.548c-.003 5.1-4.152 9.249-9.255 9.249zm5.172-6.994c-.284-.142-1.678-.828-1.937-.923-.259-.095-.448-.142-.636.142-.189.284-.73.923-.895 1.112-.165.189-.33.213-.614.071-.284-.142-1.198-.442-2.285-1.412-.845-.755-1.417-1.687-1.583-1.972-.165-.284-.018-.438.124-.579.128-.127.284-.33.426-.496.142-.165.189-.284.284-.473.095-.189.047-.355-.024-.497-.071-.142-.636-1.531-.871-2.096-.229-.554-.458-.478-.63-.487-.163-.008-.351-.01-.539-.01-.189 0-.496.071-.756.355-.26.284-.993.97-1.993 2.364 0 1.394 1.017 2.742 1.159 2.93 1.159 1.547 2.012 3.037 4.846 4.258.675.29 1.202.464 1.614.594.679.216 1.297.186 1.785.114.544-.08 1.678-.686 1.914-1.348.236-.662.236-1.23.165-1.348-.071-.118-.26-.189-.544-.331z"/>
-                  </svg>
-                </a>
-
-                {/* Youtube */}
-                <a 
-                  href="#" 
-                  className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 hover:border-[#86c240] hover:text-[#86c240] flex items-center justify-center transition-all hover:scale-110"
-                  title="Youtube Channel"
-                >
-                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M23.498 6.163a3.003 3.003 0 00-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.508a3.003 3.003 0 00-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 002.11 2.11c1.87.508 9.388.508 9.388.508s7.518 0 9.388-.508a3.003 3.003 0 002.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                  </svg>
-                </a>
-
-                {/* LinkedIn */}
-                <a 
-                  href="#" 
-                  className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 hover:border-[#86c240] hover:text-[#86c240] flex items-center justify-center transition-all hover:scale-110"
-                  title="LinkedIn Profile"
-                >
-                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.23 0H1.77C.8 0 0 .774 0 1.729v20.542C0 23.227.8 24 1.77 24h20.46c.98 0 1.77-.773 1.77-1.729V1.73C24 .774 23.2 0 22.222 0h.008zM7.12 20.452H3.558V9H7.12v11.452zM5.339 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm15.113 13.019h-3.554V14.86c0-1.333-.027-3.045-1.855-3.045-1.857 0-2.14 1.45-2.14 2.95v5.687h-3.554V9h3.409v1.561h.049c.474-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"/>
-                  </svg>
-                </a>
-
-                {/* Instagram */}
-                <a 
-                  href="#" 
-                  className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 hover:border-[#86c240] hover:text-[#86c240] flex items-center justify-center transition-all hover:scale-110"
-                  title="Instagram Page"
-                >
-                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204 0 3.583.07 4.849.149 3.227 1.664 4.771 4.919 4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-                  </svg>
-                </a>
-              </div>
-
-              {/* Contact Info */}
-              <div className="flex flex-col gap-2.5 pt-2 text-xs font-semibold text-slate-400">
-                <a href="tel:+8801785346691" className="flex items-center gap-2 hover:text-[#86c240] transition-colors">
-                  <Phone className="w-4 h-4 text-[#86c240]" />
+              
+              {/* Contact Information */}
+              <div className="space-y-3 pt-2 text-xs font-semibold text-slate-400">
+                <a href="https://wa.me/8801785346691" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-[#86c240] transition-colors duration-200 group w-fit">
+                  <div className="w-8 h-8 rounded-lg bg-slate-905 border border-slate-900 flex items-center justify-center group-hover:border-[#86c240] group-hover:bg-[#86c240]/5 transition-all">
+                    <svg className="w-3.5 h-3.5 fill-current text-[#86c240]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M19.001 4.908A11.117 11.117 0 0012 2c-6.156 0-11.16 5.004-11.164 11.168 0 1.968.514 3.89 1.493 5.589L.15 24l5.37-.1.354-.21a11.1 11.1 0 005.588 1.488h.002C17.618 25.178 22.62 20.174 22.624 14a11.085 11.085 0 00-3.623-9.092zm-7.001 17.653h-.001a9.23 9.23 0 01-4.708-1.288l-.338-.201-3.499.092.934-3.412-.22-.35a9.215 9.215 0 01-1.413-4.914c.001-5.099 4.15-9.248 9.253-9.248 2.472 0 4.795.963 6.541 2.71a9.183 9.183 0 012.706 6.548c-.003 5.1-4.152 9.249-9.255 9.249zm5.172-6.994c-.284-.142-1.678-.828-1.937-.923-.259-.095-.448-.142-.636.142-.189.284-.73.923-.895 1.112-.165.189-.33.213-.614.071-.284-.142-1.198-.442-2.285-1.412-.845-.755-1.417-1.687-1.583-1.972-.165-.284-.018-.438.124-.579.128-.127.284-.33.426-.496.142-.165.189-.284.284-.473.095-.189.047-.355-.024-.497-.071-.142-.636-1.531-.871-2.096-.229-.554-.458-.478-.63-.487-.163-.008-.351-.01-.539-.01-.189 0-.496.071-.756.355-.26.284-.993.97-1.993 2.364 0 1.394 1.017 2.742 1.159 2.93 1.159 1.547 2.012 3.037 4.846 4.258.675.29 1.202.464 1.614.594.679.216 1.297.186 1.785.114.544-.08 1.678-.686 1.914-1.348.236-.662.236-1.23.165-1.348-.071-.118-.26-.189-.544-.331z"/>
+                    </svg>
+                  </div>
                   <span>+8801785346691</span>
                 </a>
+                <a href="mailto:tutorcorebd@gmail.com" className="flex items-center gap-3 hover:text-[#86c240] transition-colors duration-200 group w-fit">
+                  <div className="w-8 h-8 rounded-lg bg-slate-905 border border-slate-900 flex items-center justify-center group-hover:border-[#86c240] group-hover:bg-[#86c240]/5 transition-all">
+                    <Mail className="w-3.5 h-3.5 text-[#86c240]" />
+                  </div>
+                  <span>tutorcorebd@gmail.com</span>
+                </a>
+                <div className="flex items-center gap-3 group w-fit text-slate-400">
+                  <div className="w-8 h-8 rounded-lg bg-slate-905 border border-slate-900 flex items-center justify-center">
+                    <Globe className="w-3.5 h-3.5 text-[#86c240]" />
+                  </div>
+                  <span>Dhaka, Bangladesh</span>
+                </div>
               </div>
             </div>
 
-            {/* Column 2: Tutors links */}
-            <div className="space-y-4">
-              <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">For Tutors</h4>
-              <ul className="space-y-2.5 text-sm font-medium">
+            {/* Column 2: For Tutors (2 cols) */}
+            <div className="lg:col-span-2 lg:col-start-6 space-y-5">
+              <h4 className="text-white font-extrabold text-xs uppercase tracking-wider">For Tutors</h4>
+              <ul className="space-y-3 text-sm font-medium">
                 <li>
                   <button 
                     onClick={handleBecomeTutorClick}
-                    className="hover:text-[#86c240] transition-colors text-left font-medium w-full"
+                    className="text-slate-400 hover:text-[#86c240] hover:translate-x-1.5 transition-all duration-200 text-left font-medium w-full flex items-center gap-1.5 group"
                   >
-                    Become a Tutor
+                    <ArrowRight className="w-3 h-3 text-[#86c240] opacity-0 group-hover:opacity-100 transition-all" />
+                    <span>Become a Tutor</span>
                   </button>
                 </li>
-                <li><Link to="/job-board" className="hover:text-[#86c240] transition-colors">Find Tuitions</Link></li>
-                <li><Link to="/find-tutors" className="hover:text-[#86c240] transition-colors">Find Tutors</Link></li>
-                <li><Link to="/tutor-faq" className="hover:text-[#86c240] transition-colors">Tutor FAQ</Link></li>
-                <li><a href="#" className="hover:text-[#86c240] transition-colors">Guidelines</a></li>
+                <li>
+                  <Link to="/job-board" className="text-slate-400 hover:text-[#86c240] hover:translate-x-1.5 transition-all duration-200 flex items-center gap-1.5 group">
+                    <ArrowRight className="w-3 h-3 text-[#86c240] opacity-0 group-hover:opacity-100 transition-all" />
+                    <span>Find Tuitions</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/find-tutors" className="text-slate-400 hover:text-[#86c240] hover:translate-x-1.5 transition-all duration-200 flex items-center gap-1.5 group">
+                    <ArrowRight className="w-3 h-3 text-[#86c240] opacity-0 group-hover:opacity-100 transition-all" />
+                    <span>Browse Tutors</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/tutor-faq" className="text-slate-400 hover:text-[#86c240] hover:translate-x-1.5 transition-all duration-200 flex items-center gap-1.5 group">
+                    <ArrowRight className="w-3 h-3 text-[#86c240] opacity-0 group-hover:opacity-100 transition-all" />
+                    <span>Tutor FAQs</span>
+                  </Link>
+                </li>
               </ul>
             </div>
 
-            {/* Column 3: Parents links */}
-            <div className="space-y-4">
-              <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">For Parents</h4>
-              <ul className="space-y-2.5 text-sm font-medium">
-                <li><Link to="/find-tutors" className="hover:text-[#86c240] transition-colors">Hire a Tutor</Link></li>
+            {/* Column 3: For Parents (2 cols) */}
+            <div className="lg:col-span-2 space-y-5">
+              <h4 className="text-white font-extrabold text-xs uppercase tracking-wider">For Parents</h4>
+              <ul className="space-y-3 text-sm font-medium">
+                <li>
+                  <Link to="/find-tutors" className="text-slate-400 hover:text-[#86c240] hover:translate-x-1.5 transition-all duration-200 flex items-center gap-1.5 group">
+                    <ArrowRight className="w-3 h-3 text-[#86c240] opacity-0 group-hover:opacity-100 transition-all" />
+                    <span>Hire a Tutor</span>
+                  </Link>
+                </li>
                 <li>
                   <button 
                     onClick={handlePostTuitionClick}
-                    className="hover:text-[#86c240] transition-colors text-left font-medium w-full"
+                    className="text-slate-400 hover:text-[#86c240] hover:translate-x-1.5 transition-all duration-200 text-left font-medium w-full flex items-center gap-1.5 group"
                   >
-                    Post Tuition Request
+                    <ArrowRight className="w-3 h-3 text-[#86c240] opacity-0 group-hover:opacity-100 transition-all" />
+                    <span>Post Tuition Request</span>
                   </button>
                 </li>
-                <li><Link to="/parent-faq" className="hover:text-[#86c240] transition-colors">Parent FAQ</Link></li>
-                <li><a href="#" className="hover:text-[#86c240] transition-colors">Safety Rules</a></li>
+                <li>
+                  <Link to="/parent-faq" className="text-slate-400 hover:text-[#86c240] hover:translate-x-1.5 transition-all duration-200 flex items-center gap-1.5 group">
+                    <ArrowRight className="w-3 h-3 text-[#86c240] opacity-0 group-hover:opacity-100 transition-all" />
+                    <span>Parent FAQs</span>
+                  </Link>
+                </li>
               </ul>
             </div>
 
-            {/* Column 4: Newsletter */}
-            <div className="space-y-4">
-              <h4 className="text-white font-extrabold text-sm uppercase tracking-wider">Subscribe Us</h4>
-              <p className="text-sm text-slate-400 font-medium">Keep up to date with new job postings and study guides.</p>
-              <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
-                <input 
-                  type="email" 
-                  placeholder="Enter email"
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#86c240] text-sm text-white placeholder-slate-500 font-medium"
-                />
-                <button type="submit" className="p-2.5 bg-[#86c240] hover:bg-[#6a9c31] text-white rounded-xl transition-colors shadow-md shadow-[#86c240]/10 flex items-center justify-center">
-                  <Send className="w-4 h-4" />
-                </button>
-              </form>
+            {/* Column 4: Newsletter & Socials (3 cols) */}
+            <div className="lg:col-span-3 space-y-6">
+              <div className="space-y-4">
+                <h4 className="text-white font-extrabold text-xs uppercase tracking-wider">Subscribe Us</h4>
+                <p className="text-xs text-slate-405 font-medium leading-relaxed">Receive active job postings, study guides, and platform updates directly.</p>
+                <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
+                  <input 
+                    type="email" 
+                    placeholder="Enter email"
+                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-850 rounded-xl focus:outline-none focus:border-[#86c240] focus:ring-2 focus:ring-[#86c240]/10 text-xs text-white placeholder-slate-550 font-semibold transition-all"
+                  />
+                  <button type="submit" className="p-3 bg-[#86c240] hover:bg-[#6a9c31] text-white rounded-xl transition-colors shadow-md shadow-[#86c240]/15 flex items-center justify-center">
+                    <Send className="w-4 h-4" />
+                  </button>
+                </form>
+              </div>
+
+              {/* Social Channels */}
+              <div className="space-y-3">
+                <h5 className="text-slate-500 font-bold text-[10px] uppercase tracking-widest">Connect with us</h5>
+                <div className="flex space-x-3">
+                  <a 
+                    href="https://www.facebook.com/profile.php?id=61577836200027" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-850 hover:border-[#86c240] text-slate-400 hover:text-white flex items-center justify-center transition-all hover:scale-105 hover:bg-[#86c240]/5"
+                    title="Facebook Page"
+                  >
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                  </a>
+                  <a 
+                    href="https://wa.me/8801785346691" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-850 hover:border-[#86c240] text-slate-400 hover:text-white flex items-center justify-center transition-all hover:scale-105 hover:bg-[#86c240]/5"
+                    title="WhatsApp"
+                  >
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M19.001 4.908A11.117 11.117 0 0012 2c-6.156 0-11.16 5.004-11.164 11.168 0 1.968.514 3.89 1.493 5.589L.15 24l5.37-.1.354-.21a11.1 11.1 0 005.588 1.488h.002C17.618 25.178 22.62 20.174 22.624 14a11.085 11.085 0 00-3.623-9.092zm-7.001 17.653h-.001a9.23 9.23 0 01-4.708-1.288l-.338-.201-3.499.092.934-3.412-.22-.35a9.215 9.215 0 01-1.413-4.914c.001-5.099 4.15-9.248 9.253-9.248 2.472 0 4.795.963 6.541 2.71a9.183 9.183 0 012.706 6.548c-.003 5.1-4.152 9.249-9.255 9.249zm5.172-6.994c-.284-.142-1.678-.828-1.937-.923-.259-.095-.448-.142-.636.142-.189.284-.73.923-.895 1.112-.165.189-.33.213-.614.071-.284-.142-1.198-.442-2.285-1.412-.845-.755-1.417-1.687-1.583-1.972-.165-.284-.018-.438.124-.579.128-.127.284-.33.426-.496.142-.165.189-.284.284-.473.095-.189.047-.355-.024-.497-.071-.142-.636-1.531-.871-2.096-.229-.554-.458-.478-.63-.487-.163-.008-.351-.01-.539-.01-.189 0-.496.071-.756.355-.26.284-.993.97-1.993 2.364 0 1.394 1.017 2.742 1.159 2.93 1.159 1.547 2.012 3.037 4.846 4.258.675.29 1.202.464 1.614.594.679.216 1.297.186 1.785.114.544-.08 1.678-.686 1.914-1.348.236-.662.236-1.23.165-1.348-.071-.118-.26-.189-.544-.331z"/>
+                    </svg>
+                  </a>
+                  <a 
+                    href="#" 
+                    className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-850 hover:border-[#86c240] text-slate-400 hover:text-white flex items-center justify-center transition-all hover:scale-105 hover:bg-[#86c240]/5"
+                    title="LinkedIn"
+                  >
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M22.23 0H1.77C.8 0 0 .774 0 1.729v20.542C0 23.227.8 24 1.77 24h20.46c.98 0 1.77-.773 1.77-1.729V1.73C24 .774 23.2 0 22.222 0h.008zM7.12 20.452H3.558V9H7.12v11.452zM5.339 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm15.113 13.019h-3.554V14.86c0-1.333-.027-3.045-1.855-3.045-1.857 0-2.14 1.45-2.14 2.95v5.687h-3.554V9h3.409v1.561h.049c.474-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"/>
+                    </svg>
+                  </a>
+                  <a 
+                    href="#" 
+                    className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-850 hover:border-[#86c240] text-slate-400 hover:text-white flex items-center justify-center transition-all hover:scale-105 hover:bg-[#86c240]/5"
+                    title="YouTube"
+                  >
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M23.498 6.163a3.003 3.003 0 00-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.508a3.003 3.003 0 00-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 002.11 2.11c1.87.508 9.388.508 9.388.508s7.518 0 9.388-.508a3.003 3.003 0 002.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
             </div>
 
           </div>

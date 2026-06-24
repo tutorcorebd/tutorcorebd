@@ -11,19 +11,18 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import CustomAlert from '../../components/layout/CustomAlert';
 
 const cities = [
-  'All', 'Dhaka', 'Chittagong', 'Khulna', 'Gazipur', 'Narayanganj',
-  'Sylhet', 'Cumilla', 'Barishal', 'Rajshahi', 'Rangpur', 'Mymensingh'
+  'All', 'Barishal', 'Chittagong', 'Cumilla', 'Dhaka', 'Gazipur', 'Khulna', 'Mymensingh', 'Narayanganj', 'Rajshahi', 'Rangpur', 'Sylhet'
 ];
 
 const LOCATIONS_BY_CITY = {
-  Dhaka: ['Uttara', 'Mirpur', 'Gulshan', 'Banani', 'Dhanmondi', 'Mohammadpur', 'Badda', 'Khilgaon', 'Motijheel', 'Shahbagh', 'Farmgate', 'Wari', 'Lalbagh', 'Old Dhaka', 'Bashundhara', 'Rampura', 'Malibagh', 'Mogbazar', 'Savar', 'Hazaribagh', 'Jatrabari', 'Keraniganj', 'Mohakhali', 'Tejgaon', 'Paltan'],
-  Chittagong: ['GEC Circle', 'Halishahar', 'Nasirabad', 'Agrabad', 'Khulshi', 'Chawkbazar', 'Chandgaon', 'Patenga', 'Lalkhan Bazar', 'Double Mooring'],
-  Rajshahi: ['Motihar', 'Boalia', 'Kazihata', 'Shaheb Bazar', 'Sopura', 'Talaimari', 'Rajshahi University'],
-  Sylhet: ['Zindabazar', 'Shibgonj', 'Amberkhana', 'Uposahar', 'Kumarpara', 'Pathantula', 'Sylhet Sadar'],
-  Khulna: ['Boyra', 'Khalishpur', 'Daulatpur', 'Sonadanga', 'Gollamari', 'Rupsha'],
-  Barishal: ['Sadar Road', 'Natullabad', 'Rupatali', 'BM College', 'C&B Road'],
-  Rangpur: ['Lalbagh', 'Modern Mor', 'Medical Mor', 'Jahaz Mor', 'Dhap'],
-  Mymensingh: ['Ganginar Par', 'Charpara', 'Kewatkhali', 'Valuka', 'Sadar']
+  Barishal: ['BM College', 'C&B Road', 'Natullabad', 'Rupatali', 'Sadar Road'],
+  Chittagong: ['Agrabad', 'Chandgaon', 'Chawkbazar', 'Double Mooring', 'GEC Circle', 'Halishahar', 'Khulshi', 'Lalkhan Bazar', 'Nasirabad', 'Patenga'],
+  Dhaka: ['Aftabnagar', 'Ati Bazar', 'Badda', 'Banasree', 'Banani', 'Basabo', 'Bashundhara', 'Demra', 'Dhanmondi', 'Farmgate', 'Gulshan', 'Hazaribagh', 'Jatrabari', 'Jigatola', 'Kalyanpur', 'Keraniganj', 'Khilgaon', 'Lalbagh', 'Malibagh', 'Mirpur', 'Mogbazar', 'Mohakhali', 'Mohammadpur', 'Motijheel', 'Old Dhaka', 'Paltan', 'Rampura', 'Savar', 'Shahbagh', 'Tejgaon', 'Uttara', 'Wari'],
+  Khulna: ['Boyra', 'Daulatpur', 'Gollamari', 'Khalishpur', 'Rupsha', 'Sonadanga'],
+  Mymensingh: ['Charpara', 'Ganginar Par', 'Kewatkhali', 'Sadar', 'Valuka'],
+  Rajshahi: ['Boalia', 'Kazihata', 'Motihar', 'Rajshahi University', 'Shaheb Bazar', 'Sopura', 'Talaimari'],
+  Rangpur: ['Dhap', 'Jahaz Mor', 'Lalbagh', 'Medical Mor', 'Modern Mor'],
+  Sylhet: ['Amberkhana', 'Kumarpara', 'Pathantula', 'Shibgonj', 'Sylhet Sadar', 'Uposahar', 'Zindabazar']
 };
 
 const PRESET_COURSES = ['Play', 'Nursery', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'SSC', 'HSC', 'Class 11', 'Class 12', 'O Level', 'A Level', 'Admission Test'];

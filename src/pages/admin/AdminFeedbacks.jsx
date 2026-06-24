@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Star, Check, X, MessageSquare, Edit, Trash2, Plus, Filter, RefreshCw, Globe, AlertCircle } from 'lucide-react';
+import CustomAlert from '../../components/common/CustomAlert';
 
 const AdminFeedbacks = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -10,6 +11,7 @@ const AdminFeedbacks = () => {
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [modalConfig, setModalConfig] = useState(null);
 
   // Form states
   const [newName, setNewName] = useState('');
@@ -21,6 +23,26 @@ const AdminFeedbacks = () => {
   const [editingName, setEditingName] = useState('');
   const [editingRating, setEditingRating] = useState(5);
   const [editingComment, setEditingComment] = useState('');
+
+  const showConfirm = (title, message, onConfirm, confirmText = 'Confirm', severity = 'info') => {
+    setModalConfig({
+      type: 'confirm',
+      title,
+      message,
+      confirmText,
+      onConfirm,
+      severity
+    });
+  };
+
+  const showAlert = (title, message, severity = 'success') => {
+    setModalConfig({
+      type: 'alert',
+      title,
+      message,
+      severity
+    });
+  };
 
   const fetchFeedbacks = async () => {
     setLoading(true);
@@ -40,7 +62,7 @@ const AdminFeedbacks = () => {
       setFeedbacks(data || []);
     } catch (err) {
       console.error("Error loading feedbacks:", err);
-      alert("Failed to load feedbacks queue.");
+      showAlert('Failed to load', 'Failed to load feedbacks queue.', 'danger');
     } finally {
       setLoading(false);
     }
@@ -58,11 +80,11 @@ const AdminFeedbacks = () => {
         .eq('id', id);
 
       if (error) throw error;
-      alert("Feedback approved and published to homepage!");
+      showAlert('Approved successfully', 'Feedback approved and published to homepage!', 'success');
       fetchFeedbacks();
     } catch (err) {
       console.error("Error approving feedback:", err);
-      alert(err.message);
+      showAlert('Approval failed', err.message, 'danger');
     }
   };
 
@@ -74,11 +96,11 @@ const AdminFeedbacks = () => {
         .eq('id', id);
 
       if (error) throw error;
-      alert("Feedback rejected.");
+      showAlert('Rejected successfully', 'Feedback rejected successfully.', 'success');
       fetchFeedbacks();
     } catch (err) {
       console.error("Error rejecting feedback:", err);
-      alert(err.message);
+      showAlert('Rejection failed', err.message, 'danger');
     }
   };
 
@@ -90,29 +112,36 @@ const AdminFeedbacks = () => {
         .eq('id', id);
 
       if (error) throw error;
-      alert(currentPublishState ? "Feedback unpublished from homepage." : "Feedback published to homepage!");
+      showAlert('Status updated', currentPublishState ? "Feedback unpublished from homepage." : "Feedback published to homepage!", 'success');
       fetchFeedbacks();
     } catch (err) {
       console.error("Error toggling publish:", err);
-      alert(err.message);
+      showAlert('Update failed', err.message, 'danger');
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this feedback permanently?")) return;
-    try {
-      const { error } = await supabase
-        .from('feedbacks')
-        .delete()
-        .eq('id', id);
+  const handleDelete = (id, name) => {
+    showConfirm(
+      'Delete feedback',
+      `Are you sure you want to delete the feedback from "${name}" permanently?`,
+      async () => {
+        try {
+          const { error } = await supabase
+            .from('feedbacks')
+            .delete()
+            .eq('id', id);
 
-      if (error) throw error;
-      alert("Feedback deleted.");
-      fetchFeedbacks();
-    } catch (err) {
-      console.error("Error deleting feedback:", err);
-      alert(err.message);
-    }
+          if (error) throw error;
+          showAlert('Deleted successfully', 'Feedback deleted permanently.', 'success');
+          fetchFeedbacks();
+        } catch (err) {
+          console.error("Error deleting feedback:", err);
+          showAlert('Delete failed', err.message, 'danger');
+        }
+      },
+      'Delete',
+      'danger'
+    );
   };
 
   const handleAddSubmit = async (e) => {
@@ -131,16 +160,16 @@ const AdminFeedbacks = () => {
         }]);
 
       if (error) throw error;
-      alert("Custom feedback added successfully!");
       setNewName('');
       setNewComment('');
       setNewRating(5);
       setNewPublish(true);
       setShowAddModal(false);
+      showAlert('Added successfully', 'Custom feedback added successfully!', 'success');
       fetchFeedbacks();
     } catch (err) {
       console.error("Error adding feedback:", err);
-      alert(err.message);
+      showAlert('Addition failed', err.message, 'danger');
     }
   };
 
@@ -159,13 +188,13 @@ const AdminFeedbacks = () => {
         .eq('id', editingFeedback.id);
 
       if (error) throw error;
-      alert("Feedback updated successfully!");
       setEditingFeedback(null);
       setShowEditModal(false);
+      showAlert('Updated successfully', 'Feedback updated successfully!', 'success');
       fetchFeedbacks();
     } catch (err) {
       console.error("Error updating feedback:", err);
-      alert(err.message);
+      showAlert('Update failed', err.message, 'danger');
     }
   };
 
@@ -323,8 +352,8 @@ const AdminFeedbacks = () => {
                       </button>
                       
                       <button
-                        onClick={() => handleDelete(f.id)}
-                        className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-100 transition-colors font-bold inline-flex items-center gap-0.5"
+                        onClick={() => handleDelete(f.id, f.name)}
+                        className="p-1.5 bg-red-50 hover:bg-red-100 text-red-650 rounded-lg border border-red-100 transition-colors font-bold inline-flex items-center gap-0.5"
                         title="Delete Feedback"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -482,6 +511,18 @@ const AdminFeedbacks = () => {
           </div>
         </div>
       )}
+
+      {/* Reusable Custom Alert Modal */}
+      <CustomAlert 
+        isOpen={modalConfig !== null}
+        type={modalConfig?.type}
+        title={modalConfig?.title}
+        message={modalConfig?.message}
+        confirmText={modalConfig?.confirmText}
+        severity={modalConfig?.severity}
+        onConfirm={modalConfig?.onConfirm}
+        onClose={() => setModalConfig(null)}
+      />
 
     </div>
   );

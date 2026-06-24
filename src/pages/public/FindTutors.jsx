@@ -1,24 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Search, Filter, MapPin, Users, User, CheckCircle, Award, Compass, Sparkles, Clock, ChevronRight, ChevronLeft, Star } from 'lucide-react';
+import { Search, Filter, MapPin, Users, User, CheckCircle, Award, Compass, Sparkles, Clock, ChevronRight, ChevronLeft, Star, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import VerifiedBadge from '../../components/common/VerifiedBadge';
 
 const cities = [
-  'All', 'Dhaka', 'Chittagong', 'Khulna', 'Gazipur', 'Narayanganj',
-  'Sylhet', 'Cumilla', 'Barishal', 'Rajshahi', 'Rangpur', 'Mymensingh'
+  'All', 'Barishal', 'Chittagong', 'Cumilla', 'Dhaka', 'Gazipur', 'Khulna', 'Mymensingh', 'Narayanganj', 'Rajshahi', 'Rangpur', 'Sylhet'
 ];
 
 const LOCATIONS_BY_CITY = {
-  Dhaka: ['Uttara', 'Mirpur', 'Gulshan', 'Banani', 'Dhanmondi', 'Mohammadpur', 'Badda', 'Khilgaon', 'Motijheel', 'Shahbagh', 'Farmgate', 'Wari', 'Lalbagh', 'Old Dhaka', 'Bashundhara', 'Rampura', 'Malibagh', 'Mogbazar', 'Savar', 'Hazaribagh', 'Jatrabari', 'Keraniganj', 'Mohakhali', 'Tejgaon', 'Paltan'],
-  Chittagong: ['GEC Circle', 'Halishahar', 'Nasirabad', 'Agrabad', 'Khulshi', 'Chawkbazar', 'Chandgaon', 'Patenga', 'Lalkhan Bazar', 'Double Mooring'],
-  Rajshahi: ['Motihar', 'Boalia', 'Kazihata', 'Shaheb Bazar', 'Sopura', 'Talaimari', 'Rajshahi University'],
-  Sylhet: ['Zindabazar', 'Shibgonj', 'Amberkhana', 'Uposahar', 'Kumarpara', 'Pathantula', 'Sylhet Sadar'],
-  Khulna: ['Boyra', 'Khalishpur', 'Daulatpur', 'Sonadanga', 'Gollamari', 'Rupsha'],
-  Barishal: ['Sadar Road', 'Natullabad', 'Rupatali', 'BM College', 'C&B Road'],
-  Rangpur: ['Lalbagh', 'Modern Mor', 'Medical Mor', 'Jahaz Mor', 'Dhap'],
-  Mymensingh: ['Ganginar Par', 'Charpara', 'Kewatkhali', 'Valuka', 'Sadar']
+  Barishal: ['BM College', 'C&B Road', 'Natullabad', 'Rupatali', 'Sadar Road'],
+  Chittagong: ['Agrabad', 'Chandgaon', 'Chawkbazar', 'Double Mooring', 'GEC Circle', 'Halishahar', 'Khulshi', 'Lalkhan Bazar', 'Nasirabad', 'Patenga'],
+  Dhaka: ['Aftabnagar', 'Ati Bazar', 'Badda', 'Banasree', 'Banani', 'Basabo', 'Bashundhara', 'Demra', 'Dhanmondi', 'Farmgate', 'Gulshan', 'Hazaribagh', 'Jatrabari', 'Jigatola', 'Kalyanpur', 'Keraniganj', 'Khilgaon', 'Lalbagh', 'Malibagh', 'Mirpur', 'Mogbazar', 'Mohakhali', 'Mohammadpur', 'Motijheel', 'Old Dhaka', 'Paltan', 'Rampura', 'Savar', 'Shahbagh', 'Tejgaon', 'Uttara', 'Wari'],
+  Khulna: ['Boyra', 'Daulatpur', 'Gollamari', 'Khalishpur', 'Rupsha', 'Sonadanga'],
+  Mymensingh: ['Charpara', 'Ganginar Par', 'Kewatkhali', 'Sadar', 'Valuka'],
+  Rajshahi: ['Boalia', 'Kazihata', 'Motihar', 'Rajshahi University', 'Shaheb Bazar', 'Sopura', 'Talaimari'],
+  Rangpur: ['Dhap', 'Jahaz Mor', 'Lalbagh', 'Medical Mor', 'Modern Mor'],
+  Sylhet: ['Amberkhana', 'Kumarpara', 'Pathantula', 'Shibgonj', 'Sylhet Sadar', 'Uposahar', 'Zindabazar']
 };
+
+const PRESET_COURSES = ['Play', 'Nursery', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'SSC', 'HSC', 'O Level', 'A Level', 'Admission Test'];
+const PRESET_CATEGORIES = ['Bangla Medium', 'English Medium', 'English Version', 'Madrasah Medium', 'Cambridge Curriculum', 'Edexcel Curriculum'];
 
 const getTutorProfile = (tutor) => {
   if (!tutor) return {};
@@ -44,6 +46,8 @@ const FindTutors = () => {
   const [selectedGender, setSelectedGender] = useState('');
   const [selectedUni, setSelectedUni] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState('');
 
   const fetchTutors = async () => {
     setLoading(true);
@@ -79,14 +83,18 @@ const FindTutors = () => {
     selectedArea !== '' ||
     selectedGender !== '' ||
     selectedUni.trim() !== '' ||
-    selectedSubject.trim() !== '';
+    selectedSubject.trim() !== '' ||
+    selectedCategory !== '' ||
+    selectedCourse !== '';
 
   const activeFiltersCount = [
     selectedCity,
     selectedArea,
     selectedGender,
     selectedUni,
-    selectedSubject
+    selectedSubject,
+    selectedCategory,
+    selectedCourse
   ].filter(val => val && val.trim() !== '').length;
 
   useEffect(() => {
@@ -99,7 +107,8 @@ const FindTutors = () => {
         const tp = getTutorProfile(t);
         const uniMatches = tp.university?.toLowerCase().includes(term);
         const bioMatches = tp.bio?.toLowerCase().includes(term);
-        return nameMatches || uniMatches || bioMatches;
+        const expMatches = tp.experience?.toLowerCase().includes(term);
+        return nameMatches || uniMatches || bioMatches || expMatches;
       });
     }
 
@@ -140,8 +149,22 @@ const FindTutors = () => {
       });
     }
 
+    if (selectedCategory) {
+      result = result.filter(t => {
+        const tp = getTutorProfile(t);
+        return tp.preferred_category?.toLowerCase().includes(selectedCategory.toLowerCase());
+      });
+    }
+
+    if (selectedCourse) {
+      result = result.filter(t => {
+        const tp = getTutorProfile(t);
+        return tp.preferred_courses?.some(c => c.toLowerCase() === selectedCourse.toLowerCase());
+      });
+    }
+
     setFilteredTutors(result);
-  }, [tutors, searchTerm, selectedCity, selectedArea, selectedGender, selectedUni, selectedSubject]);
+  }, [tutors, searchTerm, selectedCity, selectedArea, selectedGender, selectedUni, selectedSubject, selectedCategory, selectedCourse]);
 
   const getTutorCategory = (tutor) => {
     const tp = getTutorProfile(tutor);
@@ -166,8 +189,9 @@ const FindTutors = () => {
 
   const stats = {
     total: tutors.length,
-    male: tutors.filter(t => getTutorProfile(t).gender?.toLowerCase() === 'male').length,
-    female: tutors.filter(t => getTutorProfile(t).gender?.toLowerCase() === 'female').length
+    verified: verifiedTutors.length,
+    premium: premiumTutors.length,
+    new: newTutors.length
   };
 
   const cityItems = cities
@@ -188,6 +212,8 @@ const FindTutors = () => {
     setSelectedGender('');
     setSelectedUni('');
     setSelectedSubject('');
+    setSelectedCategory('');
+    setSelectedCourse('');
     setShowAllTutors(false);
     setIsFilterModalOpen(false);
   };
@@ -347,22 +373,42 @@ const FindTutors = () => {
       <div className="max-w-[1400px] mx-auto px-4 py-12 md:py-16 space-y-16">
         
         {/* Top Hero Section */}
-        <div className="space-y-10 max-w-4xl mx-auto">
+        <div className="space-y-6 max-w-4xl mx-auto">
           {/* Header Title Section */}
-          <div className="text-center space-y-4">
-            <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100 text-[#86c240] text-sm font-bold tracking-wider shadow-sm">
-              <Sparkles className="w-4 h-4 fill-[#86c240]/20" /> Direct matching system
+          <div className="text-center space-y-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 border border-green-100 text-[#86c240] text-xs font-bold shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 fill-[#86c240]/10" /> Direct Matching System
             </span>
-            <h1 className="text-5xl md:text-6xl font-black text-slate-800 tracking-tight leading-tight">
-              Hire the <span className="bg-gradient-to-r from-[#86c240] to-emerald-600 bg-clip-text text-transparent">best qualified tutors</span> with a few clicks!
+            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight leading-tight">
+              Hire Qualified Tutors with Ease
             </h1>
-            <p className="text-slate-500 text-base md:text-lg max-w-xl mx-auto font-medium">
+            <p className="text-slate-500 text-xs md:text-sm max-w-md mx-auto font-medium leading-relaxed">
               Connect with verified professional educators in your area. Real-time statistics fetched directly from our database.
             </p>
           </div>
 
+          {/* Stats Bar */}
+          <div className="grid grid-cols-4 gap-2 bg-white border border-slate-100 rounded-2xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.015)] max-w-xl mx-auto">
+            <div className="text-center space-y-1">
+              <p className="text-[10px] font-bold text-slate-400 font-semibold">Total tutors</p>
+              <p className="text-xl font-extrabold text-slate-800 leading-none">{stats.total.toLocaleString()}</p>
+            </div>
+            <div className="text-center space-y-1 border-l border-slate-100">
+              <p className="text-[10px] font-bold text-slate-400 font-semibold">Verified tutors</p>
+              <p className="text-xl font-extrabold text-[#86c240] leading-none">{stats.verified.toLocaleString()}</p>
+            </div>
+            <div className="text-center space-y-1 border-l border-slate-100">
+              <p className="text-[10px] font-bold text-slate-400 font-semibold">Premium tutors</p>
+              <p className="text-xl font-extrabold text-blue-500 leading-none">{stats.premium.toLocaleString()}</p>
+            </div>
+            <div className="text-center space-y-1 border-l border-slate-100">
+              <p className="text-[10px] font-bold text-slate-400 font-semibold">New tutors</p>
+              <p className="text-xl font-extrabold text-amber-500 leading-none">{stats.new.toLocaleString()}</p>
+            </div>
+          </div>
+
           {/* Location Carousel Pills */}
-          <div className="relative w-full max-w-3xl mx-auto overflow-hidden bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-full px-2 py-2 shadow-sm">
+          <div className="relative w-full max-w-3xl mx-auto overflow-hidden bg-white/60 backdrop-blur-sm border border-slate-100 rounded-full px-2 py-2 shadow-sm">
             {/* Fade edges */}
             <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white via-white/80 to-transparent pointer-events-none z-10" />
             <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none z-10" />
@@ -380,27 +426,31 @@ const FindTutors = () => {
               .animate-marquee-loop:hover {
                 animation-play-state: paused;
               }
-              .no-scrollbar::-webkit-scrollbar {
-                display: none;
-              }
-              .scrollbar-hide::-webkit-scrollbar {
-                display: none;
-              }
             `}} />
 
-            <div className="animate-marquee-loop flex items-center gap-8 pr-8">
+            <div className="animate-marquee-loop flex items-center gap-4 pr-4">
               {/* First copy */}
               {cityItems.map((item, idx) => (
                 <button
                   key={`c1-${idx}`}
                   onClick={() => {
-                    setSelectedCity(item.city);
+                    if (selectedCity === item.city) {
+                      setSelectedCity('');
+                    } else {
+                      setSelectedCity(item.city);
+                    }
                   }}
-                  className="text-sm font-bold text-slate-600 hover:text-[#86c240] transition-colors flex items-center gap-2 whitespace-nowrap px-3 py-1.5 rounded-full hover:bg-slate-50 border border-transparent hover:border-slate-100"
+                  className={`text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap px-3.5 py-1.5 rounded-full border ${
+                    selectedCity === item.city
+                      ? 'bg-[#86c240] border-[#86c240] text-white shadow-sm'
+                      : 'bg-white border-slate-100 text-slate-600 hover:bg-slate-50'
+                  }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#86c240] animate-pulse"></span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${selectedCity === item.city ? 'bg-white' : 'bg-[#86c240]'} animate-pulse`}></span>
                   <span className="font-bold tracking-wider">{item.city}</span>
-                  <span className="bg-slate-100 text-slate-500 text-xs px-1.5 py-0.5 rounded font-black">
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded font-black ${
+                    selectedCity === item.city ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                  }`}>
                     {item.count}
                   </span>
                 </button>
@@ -410,13 +460,23 @@ const FindTutors = () => {
                 <button
                   key={`c2-${idx}`}
                   onClick={() => {
-                    setSelectedCity(item.city);
+                    if (selectedCity === item.city) {
+                      setSelectedCity('');
+                    } else {
+                      setSelectedCity(item.city);
+                    }
                   }}
-                  className="text-sm font-bold text-slate-600 hover:text-[#86c240] transition-colors flex items-center gap-2 whitespace-nowrap px-3 py-1.5 rounded-full hover:bg-slate-50 border border-transparent hover:border-slate-100"
+                  className={`text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap px-3.5 py-1.5 rounded-full border ${
+                    selectedCity === item.city
+                      ? 'bg-[#86c240] border-[#86c240] text-white shadow-sm'
+                      : 'bg-white border-slate-100 text-slate-600 hover:bg-slate-50'
+                  }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#86c240] animate-pulse"></span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${selectedCity === item.city ? 'bg-white' : 'bg-[#86c240]'} animate-pulse`}></span>
                   <span className="font-bold tracking-wider">{item.city}</span>
-                  <span className="bg-slate-100 text-slate-500 text-xs px-1.5 py-0.5 rounded font-black">
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded font-black ${
+                    selectedCity === item.city ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                  }`}>
                     {item.count}
                   </span>
                 </button>
@@ -424,76 +484,32 @@ const FindTutors = () => {
             </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid md:grid-cols-3 gap-6 pt-2">
-            {/* Total Tutors */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-center gap-5 hover:-translate-y-1 hover:shadow-md hover:border-[#86c240]/40 transition-all duration-300 group">
-              <div className="bg-gradient-to-br from-[#86c240] to-[#75ab35] w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md shadow-[#86c240]/10 group-hover:scale-105 transition-transform duration-300">
-                <Users className="w-8 h-8 text-white" strokeWidth={2} />
-              </div>
-              <div>
-                <h2 className="text-4xl md:text-5xl font-black text-slate-800 leading-none mb-1.5 tracking-tight">
-                  {stats.total.toLocaleString()}
-                </h2>
-                <p className="text-xs md:text-sm text-slate-400 font-extrabold tracking-widest">Total tutors</p>
-              </div>
+          {/* Search Bar & Filter Toggle */}
+          <div className="flex gap-3 max-w-xl mx-auto">
+            <div className="relative flex-1">
+              <input 
+                type="text"
+                placeholder="Search tutor name, university, background..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#86c240] focus:border-transparent shadow-sm font-semibold text-slate-800 bg-white"
+              />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
             </div>
-
-            {/* Male Tutors */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-center gap-5 hover:-translate-y-1 hover:shadow-md hover:border-[#86c240]/40 transition-all duration-300 group">
-              <div className="bg-gradient-to-br from-[#86c240] to-[#75ab35] w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md shadow-[#86c240]/10 group-hover:scale-105 transition-transform duration-300">
-                <User className="w-8 h-8 text-white" strokeWidth={2} />
-              </div>
-              <div>
-                <h2 className="text-4xl md:text-5xl font-black text-slate-800 leading-none mb-1.5 tracking-tight">
-                  {stats.male.toLocaleString()}
-                </h2>
-                <p className="text-xs md:text-sm text-slate-400 font-extrabold tracking-widest">Male tutors</p>
-              </div>
-            </div>
-
-            {/* Female Tutors */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-center gap-5 hover:-translate-y-1 hover:shadow-md hover:border-[#86c240]/40 transition-all duration-300 group">
-              <div className="bg-gradient-to-br from-[#86c240] to-[#75ab35] w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md shadow-[#86c240]/10 group-hover:scale-105 transition-transform duration-300">
-                <User className="w-8 h-8 text-white" strokeWidth={2} />
-              </div>
-              <div>
-                <h2 className="text-4xl md:text-5xl font-black text-slate-800 leading-none mb-1.5 tracking-tight">
-                  {stats.female.toLocaleString()}
-                </h2>
-                <p className="text-xs md:text-sm text-slate-400 font-extrabold tracking-widest">Female tutors</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Interactive Large Search Bar & Filter Modal Toggle */}
-          <div className="relative pt-4">
-            <div className="relative flex items-center gap-4">
-              <div className="relative flex-1 flex items-center">
-                <input 
-                  type="text"
-                  placeholder="Search by tutor name, university, or background..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-14 pr-6 py-5 rounded-full bg-white shadow-md hover:shadow-lg focus:shadow-lg focus:ring-2 focus:ring-[#86c240] focus:border-transparent transition-all duration-300 border border-slate-200/60 text-slate-700 text-lg focus:outline-none"
-                />
-                <Search className="w-6 h-6 text-slate-400 absolute left-6 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
-              
-              {/* Filter button */}
-              <button 
-                onClick={() => setIsFilterModalOpen(true)}
-                className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 px-6 py-5 rounded-full font-bold text-base transition-all duration-300 shadow-md hover:shadow-lg border border-slate-200/60 shrink-0"
-              >
-                <Filter className="w-5 h-5 text-[#86c240]" />
-                <span>Filters</span>
-                {activeFiltersCount > 0 && (
-                  <span className="bg-[#86c240] text-white text-xs font-black px-2 py-0.5 rounded-full ml-1">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </button>
-            </div>
+            
+            {/* Filter button */}
+            <button 
+              onClick={() => setIsFilterModalOpen(true)}
+              className="flex items-center gap-1.5 bg-[#86c240] hover:bg-[#6a9c31] text-white px-4 py-2.5 rounded-xl font-bold text-xs transition-colors shadow-sm shrink-0"
+            >
+              <Filter className="w-3.5 h-3.5" />
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <span className="bg-white text-[#86c240] text-[9px] font-black px-1.5 py-0.5 rounded-full ml-1 animate-pulse">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
           </div>
         </div>
 
@@ -554,6 +570,18 @@ const FindTutors = () => {
                   <button onClick={() => setSelectedSubject('')} className="hover:text-rose-500 font-bold ml-1 text-base">×</button>
                 </span>
               )}
+              {selectedCategory && (
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-700 text-sm font-semibold border border-slate-200">
+                  Category: {selectedCategory}
+                  <button onClick={() => setSelectedCategory('')} className="hover:text-rose-500 font-bold ml-1 text-base">×</button>
+                </span>
+              )}
+              {selectedCourse && (
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-700 text-sm font-semibold border border-slate-200">
+                  Class: {selectedCourse}
+                  <button onClick={() => setSelectedCourse('')} className="hover:text-rose-500 font-bold ml-1 text-base">×</button>
+                </span>
+              )}
             </div>
 
             {filteredTutors.length === 0 ? (
@@ -596,128 +624,144 @@ const FindTutors = () => {
 
       {/* Advanced Filter Modal Component */}
       {isFilterModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          {/* Modal Background click to close */}
-          <div className="absolute inset-0 cursor-default" onClick={() => setIsFilterModalOpen(false)} />
-          
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
           {/* Modal Card */}
-          <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
-            {/* Modal Header */}
-            <div className="flex justify-between items-center bg-slate-50 px-8 py-5 border-b border-slate-100">
+          <div className="relative bg-white w-full max-w-2xl rounded-3xl p-6 shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200">
+            <button 
+              onClick={() => setIsFilterModalOpen(false)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <h3 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-3 mb-5">Tutor Filter</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {/* City */}
               <div>
-                <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
-                  <Filter className="w-5 h-5 text-[#86c240]" /> Advanced filters
-                </h3>
-                <p className="text-slate-500 text-sm mt-0.5">Narrow down tutor profiles by criteria</p>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5">Select City</label>
+                <select
+                  value={selectedCity}
+                  onChange={(e) => {
+                    setSelectedCity(e.target.value);
+                    setSelectedArea('');
+                  }}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#86c240]"
+                >
+                  <option value="">Select City</option>
+                  {cities.filter(c => c !== 'All').map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
               </div>
-              <button 
-                onClick={() => setIsFilterModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-2xl font-bold bg-slate-100 hover:bg-slate-200/80 w-9 h-9 rounded-full flex items-center justify-center transition-colors focus:outline-none"
-              >
-                ×
-              </button>
+
+              {/* Area */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5">Select Area</label>
+                <select
+                  value={selectedArea}
+                  onChange={(e) => setSelectedArea(e.target.value)}
+                  disabled={!selectedCity}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#86c240] disabled:opacity-50"
+                >
+                  <option value="">Select Area</option>
+                  {selectedCity && LOCATIONS_BY_CITY[selectedCity]?.map(loc => (
+                    <option key={loc} value={loc}>{loc}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5">Select Category</label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#86c240]"
+                >
+                  <option value="">Select Category</option>
+                  {PRESET_CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Class */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5">Select Class</label>
+                <select
+                  value={selectedCourse}
+                  onChange={(e) => setSelectedCourse(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#86c240]"
+                >
+                  <option value="">Select Class</option>
+                  {PRESET_COURSES.map(course => (
+                    <option key={course} value={course}>{course}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Gender */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5">Select Gender</label>
+                <select
+                  value={selectedGender}
+                  onChange={(e) => setSelectedGender(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#86c240]"
+                >
+                  <option value="">Any Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+
+              {/* University */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5">University / Institution</label>
+                <input 
+                  type="text"
+                  placeholder="e.g. BUET, Dhaka University"
+                  value={selectedUni}
+                  onChange={(e) => setSelectedUni(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#86c240] placeholder:text-slate-400"
+                />
+              </div>
+
+              {/* Subject */}
+              <div className="md:col-span-2">
+                <label className="block text-xs font-bold text-slate-500 mb-1.5">Select Subject</label>
+                <select
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#86c240]"
+                >
+                  <option value="">Select Subject</option>
+                  {[
+                    'Math', 'Physics', 'Chemistry', 'Biology', 'English', 'Bangla', 'ICT', 'General Science', 
+                    'Accounting', 'Finance', 'General Math', 'Higher Math', 'Management', 'Economics', 
+                    'Sociology', 'Civics', 'History', 'Geography', 'Religion', 'Agriculture', 'Statistics'
+                  ].sort().map(sub => (
+                    <option key={sub} value={sub}>{sub}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-8 space-y-6">
-              <div className="grid md:grid-cols-2 gap-5">
-                {/* City */}
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">City</label>
-                  <select
-                    value={selectedCity}
-                    onChange={(e) => {
-                      setSelectedCity(e.target.value);
-                      setSelectedArea('');
-                    }}
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-700 focus:outline-none focus:border-[#86c240] focus:ring-2 focus:ring-[#86c240]/25 transition-all"
-                  >
-                    <option value="">All cities</option>
-                    {cities.filter(c => c !== 'All').map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Area */}
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Area</label>
-                  <select
-                    value={selectedArea}
-                    onChange={(e) => setSelectedArea(e.target.value)}
-                    disabled={!selectedCity}
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-700 focus:outline-none focus:border-[#86c240] focus:ring-2 focus:ring-[#86c240]/25 transition-all disabled:opacity-50"
-                  >
-                    <option value="">All areas</option>
-                    {selectedCity && LOCATIONS_BY_CITY[selectedCity]?.map(loc => (
-                      <option key={loc} value={loc}>{loc}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Gender */}
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Gender</label>
-                  <select
-                    value={selectedGender}
-                    onChange={(e) => setSelectedGender(e.target.value)}
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-700 focus:outline-none focus:border-[#86c240] focus:ring-2 focus:ring-[#86c240]/25 transition-all"
-                  >
-                    <option value="">Any gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
-                </div>
-
-                {/* University */}
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">University / Institution</label>
-                  <input 
-                    type="text"
-                    placeholder="e.g. BUET, SUST"
-                    value={selectedUni}
-                    onChange={(e) => setSelectedUni(e.target.value)}
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-700 focus:outline-none focus:border-[#86c240] focus:ring-2 focus:ring-[#86c240]/25 transition-all placeholder:text-slate-400"
-                  />
-                </div>
-
-                {/* Subject */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Subject</label>
-                  <select
-                    value={selectedSubject}
-                    onChange={(e) => setSelectedSubject(e.target.value)}
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-700 focus:outline-none focus:border-[#86c240] focus:ring-2 focus:ring-[#86c240]/25 transition-all"
-                  >
-                    <option value="">All subjects</option>
-                    {[
-                      'Math', 'Physics', 'Chemistry', 'Biology', 'English', 'Bangla', 'ICT', 'General Science', 
-                      'Accounting', 'Finance', 'General Math', 'Higher Math', 'Management', 'Economics', 
-                      'Sociology', 'Civics', 'History', 'Geography', 'Religion', 'Agriculture', 'Statistics'
-                    ].sort().map(sub => (
-                      <option key={sub} value={sub}>{sub}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="flex justify-between items-center px-8 py-5 bg-slate-50 border-t border-slate-100">
+            <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
               <button 
                 onClick={() => {
                   handleClearFilters();
                   setIsFilterModalOpen(false);
                 }}
-                className="text-base font-bold text-rose-500 hover:text-rose-600 transition-colors"
+                className="bg-red-500 hover:bg-red-600 text-white font-bold text-sm px-6 py-2.5 rounded-lg transition-colors"
               >
-                Reset filters
+                Clear
               </button>
               <button 
                 onClick={() => setIsFilterModalOpen(false)}
-                className="bg-[#86c240] hover:bg-[#75ab35] text-white font-bold px-8 py-3 rounded-full text-base shadow-md shadow-[#86c240]/25 transition-all"
+                className="bg-[#86c240] hover:bg-[#6a9c31] text-white font-bold text-sm px-6 py-2.5 rounded-lg transition-colors"
               >
-                Apply filters
+                Apply
               </button>
             </div>
           </div>

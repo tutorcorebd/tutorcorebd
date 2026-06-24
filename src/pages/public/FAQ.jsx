@@ -197,12 +197,12 @@ const FAQ = () => {
           </p>
         </div>
         <div className="flex flex-wrap gap-4 items-center">
-          <a href="mailto:support@tutorcore.com" className="flex items-center gap-2 px-4 py-2.5 bg-[#86c240] hover:bg-[#6a9c31] text-white font-bold rounded-xl text-xs transition-colors shadow-md shadow-[#86c240]/10">
+          <a href="mailto:tutorcorebd@gmail.com" className="flex items-center gap-2 px-4 py-2.5 bg-[#86c240] hover:bg-[#6a9c31] text-white font-bold rounded-xl text-xs transition-colors shadow-md shadow-[#86c240]/10">
             <Mail className="w-4 h-4" /> {language === 'en' ? "Email Us" : "ইমেইল করুন"}
           </a>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-750 text-slate-300 font-bold rounded-xl text-xs transition-colors border border-slate-700">
-            <PhoneCall className="w-4 h-4" /> {language === 'en' ? "Live Call" : "সরাসরি কল"}
-          </button>
+          <a href="tel:+8801785346691" className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-750 text-slate-300 font-bold rounded-xl text-xs transition-colors border border-slate-700">
+            <PhoneCall className="w-4 h-4" /> {language === 'en' ? "Live Call: +8801785346691" : "সরাসরি কল: +8801785346691"}
+          </a>
         </div>
       </div>
 

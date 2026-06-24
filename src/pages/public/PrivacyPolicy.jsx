@@ -51,7 +51,7 @@ const PrivacyPolicy = () => {
                 At <strong>Tutor Core</strong>, accessible via <em>tutorcorebd.com</em>, safeguarding the privacy of our community members is one of our highest priorities. This Privacy Policy outlines the categories of data we collect, how it is recorded, and the ways we utilize it.
               </p>
               <p>
-                If you have additional questions or require further clarification about our data practices, please do not hesitate to contact our team via email at <strong>support@tutorcore.com</strong>.
+                If you have additional questions or require further clarification about our data practices, please do not hesitate to contact our team via email at <strong>tutorcorebd@gmail.com</strong>.
               </p>
               <p>
                 This policy applies solely to our online operations and is valid for visitors to our website regarding information shared and/or collected on Tutor Core. It does not extend to information collected offline or via channels other than this platform.
@@ -171,7 +171,7 @@ const PrivacyPolicy = () => {
                 <strong>টিউটর কোর (Tutor Core)</strong>-তে (যা <em>tutorcorebd.com</em> এর মাধ্যমে অ্যাক্সেস করা যায়), আমাদের প্ল্যাটফর্ম ব্যবহারকারীদের গোপনীয়তা রক্ষা করা আমাদের অন্যতম প্রধান অগ্রাধিকার। এই প্রাইভেসি পলিসি ডকুমেন্টে আমরা কোন ধরণের তথ্য সংগ্রহ ও রেকর্ড করি এবং তা কীভাবে ব্যবহার করি সে সম্পর্কে বিস্তারিত আলোচনা করা হয়েছে।
               </p>
               <p>
-                আমাদের গোপনীয়তা নীতি সম্পর্কে আপনার যদি অতিরিক্ত কোনো প্রশ্ন থাকে বা আরও বিস্তারিত তথ্যের প্রয়োজন হয়, তবে ইমেলের মাধ্যমে আমাদের টিমের সাথে যোগাযোগ করতে দ্বিধা করবেন না: <strong>support@tutorcore.com</strong>।
+                আমাদের গোপনীয়তা নীতি সম্পর্কে আপনার যদি অতিরিক্ত কোনো প্রশ্ন থাকে বা আরও বিস্তারিত তথ্যের প্রয়োজন হয়, তবে ইমেলের মাধ্যমে আমাদের টিমের সাথে যোগাযোগ করতে দ্বিধা করবেন না: <strong>tutorcorebd@gmail.com</strong>।
               </p>
               <p>
                 এই গোপনীয়তা নীতিটি শুধুমাত্র আমাদের অনলাইন কার্যক্রমের জন্য প্রযোজ্য এবং এটি আমাদের ওয়েবসাইটে ভিজিটরদের শেয়ার করা এবং/অথবা সংগ্রহ করা তথ্যের ক্ষেত্রে কার্যকর। এটি অফলাইনে বা এই ওয়েবসাইট ব্যতীত অন্য কোনো চ্যানেলের মাধ্যমে সংগ্রহ করা তথ্যের ক্ষেত্রে প্রযোজ্য নয়।
