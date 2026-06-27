@@ -56,3 +56,77 @@
   animation: borderPulseRose 2s infinite ease-in-out;
 }
 
+/* === Tutor Profile Redesign Animations === */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes avatarGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(134, 194, 64, 0.15), 0 0 20px 4px rgba(134, 194, 64, 0.08);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(134, 194, 64, 0.3), 0 0 30px 8px rgba(134, 194, 64, 0.15);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes progressGrow {
+  from { width: 0%; }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-avatar-glow {
+  animation: avatarGlow 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(134, 194, 64, 0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.animate-progress-grow {
+  animation: progressGrow 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.12s; }
+.stagger-3 { animation-delay: 0.2s; }
+.stagger-4 { animation-delay: 0.28s; }
+.stagger-5 { animation-delay: 0.36s; }
+.stagger-6 { animation-delay: 0.44s; }
+
+/* Tutor profile tag hover */
+.tag-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tag-hover:hover {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Card lift on hover */
+.card-lift {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+

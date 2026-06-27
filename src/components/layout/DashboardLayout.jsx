@@ -39,6 +39,7 @@ import {
 import ScrollToTop from '../common/ScrollToTop';
 import MobileBottomNav from './MobileBottomNav';
 import VerifiedBadge from '../common/VerifiedBadge';
+import PremiumBadge from '../common/PremiumBadge';
 
 import { supabase } from '../../lib/supabase';
 
@@ -324,8 +325,11 @@ const DashboardLayout = () => {
             </div>
             <div className="relative group flex items-center gap-1 mt-3 justify-center">
               <h3 className="font-bold text-slate-800 text-lg">{profile?.full_name || 'Tushar'}</h3>
-              {(profile?.tutor_profile?.is_verified || profile?.tutor_profile?.tutor_status === 'Verified Tutor' || profile?.tutor_profile?.tutor_status === 'Premium Tutor') && (
-                <VerifiedBadge size={18} position="bottom" align="right" />
+              {(profile?.tutor_profile?.is_verified) && (
+                <VerifiedBadge size={18} position="bottom" align="left" />
+              )}
+              {(profile?.tutor_profile?.is_premium) && (
+                <PremiumBadge size={18} position="bottom" align="left" />
               )}
             </div>
             <p className="text-sm font-medium text-slate-500 mt-1 truncate max-w-[200px]">{profile?.phone_number || profile?.email || 'email@example.com'}</p>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import useAuthStore from '../../store/useAuthStore';
-import { Mail, Calendar, MapPin, Banknote, BookOpen, Clock, MessageCircle, AlertCircle, FileText, CheckCircle2 } from 'lucide-react';
+import { Mail, Calendar, MapPin, Banknote, BookOpen, Clock, MessageCircle, AlertCircle, FileText, CheckCircle2, User } from 'lucide-react';
 import { format } from 'date-fns';
 
 const ConfirmationLetter = () => {

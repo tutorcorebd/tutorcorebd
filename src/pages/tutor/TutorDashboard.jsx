@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import useAuthStore from '../../store/useAuthStore';
 import { Link, useNavigate } from 'react-router-dom';
 import VerifiedBadge from '../../components/common/VerifiedBadge';
+import PremiumBadge from '../../components/common/PremiumBadge';
 import {
   Bell,
   Users,
@@ -275,7 +276,7 @@ const TutorDashboard = () => {
         <div className="md:col-span-2 bg-white rounded-xl border border-slate-100 shadow-sm p-8 flex justify-between items-center relative">
           <div className="z-10">
             <h1 className="text-2xl text-slate-600 font-medium flex items-center gap-1">
-              Good Morning, <span className="font-bold text-slate-800 flex items-center gap-1.5">{profile?.full_name || 'Tushar Undefined'}{profile?.role === 'tutor' && profile?.tutor_profile?.is_verified && <VerifiedBadge size={20} />}</span>
+              Good Morning, <span className="font-bold text-slate-800 flex items-center gap-1.5">{profile?.full_name || 'Tushar Undefined'}{profile?.role === 'tutor' && profile?.tutor_profile?.is_verified && <VerifiedBadge size={20} position="bottom" />}{profile?.role === 'tutor' && profile?.tutor_profile?.is_premium && <PremiumBadge size={20} position="bottom" />}</span>
             </h1>
             <h2 className="text-3xl font-black text-slate-800 mt-1 mb-3">
               Welcome to Tutor Core

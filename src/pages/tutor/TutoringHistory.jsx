@@ -50,7 +50,9 @@ const TutoringHistory = () => {
           .order('applied_at', { ascending: false });
 
         if (!error && data) {
-          setApplications(data);
+          // Filter out applications where the request was deleted/unavailable
+          const validApplications = data.filter(app => app.tuition_requests !== null);
+          setApplications(validApplications);
         }
       } catch (err) {
         console.error('Error fetching tutoring history:', err);

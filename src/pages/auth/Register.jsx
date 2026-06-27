@@ -1,10 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, User, Users, Mail, Lock, Phone, User as UserIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CustomAlert from '../../components/layout/CustomAlert';
-import ReCAPTCHA from '../../components/common/ReCAPTCHA';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -26,8 +25,6 @@ const Register = () => {
   const [alertConfig, setAlertConfig] = useState({ type: 'success', title: '', message: '', onAction: null });
   const navigate = useNavigate();
 
-  const recaptchaRef = useRef(null);
-
   const showAlert = (type, title, message, onAction = null) => {
     setAlertConfig({ type, title, message, onAction });
     setAlertOpen(true);
@@ -48,20 +45,11 @@ const Register = () => {
     setError(null);
     
     try {
-      // 1. Execute reCAPTCHA v3 challenge
-      const token = await recaptchaRef.current?.execute();
-      if (!token) {
-        throw new Error('Security check failed. Please try again.');
-      }
-
-      // 2. Invoke custom Edge Function
-      const { data: functionData, error: functionError } = await supabase.functions.invoke('auth-with-recaptcha', {
-        body: {
-          action: 'signup',
-          email,
-          password,
-          token,
-          userData: {
+      const { error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
             full_name: fullName,
             phone_number: phoneNumber,
             role: role === 'parents' ? 'guardian' : 'tutor',
@@ -70,12 +58,8 @@ const Register = () => {
         }
       });
 
-      if (functionError) {
-        throw new Error(functionError.message || 'Verification service failed.');
-      }
-
-      if (functionData?.error) {
-        throw new Error(functionData.error);
+      if (authError) {
+        throw new Error(authError.message || 'Registration failed');
       }
 
       showAlert(
@@ -214,7 +198,7 @@ const Register = () => {
                 />
               </div>
 
-              {/* Email (Spacious - Full Width) */}
+              {/* Email */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Mail className={`h-5 w-5 ${emailError ? 'text-red-400' : 'text-slate-400'}`} />
@@ -230,7 +214,7 @@ const Register = () => {
                 {emailError && <p className="absolute -bottom-5 left-0 text-xs text-red-500 font-medium">Valid email required</p>}
               </div>
 
-              {/* Gender (Spacious, clean box) */}
+              {/* Gender */}
               <div className="bg-white p-3 py-2.5 rounded-xl border border-slate-200 flex items-center justify-between shadow-sm">
                 <span className="text-sm font-semibold text-slate-600 ml-1">Gender</span>
                 <div className="flex items-center gap-6 pr-2">
@@ -304,8 +288,6 @@ const Register = () => {
                 </button>
                 {passwordMismatch && <p className="absolute -bottom-5 left-0 text-xs text-red-500 font-medium">Passwords must match</p>}
               </div>
-
-              <ReCAPTCHA ref={recaptchaRef} action="signup" />
 
               <div className="pt-2">
                 <button 

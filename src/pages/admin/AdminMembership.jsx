@@ -88,19 +88,17 @@ const AdminMembership = () => {
 
       // 2. If approved, update the tutor's status and verification flag in tutor_profiles
       if (newStatus === 'approved') {
-        const isVerified = request.plan_name === 'Verified' || request.plan_name === 'Pro' || request.plan_name === 'Premium';
-        const profileStatus = 
-          request.plan_name === 'Verified' 
-            ? 'Verified Tutor' 
-            : (request.plan_name === 'Pro' || request.plan_name === 'Premium' ? 'Premium Tutor' : 'Normal Tutor');
+        const updateData = {};
+        if (request.plan_name === 'Verified') {
+          updateData.is_verified = true;
+        } else if (request.plan_name === 'Pro' || request.plan_name === 'Premium') {
+          updateData.is_premium = true;
+        }
 
         const { error: profileError } = await supabase
           .from('tutor_profiles')
-          .upsert({ 
-            user_id: request.user_id,
-            tutor_status: profileStatus,
-            is_verified: isVerified
-          });
+          .update(updateData)
+          .eq('user_id', request.user_id);
 
         if (profileError) throw profileError;
       }

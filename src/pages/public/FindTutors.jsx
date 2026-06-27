@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Search, Filter, MapPin, Users, User, CheckCircle, Award, Compass, Sparkles, Clock, ChevronRight, ChevronLeft, Star, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import VerifiedBadge from '../../components/common/VerifiedBadge';
+import PremiumBadge from '../../components/common/PremiumBadge';
 
 const cities = [
   'All', 'Barishal', 'Chittagong', 'Cumilla', 'Dhaka', 'Gazipur', 'Khulna', 'Mymensingh', 'Narayanganj', 'Rajshahi', 'Rangpur', 'Sylhet'
@@ -183,8 +184,8 @@ const FindTutors = () => {
   };
 
   const exclusiveTutors = tutors.filter(t => getTutorCategory(t) === 'Exclusive Tutors');
-  const premiumTutors = tutors.filter(t => getTutorCategory(t) === 'Premium Tutors');
-  const verifiedTutors = tutors.filter(t => getTutorCategory(t) === 'Verified Tutors' || getTutorProfile(t).is_verified);
+  const premiumTutors = tutors.filter(t => getTutorProfile(t).is_premium);
+  const verifiedTutors = tutors.filter(t => getTutorProfile(t).is_verified);
   const newTutors = tutors.filter(t => getTutorCategory(t) === 'New Tutors');
 
   const stats = {
@@ -221,8 +222,8 @@ const FindTutors = () => {
   const VerticalTutorCard = ({ tutor, isGrid = false }) => {
     const tp = getTutorProfile(tutor);
     const userInitial = tutor.full_name ? tutor.full_name.charAt(0).toUpperCase() : 'T';
-    const isVerified = tp.is_verified || tp.tutor_category === 'Verified Tutors';
-    const isPremium = tp.tutor_category === 'Premium Tutors';
+    const isVerified = tp.is_verified;
+    const isPremium = tp.is_premium;
     
     return (
       <div 
@@ -270,9 +271,10 @@ const FindTutors = () => {
             )}
           </div>
 
-          <h4 className="font-extrabold text-slate-800 text-base md:text-lg tracking-tight truncate flex items-center justify-center gap-0.5">
+          <h4 className="font-extrabold text-slate-800 text-base md:text-lg tracking-tight truncate flex items-center justify-center gap-0.5 relative z-20">
             {tutor.full_name}
-            {isVerified && <VerifiedBadge size={16} />}
+            {isVerified && <VerifiedBadge size={16} position="top" />}
+            {isPremium && <PremiumBadge size={16} position="top" />}
           </h4>
           {tp.rating > 0 && (
             <div className="flex gap-0.5 mt-1.5 justify-center">
@@ -347,7 +349,7 @@ const FindTutors = () => {
           {/* Carousel container */}
           <div 
             ref={internalRef}
-            className="flex gap-6 overflow-x-auto w-full pb-4 scroll-smooth no-scrollbar scrollbar-hide"
+            className="flex gap-6 overflow-x-auto w-full pb-12 pt-24 -my-20 mt-4 scroll-smooth no-scrollbar scrollbar-hide px-2 relative z-10"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {list.map(tutor => (

@@ -236,7 +236,7 @@ const PremiumRequest = () => {
                     <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-gradient-to-r from-[#86c240] to-emerald-400 rounded-full transition-all duration-1000"
-                        style={{ width: `${(trialDaysLeft / 7) * 100}%` }}
+                        style={{ width: `${Math.max(0, Math.min(100, ((7 - trialDaysLeft) / 7) * 100))}%` }}
                       ></div>
                     </div>
                   </div>
@@ -251,7 +251,7 @@ const PremiumRequest = () => {
                     </p>
                     <button 
                       onClick={() => navigate('/tutor/membership')}
-                      className="mt-4 w-full py-3 bg-[#86c240] hover:bg-[#6a9c31] text-white text-xs font-black tracking-wider uppercase rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+                      className="mt-4 w-full py-3 bg-[#86c240] hover:bg-[#6a9c31] text-white text-xs font-black tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
                     >
                       <span>Buy Full Subscription</span>
                       <ArrowRight className="w-3.5 h-3.5" />

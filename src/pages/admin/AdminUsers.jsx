@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import VerifiedBadge from '../../components/common/VerifiedBadge';
+import PremiumBadge from '../../components/common/PremiumBadge';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -49,6 +50,10 @@ const AdminUsers = () => {
   const [activeTab, setActiveTab] = useState('tutor'); // 'tutor' or 'guardian'
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All'); // 'All', 'active', 'suspended'
+  const [filterVerified, setFilterVerified] = useState('All');
+  const [filterPremium, setFilterPremium] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [selectedUser, setSelectedUser] = useState(null);
   const [updatingUserId, setUpdatingUserId] = useState(null);
   const [resettingUserId, setResettingUserId] = useState(null);
@@ -129,6 +134,11 @@ const AdminUsers = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, filterStatus, filterVerified, filterPremium, searchTerm]);
 
   const handleToggleStatus = async (userId, currentStatus) => {
     const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
@@ -257,42 +267,21 @@ const AdminUsers = () => {
     }
   };
 
-  const handleUpdateTutorStatus = async (userId, newStatus) => {
+  const handleToggleTutorStatus = async (userId, field, currentValue) => {
     try {
-      const isVerified = newStatus === 'Verified Tutor' || newStatus === 'Premium Tutor';
-      
       const { error } = await supabase
         .from('tutor_profiles')
-        .upsert({ 
-          user_id: userId,
-          tutor_status: newStatus,
-          is_verified: isVerified
-        });
+        .update({ [field]: !currentValue })
+        .eq('user_id', userId);
 
       if (error) throw error;
-
-      // Sync membership_requests to keep UI consistent
-      if (newStatus === 'Normal Tutor') {
-        await supabase
-          .from('membership_requests')
-          .delete()
-          .eq('user_id', userId)
-          .in('plan_name', ['Verified', 'Premium']);
-      } else if (newStatus === 'Verified Tutor') {
-        // Also ensure any pending requests for Verified are marked approved
-        await supabase
-          .from('membership_requests')
-          .update({ status: 'approved' })
-          .eq('user_id', userId)
-          .eq('plan_name', 'Verified');
-      }
 
       // Update local state
       setUsers(users.map(u => {
         if (u.id === userId) {
           const updatedProfiles = Array.isArray(u.tutor_profiles)
-            ? [{ ...u.tutor_profiles[0], tutor_status: newStatus, is_verified: isVerified }]
-            : { ...u.tutor_profiles, tutor_status: newStatus, is_verified: isVerified };
+            ? [{ ...u.tutor_profiles[0], [field]: !currentValue }]
+            : { ...u.tutor_profiles, [field]: !currentValue };
           return { ...u, tutor_profiles: updatedProfiles };
         }
         return u;
@@ -301,14 +290,14 @@ const AdminUsers = () => {
       // Sync selected user drawer
       if (selectedUser && selectedUser.id === userId) {
         const updatedProfiles = Array.isArray(selectedUser.tutor_profiles)
-          ? [{ ...selectedUser.tutor_profiles[0], tutor_status: newStatus, is_verified: isVerified }]
-          : { ...selectedUser.tutor_profiles, tutor_status: newStatus, is_verified: isVerified };
+          ? [{ ...selectedUser.tutor_profiles[0], [field]: !currentValue }]
+          : { ...selectedUser.tutor_profiles, [field]: !currentValue };
         setSelectedUser({ ...selectedUser, tutor_profiles: updatedProfiles });
       }
 
-      showToast(`Tutor status updated to ${newStatus}.`);
+      showToast(`Tutor status updated successfully.`);
     } catch (err) {
-      console.error('Error updating tutor status:', err);
+      console.error(`Error updating tutor status:`, err);
       if (err.message?.toLowerCase().includes('row-level security') || err.message?.toLowerCase().includes('rls')) {
         setRlsErrorTable('tutor_profiles');
       } else {
@@ -399,9 +388,25 @@ const AdminUsers = () => {
     const searchMatch = nameMatches || phoneMatches || emailMatches;
 
     const userStatus = u.status || 'active';
-    if (filterStatus === 'All') return searchMatch;
-    return searchMatch && userStatus === filterStatus;
+    const statusMatch = filterStatus === 'All' || userStatus === filterStatus;
+
+    let verifiedMatch = true;
+    let premiumMatch = true;
+
+    if (activeTab === 'tutor') {
+      const tp = getTutorProfile(u);
+      if (filterVerified === 'Verified') verifiedMatch = tp.is_verified;
+      if (filterVerified === 'Unverified') verifiedMatch = !tp.is_verified;
+      
+      if (filterPremium === 'Premium') premiumMatch = tp.is_premium;
+      if (filterPremium === 'Standard') premiumMatch = !tp.is_premium;
+    }
+
+    return searchMatch && statusMatch && verifiedMatch && premiumMatch;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / itemsPerPage));
+  const currentUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   // Count stats
   const activeCount = users.filter(u => u.role === activeTab && (u.status || 'active') === 'active').length;
@@ -409,7 +414,7 @@ const AdminUsers = () => {
   const deactivatedCount = users.filter(u => u.role === activeTab && u.status === 'deactivated').length;
   const pendingDeletionCount = users.filter(u => u.role === activeTab && u.status === 'pending_deletion').length;
   const verifiedTutors = users.filter(u => u.role === 'tutor' && getTutorProfile(u).is_verified).length;
-  const premiumTutors = users.filter(u => u.role === 'tutor' && getTutorProfile(u).tutor_status === 'Premium Tutor').length;
+  const premiumTutors = users.filter(u => u.role === 'tutor' && getTutorProfile(u).is_premium).length;
 
   return (
     <div className="space-y-6 font-sans max-w-7xl mx-auto mt-4 relative">
@@ -487,7 +492,7 @@ const AdminUsers = () => {
       </div>
 
       {/* Search & Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm justify-between">
+      <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm justify-between">
         <div className="relative flex-1">
           <input 
             type="text"
@@ -498,17 +503,41 @@ const AdminUsers = () => {
           />
           <Search className="w-5 h-5 text-slate-400 absolute left-4 top-3" />
         </div>
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#86c240] cursor-pointer"
-        >
-          <option value="All">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="suspended">Suspended</option>
-          <option value="deactivated">Deactivated</option>
-          <option value="pending_deletion">Pending Deletion</option>
-        </select>
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#86c240] cursor-pointer"
+          >
+            <option value="All">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+            <option value="deactivated">Deactivated</option>
+            <option value="pending_deletion">Pending Deletion</option>
+          </select>
+          {activeTab === 'tutor' && (
+            <>
+              <select
+                value={filterVerified}
+                onChange={(e) => setFilterVerified(e.target.value)}
+                className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#86c240] cursor-pointer"
+              >
+                <option value="All">All Verification</option>
+                <option value="Verified">Verified</option>
+                <option value="Unverified">Unverified</option>
+              </select>
+              <select
+                value={filterPremium}
+                onChange={(e) => setFilterPremium(e.target.value)}
+                className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#86c240] cursor-pointer"
+              >
+                <option value="All">All Premium</option>
+                <option value="Premium">Premium</option>
+                <option value="Standard">Standard</option>
+              </select>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Users Table */}
@@ -536,15 +565,24 @@ const AdminUsers = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 font-medium text-slate-650">
-                {filteredUsers.map(user => {
-                  const isSuspended = user.status === 'suspended';
-                  const isDeactivated = user.status === 'deactivated';
-                  const isPendingDeletion = user.status === 'pending_deletion';
-                  const tutorProf = getTutorProfile(user);
-                  const guardianProf = getGuardianProfile(user);
+                <AnimatePresence mode="popLayout">
+                  {currentUsers.map(user => {
+                    const isSuspended = user.status === 'suspended';
+                    const isDeactivated = user.status === 'deactivated';
+                    const isPendingDeletion = user.status === 'pending_deletion';
+                    const tutorProf = getTutorProfile(user);
+                    const guardianProf = getGuardianProfile(user);
 
-                  return (
-                    <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
+                    return (
+                      <motion.tr 
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        key={user.id} 
+                        className="hover:bg-slate-50/50 transition-colors group"
+                      >
                       {/* Name & Badge */}
                       <td className="p-4 pl-6">
                         <div className="flex items-center gap-2">
@@ -556,6 +594,9 @@ const AdminUsers = () => {
                           </button>
                           {activeTab === 'tutor' && tutorProf.is_verified && (
                             <VerifiedBadge size={16} />
+                          )}
+                          {activeTab === 'tutor' && tutorProf.is_premium && (
+                            <PremiumBadge size={16} position="top" />
                           )}
                         </div>
                         <div className="text-xs text-slate-400 mt-0.5 font-semibold">
@@ -650,11 +691,61 @@ const AdminUsers = () => {
                           </button>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   );
                 })}
+              </AnimatePresence>
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {!loading && filteredUsers.length > 0 && (
+          <div className="border-t border-slate-100 p-4 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span className="text-xs text-slate-500 font-semibold">
+              Showing <span className="text-slate-800">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="text-slate-800">{Math.min(currentPage * itemsPerPage, filteredUsers.length)}</span> of <span className="text-slate-800">{filteredUsers.length}</span> results
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              >
+                Previous
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum = i + 1;
+                  if (totalPages > 5) {
+                    if (currentPage > 3) {
+                      pageNum = currentPage - 2 + i;
+                      if (pageNum > totalPages) pageNum = totalPages - (4 - i);
+                    }
+                  }
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold transition-all shadow-sm ${
+                        currentPage === pageNum 
+                          ? 'bg-[#86c240] text-white border border-[#75ad36]' 
+                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -684,7 +775,15 @@ const AdminUsers = () => {
               <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10">
                 <div>
                   <span className="text-sm font-medium text-slate-500 capitalize">{selectedUser.role} Profile Details</span>
-                  <h2 className="text-2xl font-semibold text-slate-800 mt-1 tracking-tight">{selectedUser.full_name || 'No Name'}</h2>
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                    <h2 className="text-2xl font-semibold text-slate-800 tracking-tight">{selectedUser.full_name || 'No Name'}</h2>
+                    {selectedUser.role === 'tutor' && getTutorProfile(selectedUser).is_verified && (
+                      <VerifiedBadge size={22} position="bottom" />
+                    )}
+                    {selectedUser.role === 'tutor' && getTutorProfile(selectedUser).is_premium && (
+                      <PremiumBadge size={22} position="bottom" />
+                    )}
+                  </div>
                 </div>
                 <button 
                   onClick={() => setSelectedUser(null)}
@@ -764,16 +863,30 @@ const AdminUsers = () => {
                       <Shield className="w-4 h-4 text-[#86c240]" /> Tutor status & rating management
                     </h4>
                     <div className="flex items-center justify-between gap-4">
-                      <span className="text-xs font-medium text-slate-600">Tutor status:</span>
-                      <select
-                        value={getTutorProfile(selectedUser).tutor_status || 'Normal Tutor'}
-                        onChange={(e) => handleUpdateTutorStatus(selectedUser.id, e.target.value)}
-                        className="flex-1 p-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-850 focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer font-sans"
+                      <span className="text-xs font-medium text-slate-600">Verified status:</span>
+                      <button
+                        onClick={() => handleToggleTutorStatus(selectedUser.id, 'is_verified', getTutorProfile(selectedUser).is_verified)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
+                          getTutorProfile(selectedUser).is_verified 
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                            : 'bg-slate-50 text-slate-500 border-slate-200'
+                        }`}
                       >
-                        <option value="Normal Tutor">Normal Tutor</option>
-                        <option value="Verified Tutor">Verified Tutor</option>
-                        <option value="Premium Tutor">Premium Tutor</option>
-                      </select>
+                        {getTutorProfile(selectedUser).is_verified ? 'Verified' : 'Unverified'}
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between gap-4 pt-3 border-t border-slate-200/60">
+                      <span className="text-xs font-medium text-slate-600">Premium status:</span>
+                      <button
+                        onClick={() => handleToggleTutorStatus(selectedUser.id, 'is_premium', getTutorProfile(selectedUser).is_premium)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
+                          getTutorProfile(selectedUser).is_premium 
+                            ? 'bg-amber-50 text-amber-700 border-amber-200' 
+                            : 'bg-slate-50 text-slate-500 border-slate-200'
+                        }`}
+                      >
+                        {getTutorProfile(selectedUser).is_premium ? 'Premium' : 'Standard'}
+                      </button>
                     </div>
                     <div className="flex items-center justify-between gap-4 pt-3 border-t border-slate-200/60">
                       <span className="text-xs font-medium text-slate-600">Tutor rating:</span>
@@ -806,17 +919,19 @@ const AdminUsers = () => {
                         </span>
                         {selectedUser.role === 'tutor' && (
                           <>
-                            {getTutorProfile(selectedUser).tutor_status === 'Premium Tutor' ? (
+                            {getTutorProfile(selectedUser).is_premium && (
                               <span className="px-3 py-1 bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 text-amber-900 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm border border-amber-300">
                                 <Sparkles className="w-3.5 h-3.5 text-amber-800 animate-pulse" />
                                 Premium Member
                               </span>
-                            ) : getTutorProfile(selectedUser).tutor_status === 'Verified Tutor' ? (
+                            )}
+                            {getTutorProfile(selectedUser).is_verified && (
                               <span className="px-3 py-1 bg-green-50 text-green-700 border border-green-200 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm">
                                 <CheckCircle className="w-3.5 h-3.5 text-green-600" />
                                 Verified
                               </span>
-                            ) : (
+                            )}
+                            {!getTutorProfile(selectedUser).is_premium && !getTutorProfile(selectedUser).is_verified && (
                               <span className="px-3 py-1 bg-slate-50 border border-slate-200 text-slate-500 rounded-lg text-xs font-medium">
                                 Normal Tutor
                               </span>
@@ -855,6 +970,122 @@ const AdminUsers = () => {
                       const tp = getTutorProfile(selectedUser);
                       return (
                         <>
+                          {/* Comprehensive Profile Information */}
+                          <motion.div variants={itemVariants} className="space-y-3">
+                            <h4 className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                              <User className="w-5 h-5 text-[#86c240]" /> Profile Information
+                            </h4>
+                            <div className="border border-slate-100 rounded-2xl p-4 bg-white space-y-4 shadow-sm text-sm">
+                              
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                  <span className="text-slate-400 text-xs font-bold block mb-1">University / College</span>
+                                  <span className="text-slate-800 font-semibold">{tp.university || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-xs font-bold block mb-1">Department / Background</span>
+                                  <span className="text-slate-800 font-semibold">{tp.department || tp.background || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-xs font-bold block mb-1">Current City</span>
+                                  <span className="text-slate-800 font-semibold">{tp.current_city || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-xs font-bold block mb-1">Preferred Locations</span>
+                                  <span className="text-slate-800 font-semibold">
+                                    {tp.preferred_locations?.length > 0 ? tp.preferred_locations.join(', ') : 'N/A'}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-xs font-bold block mb-1">Education Status</span>
+                                  <span className="text-slate-800 font-semibold">{tp.education_status || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 text-xs font-bold block mb-1">Teaching Experience</span>
+                                  <span className="text-slate-800 font-semibold">{tp.experience ? `${tp.experience} Years` : 'N/A'}</span>
+                                </div>
+                                <div className="sm:col-span-2">
+                                  <span className="text-slate-400 text-xs font-bold block mb-1">Social Profiles</span>
+                                  <div className="flex items-center gap-4 mt-1">
+                                    {tp.facebook_link ? (
+                                      <a href={tp.facebook_link.startsWith('http') ? tp.facebook_link : `https://${tp.facebook_link}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 font-bold text-xs underline decoration-blue-300 underline-offset-2">
+                                        Facebook Profile
+                                      </a>
+                                    ) : (
+                                      <span className="text-slate-400 text-xs font-medium line-through">No Facebook</span>
+                                    )}
+                                    {tp.linkedin_link ? (
+                                      <a href={tp.linkedin_link.startsWith('http') ? tp.linkedin_link : `https://${tp.linkedin_link}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 font-bold text-xs underline decoration-blue-300 underline-offset-2">
+                                        LinkedIn Profile
+                                      </a>
+                                    ) : (
+                                      <span className="text-slate-400 text-xs font-medium line-through">No LinkedIn</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="pt-3 border-t border-slate-100">
+                                <span className="text-slate-400 text-xs font-bold block mb-1">Preferred Subjects</span>
+                                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                                  {tp.preferred_subjects?.length > 0 ? (
+                                    tp.preferred_subjects.map((sub, idx) => (
+                                      <span key={idx} className="bg-slate-50 text-slate-600 border border-slate-200 px-2 py-0.5 rounded text-[11px] font-bold">
+                                        {sub}
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span className="text-slate-500 font-medium">N/A</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="pt-3 border-t border-slate-100">
+                                <span className="text-slate-400 text-xs font-bold block mb-1">Preferred Classes / Categories</span>
+                                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                                  {tp.preferred_classes?.length > 0 ? (
+                                    tp.preferred_classes.map((cls, idx) => (
+                                      <span key={idx} className="bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded text-[11px] font-bold">
+                                        {cls}
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span className="text-slate-500 font-medium">N/A</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="pt-3 border-t border-slate-100">
+                                <span className="text-slate-400 text-xs font-bold block mb-1">About Yourself</span>
+                                <p className="text-slate-600 font-medium text-sm leading-relaxed whitespace-pre-wrap">
+                                  {tp.about_yourself || tp.bio || 'Not provided.'}
+                                </p>
+                              </div>
+
+                              <div className="pt-3 border-t border-slate-100">
+                                <span className="text-slate-400 text-xs font-bold block mb-1">Reasons for Getting Hired</span>
+                                <p className="text-slate-600 font-medium text-sm leading-relaxed whitespace-pre-wrap">
+                                  {tp.reasons_for_hiring || 'Not provided.'}
+                                </p>
+                              </div>
+
+                              <div className="pt-3 border-t border-slate-100">
+                                <span className="text-slate-400 text-xs font-bold block mb-1">Tuition Experiences</span>
+                                <p className="text-slate-600 font-medium text-sm leading-relaxed whitespace-pre-wrap">
+                                  {tp.tuition_experience_details || 'Not provided.'}
+                                </p>
+                              </div>
+
+                              <div className="pt-3 border-t border-slate-100">
+                                <span className="text-slate-400 text-xs font-bold block mb-1">Personal Motivation</span>
+                                <p className="text-slate-600 font-medium text-sm leading-relaxed whitespace-pre-wrap">
+                                  {tp.personal_motivation || 'Not provided.'}
+                                </p>
+                              </div>
+
+                            </div>
+                          </motion.div>
+
                           {/* Tutor Credentials & Uploaded Documents */}
                           <motion.div variants={itemVariants} className="space-y-3">
                             <h4 className="text-sm font-medium text-slate-600 flex items-center gap-2">

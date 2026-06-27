@@ -2,12 +2,23 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
 import { MapPin, BookOpen, Clock, Banknote, User, MessageCircle, CheckCircle, XCircle, Award, Eye, Settings, GraduationCap, AlertTriangle, Layers } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminAssignmentHub = () => {
   const [requests, setRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [modalState, setModalState] = useState({ isOpen: false, type: '', title: '', message: '', action: null });
+
+  const showModal = (type, title, message, action = null) => {
+    setModalState({ isOpen: true, type, title, message, action });
+  };
+
+  const handleModalConfirm = () => {
+    if (modalState.action) modalState.action();
+    if (modalState.type !== 'confirm') setModalState(prev => ({ ...prev, isOpen: false }));
+  };
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -56,19 +67,21 @@ const AdminAssignmentHub = () => {
     fetchApplications(request.id);
   };
 
-  const handleAssign = async (applicationId, tutorId) => {
-    if (!confirm('Are you sure you want to assign this tutor?')) return;
-    
-    // 1. Update tuition request status to 'assigned'
-    await supabase.from('tuition_requests').update({ status: 'assigned' }).eq('id', selectedRequest.id);
-    
-    // 2. Update all applications for this request (reject others, select this one)
-    await supabase.from('job_applications').update({ status: 'rejected' }).eq('tuition_request_id', selectedRequest.id);
-    await supabase.from('job_applications').update({ status: 'selected' }).eq('id', applicationId);
-    
-    alert('Tutor assigned successfully!');
-    fetchRequests();
-    fetchApplications(selectedRequest.id);
+  const handleAssign = (applicationId, tutorId) => {
+    showModal('confirm', 'Confirm Assignment', 'Are you sure you want to assign this tutor to this request?', async () => {
+      setModalState(prev => ({ ...prev, isOpen: false }));
+      
+      // 1. Update tuition request status to 'assigned'
+      await supabase.from('tuition_requests').update({ status: 'assigned' }).eq('id', selectedRequest.id);
+      
+      // 2. Update all applications for this request (reject others, select this one)
+      await supabase.from('job_applications').update({ status: 'rejected' }).eq('tuition_request_id', selectedRequest.id);
+      await supabase.from('job_applications').update({ status: 'selected' }).eq('id', applicationId);
+      
+      showModal('success', 'Assigned!', 'Tutor assigned successfully.');
+      fetchRequests();
+      fetchApplications(selectedRequest.id);
+    });
   };
 
   const handleUpdateAppStatus = async (applicationId, newStatus) => {
@@ -78,10 +91,10 @@ const AdminAssignmentHub = () => {
       .eq('id', applicationId);
     
     if (!error) {
-      alert(`Application marked as ${newStatus}`);
+      showModal('success', 'Status Updated', `Application marked as ${newStatus}`);
       fetchApplications(selectedRequest.id);
     } else {
-      alert(`Error updating application: ${error.message}`);
+      showModal('error', 'Update Failed', `Error updating application: ${error.message}`);
     }
   };
 
@@ -92,10 +105,10 @@ const AdminAssignmentHub = () => {
       .eq('id', selectedRequest.id);
     
     if (!error) {
-      alert(`Tuition request status updated to ${newStatus}`);
+      showModal('success', 'Status Updated', `Tuition request status updated to ${newStatus}`);
       fetchRequests();
     } else {
-      alert(`Error updating status: ${error.message}`);
+      showModal('error', 'Update Failed', `Error updating status: ${error.message}`);
     }
   };
 
@@ -348,6 +361,52 @@ const AdminAssignmentHub = () => {
           </div>
         )}
       </div>
+      {/* Custom Modal */}
+      <AnimatePresence>
+        {modalState.isOpen && (
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 font-sans">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-100 flex flex-col items-center text-center"
+            >
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-5 ${
+                modalState.type === 'success' ? 'bg-green-100 text-green-600' :
+                modalState.type === 'error' ? 'bg-red-100 text-red-600' :
+                'bg-blue-100 text-blue-600'
+              }`}>
+                {modalState.type === 'success' ? <CheckCircle className="w-8 h-8" /> :
+                 modalState.type === 'error' ? <XCircle className="w-8 h-8" /> :
+                 <AlertTriangle className="w-8 h-8" />}
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">{modalState.title}</h3>
+              <p className="text-slate-500 text-sm mb-6 leading-relaxed">{modalState.message}</p>
+              
+              <div className="flex items-center gap-3 w-full">
+                {modalState.type === 'confirm' && (
+                  <button 
+                    onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+                    className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors text-sm"
+                  >
+                    Cancel
+                  </button>
+                )}
+                <button 
+                  onClick={handleModalConfirm}
+                  className={`flex-1 px-4 py-2.5 text-white font-bold rounded-xl transition-colors text-sm ${
+                    modalState.type === 'confirm' ? 'bg-blue-600 hover:bg-blue-700' :
+                    modalState.type === 'error' ? 'bg-red-600 hover:bg-red-700' :
+                    'bg-green-600 hover:bg-green-700'
+                  }`}
+                >
+                  {modalState.type === 'confirm' ? 'Confirm' : 'Okay'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

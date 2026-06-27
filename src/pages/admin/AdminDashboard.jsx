@@ -19,6 +19,9 @@ const AdminDashboard = () => {
   const [recentActivities, setRecentActivities] = useState([]);
   const [categoryCounts, setCategoryCounts] = useState([]);
   const [registrationStats, setRegistrationStats] = useState([]);
+  const [pendingInstitutions, setPendingInstitutions] = useState([]);
+  const [pendingInstitutionsCount, setPendingInstitutionsCount] = useState(0);
+  const [showInstitutionsModal, setShowInstitutionsModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Modal and filters state for activity logs
@@ -139,6 +142,17 @@ const AdminDashboard = () => {
         });
       }
       setRegistrationStats(dynamicMonths);
+
+      // Fetch pending institutions
+      const { data: instData, count: instCount } = await supabase
+        .from('institutions')
+        .select('*', { count: 'exact' })
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(3);
+      
+      setPendingInstitutions(instData || []);
+      setPendingInstitutionsCount(instCount || 0);
 
     } catch (err) {
       console.error("Error fetching dashboard stats:", err);
@@ -473,6 +487,42 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
+              {/* Institutional Requests Widget */}
+              <div className="bg-white border border-slate-200/60 rounded-2xl p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
+                    <Flag className="w-4 h-4 text-rose-500" /> Institutional Requests
+                  </h3>
+                  {pendingInstitutionsCount > 0 && (
+                    <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      {pendingInstitutionsCount} Pending
+                    </span>
+                  )}
+                </div>
+                
+                {pendingInstitutionsCount === 0 ? (
+                  <div className="text-center py-6">
+                    <CheckCircle className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                    <p className="text-xs font-medium text-slate-400">No pending institution requests.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {pendingInstitutions.map((inst) => (
+                      <div key={inst.id} className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                        <p className="text-xs font-bold text-slate-800 line-clamp-1">{inst.name}</p>
+                        <p className="text-[10px] text-slate-500 mt-1">Requested by: <span className="font-semibold text-slate-600">{inst.requested_by_email || 'Unknown User'}</span></p>
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => setShowInstitutionsModal(true)}
+                      className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl flex items-center justify-center transition-colors border border-rose-100/50 mt-2"
+                    >
+                      View all {pendingInstitutionsCount} requests
+                    </button>
+                  </div>
+                )}
+              </div>
+
             </div>
           </div>
 
@@ -657,6 +707,85 @@ const AdminDashboard = () => {
               </div>
             </div>
           )}
+
+          {/* Institutional Requests Modal */}
+          {showInstitutionsModal && (
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[999] flex items-center justify-center p-4 animate-in fade-in duration-300 font-sans">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-300 flex flex-col max-h-[85vh]">
+                
+                <div className="flex justify-between items-center mb-5 border-b border-slate-100 pb-4">
+                  <div>
+                    <h3 className="text-xl font-black text-slate-800">Pending Institutional Requests</h3>
+                    <p className="text-slate-400 text-xs mt-0.5">Approve or reject custom universities requested by users.</p>
+                  </div>
+                  <button 
+                    onClick={() => setShowInstitutionsModal(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-850 transition-colors flex items-center justify-center font-bold text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto mb-2 space-y-3">
+                  {pendingInstitutions.length === 0 ? (
+                    <div className="text-center py-10">
+                      <CheckCircle className="w-10 h-10 text-slate-200 mx-auto mb-3" />
+                      <p className="text-slate-500 font-bold">All caught up!</p>
+                      <p className="text-slate-400 text-xs">No pending institutional requests.</p>
+                    </div>
+                  ) : (
+                    pendingInstitutions.map(inst => (
+                      <div key={inst.id} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
+                        <div>
+                          <h4 className="font-extrabold text-sm text-slate-800">{inst.name}</h4>
+                          <p className="text-xs text-slate-500 mt-1">Requested by: <span className="font-bold">{inst.requested_by_email || 'Unknown'}</span></p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">Submitted on: {new Date(inst.created_at).toLocaleDateString()}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={async () => {
+                              if (!confirm(`Are you sure you want to approve "${inst.name}"?`)) return;
+                              try {
+                                const { error } = await supabase.from('institutions').update({ status: 'approved' }).eq('id', inst.id);
+                                if (error) throw error;
+                                await supabase.from('tuition_requests').update({ has_custom_institution: false }).eq('preferred_university', inst.name);
+                                fetchDashboardData();
+                              } catch(e) { alert('Error: ' + e.message); }
+                            }}
+                            className="px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 font-bold text-xs rounded-xl border border-green-200 transition-colors"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (!confirm(`Are you sure you want to reject and delete "${inst.name}"?`)) return;
+                              try {
+                                const { error } = await supabase.from('institutions').delete().eq('id', inst.id);
+                                if (error) throw error;
+                                fetchDashboardData();
+                              } catch(e) { alert('Error: ' + e.message); }
+                            }}
+                            className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl border border-rose-200 transition-colors"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {pendingInstitutions.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-slate-100 text-center">
+                    <Link to="/admin/institutions" className="text-xs font-bold text-primary hover:underline">
+                      Manage all institutions in dedicated page →
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
         </>
       )}
     </div>

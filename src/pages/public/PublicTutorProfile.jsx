@@ -10,28 +10,28 @@ import {
   MapPin, 
   GraduationCap, 
   BookOpen, 
-  Award, 
-  CheckCircle, 
   ArrowLeft, 
   Heart, 
   Eye, 
   FileText, 
   Clock, 
-  Briefcase,
-  DollarSign,
-  Compass,
-  Check,
-  Shield,
   Layers,
-  Star
+  Star,
+  Bookmark,
+  DollarSign,
+  Globe,
+  Building2,
+  Briefcase
 } from 'lucide-react';
 import CustomAlert from '../../components/layout/CustomAlert';
+import { motion } from 'framer-motion';
 import VerifiedBadge from '../../components/common/VerifiedBadge';
+import PremiumBadge from '../../components/common/PremiumBadge';
 
 const PublicTutorProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser } = useAuthStore();
+  const { user: currentUser, profile: currentProfile } = useAuthStore();
   const [tutorData, setTutorData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -162,11 +162,17 @@ const PublicTutorProfile = () => {
     }
   };
 
+  // Check if current user is admin
+  const isAdmin = currentProfile?.role === 'admin';
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[500px] text-slate-400 font-bold text-sm">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#86c240] mr-3"></div>
-        Loading profile...
+      <div className="flex flex-col justify-center items-center min-h-[500px] gap-4">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-t-[#86c240] animate-spin"></div>
+        </div>
+        <p className="text-slate-400 font-semibold text-sm">Loading profile...</p>
       </div>
     );
   }
@@ -188,459 +194,472 @@ const PublicTutorProfile = () => {
     }
   };
 
+  // Render a tag pill with green border (matching reference)
+  const TagPill = ({ children, color = 'green' }) => {
+    const colorMap = {
+      green: 'border-[#86c240]/40 text-slate-700 bg-[#86c240]/5 hover:border-[#86c240]/70 hover:bg-[#86c240]/10',
+      blue: 'border-blue-300/50 text-slate-700 bg-blue-50/50 hover:border-blue-400/70 hover:bg-blue-50',
+      amber: 'border-amber-300/50 text-slate-700 bg-amber-50/50 hover:border-amber-400/70 hover:bg-amber-50',
+      purple: 'border-purple-300/50 text-slate-700 bg-purple-50/50 hover:border-purple-400/70 hover:bg-purple-50',
+      slate: 'border-slate-200 text-slate-600 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50',
+    };
+    return (
+      <span className={`inline-block text-sm font-semibold px-3.5 py-1.5 rounded-full border tag-hover cursor-default ${colorMap[color] || colorMap.green}`}>
+        {children}
+      </span>
+    );
+  };
+
+  // Info row component for tutoring information
+  const InfoRow = ({ label, value, isLast = false }) => (
+    <div className={`flex flex-col sm:flex-row sm:items-center justify-between py-4 ${!isLast ? 'border-b border-slate-100/80' : ''} gap-1`}>
+      <span className="font-bold text-slate-500 text-[15px]">{label} :</span>
+      <span className="font-semibold text-slate-800 text-[15px]">{value || 'N/A'}</span>
+    </div>
+  );
+
   return (
-    <div className="max-w-6xl mx-auto space-y-6 px-4 py-8 bg-slate-50/50 min-h-screen">
+    <div className="max-w-[1400px] w-full mx-auto px-4 md:px-8 py-6 md:py-10 min-h-screen">
       
       {/* Back Button */}
       <button 
         onClick={() => navigate(-1)} 
-        className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors"
+        className="animate-fade-in-up flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-slate-700 transition-colors mb-6 group"
       >
-        <ArrowLeft className="w-4 h-4" /> Back
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back
       </button>
 
-      {/* Main Top Section Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Left Column: Profile Card + Bio */}
-        <div className="lg:col-span-8 space-y-6">
+      {/* =================== HERO CARD =================== */}
+      <div className="animate-fade-in-up stagger-1 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden card-lift mb-6">
+        <div className="flex flex-col lg:flex-row">
           
-          {/* Header Card */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-              <div className="relative flex-shrink-0">
+          {/* Left: Avatar + Basic Info (centered) */}
+          <div className="lg:w-[380px] flex-shrink-0 flex flex-col items-center justify-center py-10 px-6 lg:border-r border-slate-100/80">
+            
+            {/* Avatar with green glow ring */}
+            <div className="relative mb-5">
+              <div className="animate-avatar-glow rounded-full p-1.5 border-[3px] border-[#86c240]/60">
                 {profile.photo_url ? (
                   <img 
                     src={profile.photo_url} 
                     alt={tutorData.full_name} 
-                    className="w-28 h-28 rounded-2xl object-cover border-4 border-slate-50 shadow-md"
+                    className="w-28 h-28 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-28 h-28 rounded-2xl border-4 border-[#eaf4df] bg-gradient-to-tr from-slate-800 to-slate-900 flex items-center justify-center text-white text-4xl font-black shadow-md">
+                  <div className="w-28 h-28 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white text-4xl font-black">
                     {userInitial}
                   </div>
                 )}
               </div>
-
-              <div className="text-center sm:text-left space-y-2 flex-grow">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 justify-center sm:justify-start">
-                  <h2 className="text-2xl font-black text-slate-800 tracking-tight flex items-center justify-center sm:justify-start gap-0.5">
-                    {tutorData.full_name}
-                    {profile.is_verified && <VerifiedBadge size={22} />}
-                  </h2>
+              {/* Badges below avatar */}
+              {(profile.is_verified || profile.is_premium) && (
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-full px-1 py-0.5 shadow-sm border border-slate-100">
+                  {profile.is_verified && <VerifiedBadge size={24} position="bottom" />}
+                  {profile.is_premium && <PremiumBadge size={24} position="bottom" />}
                 </div>
+              )}
+            </div>
 
-                {profile.rating > 0 && (
-                  <div className="flex gap-0.5 justify-center sm:justify-start">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < profile.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                )}
+            {/* Name */}
+            <h1 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight text-center">
+              {tutorData.full_name}
+            </h1>
 
-                {profile.university && (
-                  <p className="text-sm font-semibold text-slate-600 flex items-center justify-center sm:justify-start gap-1">
-                    <GraduationCap className="w-4 h-4 text-slate-400" />
-                    {profile.department ? `${profile.department} at ` : ''}{profile.university}
+            {/* Rating */}
+            {profile.rating > 0 && (
+              <div className="flex gap-0.5 mt-2">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < profile.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Info Grid */}
+            <div className="mt-6 w-full max-w-[320px] space-y-4 text-center">
+              {profile.university && (
+                <div>
+                  <p className="text-sm font-bold text-slate-400 mb-0.5">University :</p>
+                  <p className="text-base font-semibold text-slate-700">{profile.university}</p>
+                </div>
+              )}
+              {profile.department && (
+                <div>
+                  <p className="text-sm font-bold text-slate-400 mb-0.5">Department :</p>
+                  <p className="text-base font-semibold text-slate-700">{profile.department}</p>
+                </div>
+              )}
+              <div className="flex justify-center gap-8 pt-2">
+                <div>
+                  <p className="text-sm font-bold text-slate-400 mb-0.5">Tutor ID :</p>
+                  <p className="text-base font-semibold text-slate-700">T-{shortId}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-400 mb-0.5">Profile Views :</p>
+                  <p className="text-base font-semibold text-slate-700 flex items-center justify-center gap-1">
+                    <Eye className="w-4 h-4 text-[#86c240]" /> 230
                   </p>
-                )}
-
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2 pt-2 text-xs font-semibold text-slate-400">
-                  <span className="bg-slate-50 px-2.5 py-1 rounded-md">Tutor ID: T-{shortId}</span>
-                  <span className="flex items-center gap-1">
-                    <Eye className="w-3.5 h-3.5 text-slate-400" /> 230 Views
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" /> Member since {new Date(tutorData.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                  </span>
                 </div>
               </div>
-            </div>
-
-            {profile.bio && (
-              <div className="mt-6 pt-6 border-t border-slate-100/80">
-                <h4 className="text-xs font-bold text-slate-400 tracking-wider mb-2">Introduction</h4>
-                <p className="text-slate-600 text-sm font-medium leading-relaxed whitespace-pre-line">{profile.bio}</p>
+              <div className="pt-1">
+                <p className="text-sm font-bold text-slate-400 mb-0.5">Member Since :</p>
+                <p className="text-base font-semibold text-slate-700 flex items-center justify-center gap-1">
+                  <Calendar className="w-4 h-4 text-slate-400" />
+                  {new Date(tutorData.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                </p>
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: Sidebar Action/Bookmark Card */}
-        <div className="lg:col-span-4">
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4 sticky top-6">
-            <div className="text-center pb-2 border-b border-slate-50">
-              <h3 className="text-sm font-bold text-slate-700">Save This Tutor Profile</h3>
-              <p className="text-xs text-slate-400 mt-1">Bookmark to view easily from your guardian dashboard anytime.</p>
             </div>
 
-            <button
-              onClick={handleBookmarkToggle}
-              disabled={bookmarkLoading}
-              className={`w-full py-3.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 border ${
-                isBookmarked 
-                  ? 'bg-rose-50 border-rose-100 text-rose-600 hover:bg-rose-100/70' 
-                  : 'bg-slate-900 border-slate-900 text-white hover:bg-slate-800 hover:border-slate-800'
-              }`}
-            >
-              <Heart className={`w-4 h-4 ${isBookmarked ? 'fill-current text-rose-600' : ''}`} />
-              {isBookmarked ? 'Bookmarked' : 'Bookmark Profile'}
-            </button>
-
-            {profile.cv_url && (
-              <a 
-                href={profile.cv_url} 
-                target="_blank" 
-                rel="noreferrer"
-                className="w-full py-3.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
-              >
-                <Download className="w-4 h-4 text-slate-400" /> Download CV File
-              </a>
-            )}
-
-            <div className="pt-2 text-center">
-              <p className="text-[10px] text-slate-400 font-semibold">
-                Completeness Score: {profile.profile_completeness || 0}%
-              </p>
-              <div className="w-full bg-slate-100 rounded-full h-1.5 mt-1.5 overflow-hidden">
+            {/* Completeness Score */}
+            <div className="w-full max-w-[260px] mt-6 pt-4 border-t border-slate-100">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Completeness</span>
+                <span className="text-xs font-black text-[#86c240]">{profile.profile_completeness || 0}%</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                 <div 
-                  className="bg-[#86c240] h-1.5 rounded-full transition-all duration-500" 
+                  className="bg-gradient-to-r from-[#86c240] to-[#6a9c31] h-2 rounded-full animate-progress-grow" 
                   style={{ width: `${profile.profile_completeness || 0}%` }}
                 ></div>
               </div>
             </div>
           </div>
-        </div>
 
-      </div>
-
-      {/* Tutoring Information Section */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 space-y-6">
-        <h3 className="text-lg font-black text-slate-800 flex items-center gap-2 border-b border-slate-50 pb-4">
-          <BookOpen className="w-5 h-5 text-[#86c240]" /> Tutoring Information
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 text-sm">
-          
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-50 gap-1">
-              <span className="font-bold text-slate-400 text-xs">Living Country</span>
-              <span className="font-semibold text-slate-700">Bangladesh</span>
-            </div>
+          {/* Right: Bio / Preface / Experience (like reference) */}
+          <div className="flex-1 p-6 md:p-8 lg:py-10 space-y-0">
             
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-50 gap-1">
-              <span className="font-bold text-slate-400 text-xs">Living City</span>
-              <span className="font-semibold text-slate-700">{profile.current_city || 'N/A'}</span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-50 gap-1">
-              <span className="font-bold text-slate-400 text-xs">Living Location / Area</span>
-              <span className="font-semibold text-slate-700">{profile.living_location || 'N/A'}</span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-50 gap-1">
-              <span className="font-bold text-slate-400 text-xs">Expected Salary</span>
-              <span className="font-extrabold text-[#86c240]">{profile.expected_salary || 'Negotiable'}</span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-50 gap-1">
-              <span className="font-bold text-slate-400 text-xs">Tutoring Experience</span>
-              <span className="font-semibold text-slate-700">{profile.experience || 'N/A'}</span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-50 gap-1">
-              <span className="font-bold text-slate-400 text-xs">Preferred Tutoring Time</span>
-              <span className="font-semibold text-slate-700 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
-                {profile.available_from && profile.available_to 
-                  ? `${profile.available_from} to ${profile.available_to}` 
-                  : 'Negotiable'}
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <span className="font-bold text-slate-400 text-xs block">Preferred Locations</span>
-              <div className="flex flex-wrap gap-1.5">
-                {profile.preferred_locations && profile.preferred_locations.length > 0 ? (
-                  profile.preferred_locations.map((loc, idx) => (
-                    <span key={idx} className="bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2.5 py-1 rounded-md border border-emerald-100/80">
-                      {loc}
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-slate-400 text-xs font-semibold">N/A</span>
-                )}
+            {(profile.about_yourself || profile.bio) && (
+              <div className="pb-6 border-b border-slate-100/80">
+                <h3 className="text-lg font-bold text-slate-800 mb-2">Preface</h3>
+                <p className="text-[15px] text-slate-600 leading-relaxed whitespace-pre-line">{profile.about_yourself || profile.bio}</p>
               </div>
-            </div>
+            )}
 
-            <div className="space-y-2">
-              <span className="font-bold text-slate-400 text-xs block">Preferred Categories</span>
-              <div className="flex flex-wrap gap-1.5">
-                {profile.preferred_category ? (
-                  <span className="bg-blue-50 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-md border border-blue-100/80">
-                    {profile.preferred_category}
-                  </span>
-                ) : (
-                  <span className="text-slate-400 text-xs font-semibold">N/A</span>
-                )}
+            {profile.tuition_experience_details && (
+              <div className="py-6 border-b border-slate-100/80">
+                <h3 className="text-lg font-bold text-slate-800 mb-2">Tution Job Experience</h3>
+                <p className="text-[15px] text-slate-600 leading-relaxed whitespace-pre-line">{profile.tuition_experience_details}</p>
               </div>
-            </div>
+            )}
 
-            <div className="space-y-2">
-              <span className="font-bold text-slate-400 text-xs block">Preferred Classes & Courses</span>
-              <div className="flex flex-wrap gap-1.5">
-                {profile.preferred_courses && profile.preferred_courses.length > 0 ? (
-                  profile.preferred_courses.map((course, idx) => (
-                    <span key={idx} className="bg-indigo-50 text-indigo-700 text-[11px] font-bold px-2.5 py-1 rounded-md border border-indigo-100/80">
-                      {course}
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-slate-400 text-xs font-semibold">N/A</span>
-                )}
+            {profile.reasons_for_hiring && (
+              <div className="py-6 border-b border-slate-100/80">
+                <h3 className="text-lg font-bold text-slate-800 mb-2">Reasons To be Getting Hired</h3>
+                <p className="text-[15px] text-slate-600 leading-relaxed whitespace-pre-line">{profile.reasons_for_hiring}</p>
               </div>
-            </div>
+            )}
 
-            <div className="space-y-2">
-              <span className="font-bold text-slate-400 text-xs block">Preferred Subjects</span>
-              <div className="flex flex-wrap gap-1.5">
-                {profile.preferred_subjects && profile.preferred_subjects.length > 0 ? (
-                  profile.preferred_subjects.map((sub, idx) => (
-                    <span key={idx} className="bg-amber-50 text-amber-700 text-[11px] font-bold px-2.5 py-1 rounded-md border border-amber-100/80">
-                      {sub}
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-slate-400 text-xs font-semibold">N/A</span>
-                )}
+            {profile.personal_motivation && (
+              <div className="pt-6">
+                <h3 className="text-lg font-bold text-slate-800 mb-2">Personal Motivation</h3>
+                <p className="text-[15px] text-slate-600 leading-relaxed whitespace-pre-line">{profile.personal_motivation}</p>
               </div>
-            </div>
+            )}
 
-            <div className="space-y-2">
-              <span className="font-bold text-slate-400 text-xs block">Preferred Tutoring Method</span>
-              <div className="flex flex-wrap gap-1.5">
-                {profile.teaching_method ? (
-                  <span className="bg-purple-50 text-purple-700 text-[11px] font-bold px-2.5 py-1 rounded-md border border-purple-100/80">
-                    {profile.teaching_method}
-                  </span>
-                ) : (
-                  <span className="text-slate-400 text-xs font-semibold">N/A</span>
-                )}
+            {/* If none of the optional sections are filled, show a placeholder */}
+            {!profile.about_yourself && !profile.bio && !profile.tuition_experience_details && !profile.reasons_for_hiring && !profile.personal_motivation && (
+              <div className="flex items-center justify-center h-full min-h-[120px] text-slate-300">
+                <p className="text-base font-semibold">No additional details provided yet.</p>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <span className="font-bold text-slate-400 text-xs block">Availability Days</span>
-              <div className="flex flex-wrap gap-1.5">
-                {profile.available_days && profile.available_days.length > 0 ? (
-                  profile.available_days.map((day, idx) => (
-                    <span key={idx} className="bg-slate-100 text-slate-700 text-[11px] font-bold px-2.5 py-1 rounded-md border border-slate-200/55">
-                      {day}
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-slate-400 text-xs font-semibold">N/A</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Educational Information Section */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 space-y-8">
-        <h3 className="text-lg font-black text-slate-800 flex items-center gap-2 border-b border-slate-50 pb-4">
-          <GraduationCap className="w-5 h-5 text-[#86c240]" /> Educational Information
-        </h3>
-
-        {/* Secondary Education (SSC/HSC) */}
-        <div className="space-y-3">
-          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Undergraduate Information (SSC & HSC)</h4>
-          <div className="overflow-x-auto border border-slate-100 rounded-xl">
-            <table className="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold text-xs">
-                  <th className="p-4">Exam Title</th>
-                  <th className="p-4">Institute</th>
-                  <th className="p-4">Board</th>
-                  <th className="p-4">Group</th>
-                  <th className="p-4">Passing Year</th>
-                  <th className="p-4">GPA</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50 font-medium text-slate-600">
-                {profile.school_name ? (
-                  <tr className="hover:bg-slate-50/50 transition-colors">
-                    <td className="p-4 font-bold text-slate-800">SSC / O Level</td>
-                    <td className="p-4">{profile.school_name}</td>
-                    <td className="p-4">{profile.school_board || 'N/A'}</td>
-                    <td className="p-4">{profile.school_group || 'N/A'}</td>
-                    <td className="p-4">{profile.school_year || 'N/A'}</td>
-                    <td className="p-4 text-[#86c240] font-bold">{profile.school_gpa || 'N/A'}</td>
-                  </tr>
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="p-4 text-center text-slate-400 text-xs font-semibold">No SSC profile data provided</td>
-                  </tr>
-                )}
-                {profile.college_name ? (
-                  <tr className="hover:bg-slate-50/50 transition-colors">
-                    <td className="p-4 font-bold text-slate-800">HSC / A Level</td>
-                    <td className="p-4">{profile.college_name}</td>
-                    <td className="p-4">{profile.college_board || 'N/A'}</td>
-                    <td className="p-4">{profile.college_group || 'N/A'}</td>
-                    <td className="p-4">{profile.college_year || 'N/A'}</td>
-                    <td className="p-4 text-[#86c240] font-bold">{profile.college_gpa || 'N/A'}</td>
-                  </tr>
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="p-4 text-center text-slate-400 text-xs font-semibold">No HSC profile data provided</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Tertiary Education (Graduation/Post Graduation) */}
-        <div className="space-y-3">
-          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Higher Education (Graduation & Post Graduation)</h4>
-          <div className="overflow-x-auto border border-slate-100 rounded-xl">
-            <table className="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold text-xs">
-                  <th className="p-4">Exam Title</th>
-                  <th className="p-4">Institute</th>
-                  <th className="p-4">Department</th>
-                  <th className="p-4">Passing Year</th>
-                  <th className="p-4">CGPA</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50 font-medium text-slate-600">
-                {profile.university ? (
-                  <tr className="hover:bg-slate-50/50 transition-colors">
-                    <td className="p-4 font-bold text-slate-800">Graduation / Bachelor</td>
-                    <td className="p-4">{profile.university}</td>
-                    <td className="p-4">{profile.department || 'N/A'}</td>
-                    <td className="p-4">{profile.grad_year || 'N/A'}</td>
-                    <td className="p-4 text-[#86c240] font-bold">{profile.grad_gpa || 'N/A'}</td>
-                  </tr>
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="p-4 text-center text-slate-400 text-xs font-semibold">No graduation data provided</td>
-                  </tr>
-                )}
-                {profile.post_grad_university ? (
-                  <tr className="hover:bg-slate-50/50 transition-colors">
-                    <td className="p-4 font-bold text-slate-800">Post Graduation / Masters</td>
-                    <td className="p-4">{profile.post_grad_university}</td>
-                    <td className="p-4">{profile.post_grad_department || 'N/A'}</td>
-                    <td className="p-4">{profile.post_grad_year || 'N/A'}</td>
-                    <td className="p-4 text-[#86c240] font-bold">{profile.post_grad_gpa || 'N/A'}</td>
-                  </tr>
-                ) : (
-                  null
-                )}
-              </tbody>
-            </table>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Personal Information Section */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 space-y-6">
-        <h3 className="text-lg font-black text-slate-800 flex items-center gap-2 border-b border-slate-50 pb-4">
-          <User className="w-5 h-5 text-[#86c240]" /> Personal Information
-        </h3>
+      {/* =================== BOOKMARK BAR =================== */}
+      <div className="animate-fade-in-up stagger-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-5 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 card-lift">
+        <p className="text-base font-semibold text-slate-600 text-center sm:text-left">
+          Bookmark it right now to save this tutor profile
+        </p>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          {/* Admin-only CV Download */}
+          {isAdmin && profile.cv_url && (
+            <a 
+              href={profile.cv_url} 
+              target="_blank" 
+              rel="noreferrer"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+            >
+              <Download className="w-4 h-4" /> Download CV
+            </a>
+          )}
+          <button
+            onClick={handleBookmarkToggle}
+            disabled={bookmarkLoading}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
+              isBookmarked 
+                ? 'bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100' 
+                : 'bg-[#86c240] border border-[#86c240] text-white hover:bg-[#6a9c31] hover:border-[#6a9c31] shadow-sm'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+            {isBookmarked ? 'Bookmarked' : 'Bookmark'}
+          </button>
+        </div>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-6 text-sm">
+      {/* =================== TUTORING INFORMATION =================== */}
+      <div className="animate-fade-in-up stagger-3 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 mb-6 card-lift">
+        <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-1 flex items-center gap-2">
+          Tutoring Information
+          <span className="flex-1 h-px bg-slate-100 ml-3"></span>
+        </h2>
+        
+        <div className="mt-6 space-y-0">
+          <InfoRow label="Living Country" value="Bangladesh" />
+          <InfoRow label="Living City" value={profile.current_city} />
+          <InfoRow label="Living Location" value={profile.living_location} />
           
-          <div className="flex gap-3 items-center">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0">
-              <User className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="text-[10px] font-bold text-slate-400 tracking-wider">Gender</div>
-              <div className="text-sm font-semibold text-slate-700">{profile.gender || 'N/A'}</div>
-            </div>
-          </div>
-
-          <div className="flex gap-3 items-center">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0">
-              <Calendar className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="text-[10px] font-bold text-slate-400 tracking-wider">Date of Birth</div>
-              <div className="text-sm font-semibold text-slate-700">{formatDate(profile.dob)}</div>
+          {/* Preferred Locations (tags) */}
+          <div className="py-3.5 border-b border-slate-100/80">
+            <span className="font-bold text-slate-500 text-[15px] block mb-2.5">Preferred Tutoring Location :</span>
+            <div className="flex flex-wrap gap-2">
+              {profile.preferred_locations && profile.preferred_locations.length > 0 ? (
+                profile.preferred_locations.map((loc, idx) => (
+                  <TagPill key={idx} color="green">{loc}</TagPill>
+                ))
+              ) : (
+                <span className="text-slate-400 text-xs font-semibold">N/A</span>
+              )}
             </div>
           </div>
 
-          <div className="flex gap-3 items-center">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0">
-              <Phone className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="text-[10px] font-bold text-slate-400 tracking-wider">Emergency Contact</div>
-              <div className="text-sm font-semibold text-slate-700">
-                {profile.emergency_contact 
-                  ? `${profile.emergency_contact.substring(0, 5)}*****` 
-                  : 'N/A'}
-              </div>
+          {/* Preferred Category */}
+          <div className="py-3.5 border-b border-slate-100/80">
+            <span className="font-bold text-slate-500 text-[15px] block mb-2.5">Preferred Tutoring Category :</span>
+            <div className="flex flex-wrap gap-2">
+              {profile.preferred_category ? (
+                <TagPill color="green">{profile.preferred_category}</TagPill>
+              ) : (
+                <span className="text-slate-400 text-xs font-semibold">N/A</span>
+              )}
             </div>
           </div>
 
-          <div className="flex gap-3 items-center">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0">
-              <Layers className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="text-[10px] font-bold text-slate-400 tracking-wider">Father's Name</div>
-              <div className="text-sm font-semibold text-slate-700">{profile.fathers_name || 'N/A'}</div>
-            </div>
-          </div>
-
-          <div className="flex gap-3 items-center">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0">
-              <Layers className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="text-[10px] font-bold text-slate-400 tracking-wider">Mother's Name</div>
-              <div className="text-sm font-semibold text-slate-700">{profile.mothers_name || 'N/A'}</div>
+          {/* Preferred Classes & Courses */}
+          <div className="py-3.5 border-b border-slate-100/80">
+            <span className="font-bold text-slate-500 text-[15px] block mb-2.5">Preferred Tutoring Classes & Courses :</span>
+            <div className="flex flex-wrap gap-2">
+              {profile.preferred_courses && profile.preferred_courses.length > 0 ? (
+                profile.preferred_courses.map((course, idx) => (
+                  <TagPill key={idx} color="green">{course}</TagPill>
+                ))
+              ) : (
+                <span className="text-slate-400 text-xs font-semibold">N/A</span>
+              )}
             </div>
           </div>
 
-          <div className="flex gap-3 items-center">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0">
-              <FileText className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="text-[10px] font-bold text-slate-400 tracking-wider">National ID (NID)</div>
-              <div className="text-sm font-semibold text-slate-700">
-                {profile.nid 
-                  ? `${profile.nid.substring(0, 4)}*****` 
-                  : 'N/A'}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-3 items-start sm:col-span-2 lg:col-span-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0">
-              <MapPin className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="text-[10px] font-bold text-slate-400 tracking-wider">Full Address</div>
-              <div className="text-sm font-semibold text-slate-700 mt-0.5">{profile.address || 'N/A'}</div>
+          {/* Preferred Subjects */}
+          <div className="py-3.5 border-b border-slate-100/80">
+            <span className="font-bold text-slate-500 text-[15px] block mb-2.5">Preferred Tutoring Subjects :</span>
+            <div className="flex flex-wrap gap-2">
+              {profile.preferred_subjects && profile.preferred_subjects.length > 0 ? (
+                profile.preferred_subjects.map((sub, idx) => (
+                  <TagPill key={idx} color="green">{sub}</TagPill>
+                ))
+              ) : (
+                <span className="text-slate-400 text-xs font-semibold">N/A</span>
+              )}
             </div>
           </div>
 
+          {/* Preferred Tutoring Method */}
+          <div className="py-3.5 border-b border-slate-100/80">
+            <span className="font-bold text-slate-500 text-[15px] block mb-2.5">Preferred Tutoring Method :</span>
+            <div className="flex flex-wrap gap-2">
+              {profile.teaching_method ? (
+                typeof profile.teaching_method === 'string' && profile.teaching_method.includes(',') 
+                  ? profile.teaching_method.split(',').map((m, idx) => (
+                      <TagPill key={idx} color="green">{m.trim()}</TagPill>
+                    ))
+                  : <TagPill color="green">{profile.teaching_method}</TagPill>
+              ) : (
+                <span className="text-slate-400 text-xs font-semibold">N/A</span>
+              )}
+            </div>
+          </div>
+
+          {/* Availability Days */}
+          <div className="py-3.5 border-b border-slate-100/80">
+            <span className="font-bold text-slate-500 text-[15px] block mb-2.5">Availability Day :</span>
+            <div className="flex flex-wrap gap-2">
+              {profile.available_days && profile.available_days.length > 0 ? (
+                profile.available_days.map((day, idx) => (
+                  <TagPill key={idx} color="green">{day}</TagPill>
+                ))
+              ) : (
+                <span className="text-slate-400 text-xs font-semibold">N/A</span>
+              )}
+            </div>
+          </div>
+
+          {/* Available Time */}
+          <InfoRow 
+            label="Available From" 
+            value={profile.available_from || 'Negotiable'} 
+          />
+          <InfoRow 
+            label="Available To" 
+            value={profile.available_to || 'Negotiable'} 
+          />
+
+          {/* Experience & Salary */}
+          <InfoRow 
+            label="Tutoring Experience" 
+            value={profile.experience ? `${profile.experience} Year(S)` : 'N/A'} 
+          />
+          <InfoRow 
+            label="Expected Salary" 
+            value={
+              profile.expected_salary 
+                ? <span className="text-[#86c240] font-bold">{profile.expected_salary} Tk</span>
+                : 'Negotiable'
+            }
+            isLast 
+          />
+        </div>
+      </div>
+
+      {/* =================== EDUCATIONAL INFORMATION — SSC/HSC =================== */}
+      <div className="animate-fade-in-up stagger-4 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 mb-6 card-lift">
+        <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-1 flex items-center gap-2">
+          Educational Information
+          <span className="flex-1 h-px bg-slate-100 ml-3"></span>
+        </h2>
+        <p className="text-sm font-semibold text-slate-400 mb-4">Undergraduate Info :</p>
+
+        <div className="overflow-x-auto rounded-xl border border-slate-200/80">
+          <table className="w-full text-left text-[15px] border-collapse min-w-[600px]">
+            <thead>
+              <tr className="bg-slate-700 text-white text-xs font-bold">
+                <th className="p-4">Exam Title</th>
+                <th className="p-4">Institute</th>
+                <th className="p-4">Board</th>
+                <th className="p-4">Group</th>
+                <th className="p-4">Year</th>
+                <th className="p-4">GPA</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-medium text-slate-600">
+              {profile.school_name ? (
+                <tr className="hover:bg-slate-50/70 transition-colors">
+                  <td className="p-4 font-bold text-slate-800">SSC / O Level / Dakhil</td>
+                  <td className="p-4">{profile.school_name}</td>
+                  <td className="p-4">{profile.school_board || 'N/A'}</td>
+                  <td className="p-4">{profile.school_group || 'N/A'}</td>
+                  <td className="p-4">{profile.school_year || 'N/A'}</td>
+                  <td className="p-4 text-[#86c240] font-bold">{profile.school_gpa || 'N/A'}</td>
+                </tr>
+              ) : (
+                <tr>
+                  <td colSpan="6" className="p-4 text-center text-slate-400 text-xs font-semibold">No SSC data provided</td>
+                </tr>
+              )}
+              {profile.college_name ? (
+                <tr className="hover:bg-slate-50/70 transition-colors">
+                  <td className="p-4 font-bold text-slate-800">HSC / A Level / Alim</td>
+                  <td className="p-4">{profile.college_name}</td>
+                  <td className="p-4">{profile.college_board || 'N/A'}</td>
+                  <td className="p-4">{profile.college_group || 'N/A'}</td>
+                  <td className="p-4">{profile.college_year || 'N/A'}</td>
+                  <td className="p-4 text-[#86c240] font-bold">{profile.college_gpa || 'N/A'}</td>
+                </tr>
+              ) : (
+                <tr>
+                  <td colSpan="6" className="p-4 text-center text-slate-400 text-xs font-semibold">No HSC data provided</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* =================== EDUCATIONAL INFORMATION — GRADUATION =================== */}
+      <div className="animate-fade-in-up stagger-5 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 mb-6 card-lift">
+        <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-1 flex items-center gap-2">
+          Educational Information
+          <span className="flex-1 h-px bg-slate-100 ml-3"></span>
+        </h2>
+        <p className="text-sm font-semibold text-slate-400 mb-4">Graduation Info :</p>
+
+        <div className="overflow-x-auto rounded-xl border border-slate-200/80">
+          <table className="w-full text-left text-[15px] border-collapse min-w-[600px]">
+            <thead>
+              <tr className="bg-slate-700 text-white text-xs font-bold">
+                <th className="p-4">Exam Title</th>
+                <th className="p-4">Institute</th>
+                <th className="p-4">Study Type</th>
+                <th className="p-4">Department</th>
+                <th className="p-4">Year</th>
+                <th className="p-4">CGPA</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-medium text-slate-600">
+              {profile.university ? (
+                <tr className="hover:bg-slate-50/70 transition-colors">
+                  <td className="p-4 font-bold text-slate-800">Graduation / Diploma</td>
+                  <td className="p-4">{profile.university}</td>
+                  <td className="p-4">{profile.study_type || 'N/A'}</td>
+                  <td className="p-4">{profile.department || 'N/A'}</td>
+                  <td className="p-4">{profile.grad_year || 'N/A'}</td>
+                  <td className="p-4 text-[#86c240] font-bold">{profile.grad_gpa || 'N/A'}</td>
+                </tr>
+              ) : (
+                <tr>
+                  <td colSpan="6" className="p-4 text-center text-slate-400 text-xs font-semibold">No graduation data provided</td>
+                </tr>
+              )}
+              {profile.post_grad_university && (
+                <tr className="hover:bg-slate-50/70 transition-colors">
+                  <td className="p-4 font-bold text-slate-800">Postgraduate / Masters</td>
+                  <td className="p-4">{profile.post_grad_university}</td>
+                  <td className="p-4">{profile.post_grad_study_type || 'N/A'}</td>
+                  <td className="p-4">{profile.post_grad_department || 'N/A'}</td>
+                  <td className="p-4">{profile.post_grad_year || 'N/A'}</td>
+                  <td className="p-4 text-[#86c240] font-bold">{profile.post_grad_gpa || 'N/A'}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* =================== PERSONAL INFORMATION =================== */}
+      <div className="animate-fade-in-up stagger-6 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 mb-6 card-lift">
+        <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+          Personal Information
+          <span className="flex-1 h-px bg-slate-100 ml-3"></span>
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10">
+          <div>
+            <InfoRow label="Gender" value={profile.gender} />
+            <InfoRow label="Date of Birth" value={formatDate(profile.dob)} />
+            <InfoRow label="Blood Group" value={profile.blood_group} />
+            <InfoRow label="Religion" value={profile.religion} />
+            <InfoRow label="Father's Name" value={profile.fathers_name} />
+            <InfoRow label="Mother's Name" value={profile.mothers_name} />
+          </div>
+          <div>
+            <InfoRow 
+              label="Emergency Contact" 
+              value={profile.emergency_contact 
+                ? `${profile.emergency_contact.substring(0, 5)}*****` 
+                : 'N/A'} 
+            />
+            <InfoRow 
+              label="National ID (NID)" 
+              value={profile.nid 
+                ? `${profile.nid.substring(0, 4)}*****` 
+                : 'N/A'} 
+            />
+            <InfoRow label="Full Address" value={profile.address} isLast />
+          </div>
         </div>
       </div>
 
@@ -658,4 +677,3 @@ const PublicTutorProfile = () => {
 };
 
 export default PublicTutorProfile;
-

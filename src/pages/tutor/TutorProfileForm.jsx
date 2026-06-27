@@ -388,10 +388,11 @@ const TutorProfileForm = () => {
   };
 
   const completeness = calculateCompleteness();
+  const isInitializedRef = useRef(false);
 
   // Load existing profile values on mount/profile update
   useEffect(() => {
-    if (profile) {
+    if (profile && !isInitializedRef.current) {
       const tp = profile.tutor_profile;
       if (tp) {
         setCity(tp.current_city || '');
@@ -480,6 +481,8 @@ const TutorProfileForm = () => {
             setCvLinkInput('');
           }
         }
+        
+        isInitializedRef.current = true;
       }
     }
   }, [profile]);
@@ -764,8 +767,8 @@ const TutorProfileForm = () => {
           emergency_contact_relationship: emergencyContactRel,
           emergency_contact_phone: emergencyContactPhone,
           emergency_contact_additional: emergencyContactAdditional,
-          facebook_link: facebookLink,
-          linkedin_link: linkedinLink,
+          facebook_link: facebookLink ? (facebookLink.match(/^https?:\/\//) ? facebookLink : `https://${facebookLink}`) : '',
+          linkedin_link: linkedinLink ? (linkedinLink.match(/^https?:\/\//) ? linkedinLink : `https://${linkedinLink}`) : '',
           whatsapp_number: whatsappNumber,
           address,
           nid,

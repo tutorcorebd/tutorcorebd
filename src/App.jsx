@@ -114,7 +114,7 @@ function App() {
     // Check and refresh session when tab becomes visible or goes back online
     const verifyAndRecoverSession = async () => {
       if (document.visibilityState === 'visible') {
-        console.log('App state focus/visibility recovery check...');
+        // Console log removed to prevent console spam
         await checkAndRefreshSessionSafe();
       }
     };

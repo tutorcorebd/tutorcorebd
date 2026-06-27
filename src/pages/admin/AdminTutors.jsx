@@ -40,19 +40,45 @@ const AdminTutors = () => {
     fetchTutors();
   }, []);
 
+  const handleToggle = async (tutorId, field, currentValue) => {
+    setUpdatingId(tutorId);
+    try {
+      const { error } = await supabase
+        .from('tutor_profiles')
+        .update({ [field]: !currentValue })
+        .eq('user_id', tutorId);
+
+      if (error) throw error;
+
+      setTutors(tutors.map(t => {
+        if (t.id === tutorId) {
+          const tp = Array.isArray(t.tutor_profiles) ? t.tutor_profiles[0] : t.tutor_profiles;
+          const updatedTp = { ...tp, [field]: !currentValue };
+          return {
+            ...t,
+            tutor_profiles: Array.isArray(t.tutor_profiles) ? [updatedTp] : updatedTp
+          };
+        }
+        return t;
+      }));
+    } catch (err) {
+      console.error(`Error updating ${field}:`, err);
+      alert('Failed to update status');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   const handleCategoryChange = async (tutorId, newCategory) => {
     setUpdatingId(tutorId);
     try {
       const { error } = await supabase
         .from('tutor_profiles')
-        .upsert({ 
-          user_id: tutorId,
-          tutor_category: newCategory 
-        });
+        .update({ tutor_category: newCategory })
+        .eq('user_id', tutorId);
 
       if (error) throw error;
 
-      // Update state locally
       setTutors(tutors.map(t => {
         if (t.id === tutorId) {
           const tp = Array.isArray(t.tutor_profiles) ? t.tutor_profiles[0] : t.tutor_profiles;
@@ -106,19 +132,19 @@ const AdminTutors = () => {
         <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.01)]">
           <div className="text-blue-500 font-bold text-xs">Premium Tutors</div>
           <div className="text-2xl font-black text-slate-850 mt-1">
-            {tutors.filter(t => getTutorProfile(t).tutor_category === 'Premium Tutors').length}
+            {tutors.filter(t => getTutorProfile(t).is_premium).length}
           </div>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.01)]">
-          <div className="text-emerald-600 font-bold text-xs">Verified Tutors</div>
+          <div className="text-emerald-500 font-bold text-xs">Verified Tutors</div>
           <div className="text-2xl font-black text-slate-850 mt-1">
-            {tutors.filter(t => getTutorProfile(t).tutor_category === 'Verified Tutors' || getTutorProfile(t).is_verified).length}
+            {tutors.filter(t => getTutorProfile(t).is_verified).length}
           </div>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.01)]">
-          <div className="text-amber-500 font-bold text-xs">Exclusive Tutors</div>
+          <div className="text-amber-500 font-bold text-xs">Active Tutors</div>
           <div className="text-2xl font-black text-slate-850 mt-1">
-            {tutors.filter(t => getTutorProfile(t).tutor_category === 'Exclusive Tutors').length}
+            {tutors.length}
           </div>
         </div>
       </div>
@@ -168,8 +194,9 @@ const AdminTutors = () => {
                   <th className="p-4">Tutor Name</th>
                   <th className="p-4">Contact Info</th>
                   <th className="p-4">Joined Date</th>
-                  <th className="p-4">Current Status</th>
-                  <th className="p-4">Set Category Status</th>
+                  <th className="p-4">Verified Status</th>
+                  <th className="p-4">Premium Status</th>
+                  <th className="p-4">Set Category</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 font-medium text-slate-600">
@@ -195,15 +222,30 @@ const AdminTutors = () => {
                         {new Date(tutor.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </td>
                       <td className="p-4">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black tracking-wide border ${
-                          category === 'Premium Tutors' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                          category === 'Verified Tutors' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                          category === 'Exclusive Tutors' ? 'bg-amber-50 text-amber-700 border-amber-100' :
-                          category === 'New Tutors' ? 'bg-purple-50 text-purple-700 border-purple-100' :
-                          'bg-slate-100 text-slate-600 border-slate-200'
-                        }`}>
-                          {category}
-                        </span>
+                        <button
+                          onClick={() => handleToggle(tutor.id, 'is_verified', tp.is_verified)}
+                          disabled={updatingId === tutor.id}
+                          className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors ${
+                            tp.is_verified 
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' 
+                              : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                          } disabled:opacity-50`}
+                        >
+                          {tp.is_verified ? 'Verified' : 'Unverified'}
+                        </button>
+                      </td>
+                      <td className="p-4">
+                        <button
+                          onClick={() => handleToggle(tutor.id, 'is_premium', tp.is_premium)}
+                          disabled={updatingId === tutor.id}
+                          className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors ${
+                            tp.is_premium 
+                              ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100' 
+                              : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                          } disabled:opacity-50`}
+                        >
+                          {tp.is_premium ? 'Premium' : 'Standard'}
+                        </button>
                       </td>
                       <td className="p-4">
                         <select
@@ -214,8 +256,6 @@ const AdminTutors = () => {
                         >
                           <option value="None">None</option>
                           <option value="New Tutors">New Tutors</option>
-                          <option value="Premium Tutors">Premium Tutors</option>
-                          <option value="Verified Tutors">Verified Tutors</option>
                           <option value="Exclusive Tutors">Exclusive Tutors</option>
                         </select>
                       </td>

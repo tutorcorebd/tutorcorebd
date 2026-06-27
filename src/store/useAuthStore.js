@@ -26,7 +26,7 @@ const useAuthStore = create((set, get) => ({
 
       // Listen for auth changes
       supabase.auth.onAuthStateChange((event, session) => {
-        console.log(`Auth state change event: ${event}`);
+        // Console log removed to prevent console spam
         
         if (event === 'SIGNED_OUT' || !session) {
           // Clean up realtime channel on logout
@@ -144,7 +144,8 @@ const useAuthStore = create((set, get) => ({
 
     console.log(`Setting up real-time subscription for user ${userId} (${role})`);
     
-    const channel = supabase.channel(`user-profile-updates-${userId}`)
+    const channelName = `user-profile-updates-${userId}-${Date.now()}`;
+    const channel = supabase.channel(channelName)
       .on(
         'postgres_changes',
         {

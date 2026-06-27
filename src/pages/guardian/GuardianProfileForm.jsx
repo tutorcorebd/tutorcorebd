@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import useAuthStore from '../../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Phone,
-  Home
+  Home,
+  X
 } from 'lucide-react';
 
 const CITIES = ['Barishal', 'Chattogram', 'Dhaka', 'Khulna', 'Mymensingh', 'Rajshahi', 'Rangpur', 'Sylhet'];
@@ -50,9 +51,10 @@ const GuardianProfileForm = () => {
   };
 
   const completeness = calculateCompleteness();
+  const isInitializedRef = useRef(false);
 
   useEffect(() => {
-    if (profile?.guardian_profile) {
+    if (profile?.guardian_profile && !isInitializedRef.current) {
       const gp = profile.guardian_profile;
       setAlternativePhone(gp.alternative_phone || '');
       setProfession(gp.profession || '');
@@ -60,6 +62,7 @@ const GuardianProfileForm = () => {
       setCity(gp.city || '');
       setAddress(gp.address || '');
       setPhotoUrl(gp.profile_photo_url || '');
+      isInitializedRef.current = true;
     }
   }, [profile]);
 

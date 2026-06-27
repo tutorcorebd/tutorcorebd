@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Shield, Lock, Mail, ArrowLeft, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../../store/useAuthStore';
-import ReCAPTCHA from '../../components/common/ReCAPTCHA';
 
 const AdminLogin = () => {
   const { session, profile, isLoading } = useAuthStore();
@@ -14,8 +13,6 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
-  const recaptchaRef = useRef(null);
 
   useEffect(() => {
     if (!isLoading && session && profile && !loading) {
@@ -33,46 +30,22 @@ const AdminLogin = () => {
     setError(null);
     
     try {
-      // 1. Execute reCAPTCHA v3 challenge
-      const token = await recaptchaRef.current?.execute();
-      if (!token) {
-        throw new Error('Security check failed. Please try again.');
-      }
-
-      // 2. Invoke custom Edge Function
-      const { data: functionData, error: functionError } = await supabase.functions.invoke('auth-with-recaptcha', {
-        body: {
-          action: 'signin',
-          email,
-          password,
-          token
-        }
+      // 1. Authenticate with Supabase directly
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      if (functionError) {
-        throw new Error(functionError.message || 'Verification service failed.');
+      if (authError) {
+        throw new Error(authError.message || 'Verification service failed.');
       }
 
-      if (functionData?.error) {
-        throw new Error(functionData.error);
-      }
-
-      const sessionData = functionData?.data?.session;
+      const sessionData = authData.session;
       if (!sessionData) {
         throw new Error('Authentication failed: session not created.');
       }
 
-      // 3. Set the session on the client
-      const { error: setSessionError } = await supabase.auth.setSession({
-        access_token: sessionData.access_token,
-        refresh_token: sessionData.refresh_token
-      });
-
-      if (setSessionError) {
-        throw new Error(setSessionError.message);
-      }
-
-      // 4. Fetch the profile details to check role and status
+      // 2. Fetch the profile details to check role and status
       const { data: userData, error: roleError } = await supabase
         .from('users')
         .select('role, status')
@@ -243,7 +216,6 @@ const AdminLogin = () => {
               </div>
             </div>
 
-            <ReCAPTCHA ref={recaptchaRef} action="admin_login" />
 
             {/* Action button */}
             <motion.button
