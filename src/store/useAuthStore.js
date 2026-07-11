@@ -104,6 +104,35 @@ const useAuthStore = create((set, get) => ({
             
           if (!tutorError && tutorData) {
             completeProfile.tutor_profile = tutorData;
+            
+            // Auto-downgrade if Free Trial expired
+            if (tutorData.is_premium) {
+              const { data: requests } = await supabase
+                .from('membership_requests')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('status', 'approved')
+                .in('plan_name', ['Pro', 'Premium', 'Basic'])
+                .order('updated_at', { ascending: false })
+                .limit(1);
+                
+              if (requests && requests.length > 0) {
+                const activeReq = requests[0];
+                if (activeReq.payment_platform === 'Free Trial') {
+                  const expiryDate = new Date(new Date(activeReq.updated_at).getTime() + 7 * 24 * 60 * 60 * 1000);
+                  if (new Date() > expiryDate) {
+                    const newStatus = tutorData.is_verified ? 'Verified Tutor' : 'Normal Tutor';
+                    await supabase.from('tutor_profiles').update({
+                      is_premium: false,
+                      tutor_status: newStatus
+                    }).eq('user_id', user.id);
+                    
+                    completeProfile.tutor_profile.is_premium = false;
+                    completeProfile.tutor_profile.tutor_status = newStatus;
+                  }
+                }
+              }
+            }
           }
         } else if (userData.role === 'guardian') {
           const { data: guardianData, error: guardianError } = await supabase

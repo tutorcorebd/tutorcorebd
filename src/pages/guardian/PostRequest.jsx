@@ -9,7 +9,7 @@ const CITIES = ['Barishal', 'Chattogram', 'Dhaka', 'Khulna', 'Mymensingh', 'Rajs
 const LOCATIONS_BY_CITY = {
   Barishal: ['BM College', 'C&B Road', 'Natullabad', 'Rupatali', 'Sadar Road'],
   Chattogram: ['Agrabad', 'Chandgaon', 'Chawkbazar', 'Double Mooring', 'GEC Circle', 'Halishahar', 'Khulshi', 'Lalkhan Bazar', 'Nasirabad', 'Patenga'],
-  Dhaka: ['Aftabnagar', 'Ati Bazar', 'Badda', 'Banasree', 'Banani', 'Basabo', 'Bashundhara', 'Demra', 'Dhanmondi', 'Farmgate', 'Gulshan', 'Hazaribagh', 'Jatrabari', 'Jigatola', 'Kalyanpur', 'Keraniganj', 'Khilgaon', 'Lalbagh', 'Malibagh', 'Mirpur', 'Mogbazar', 'Mohakhali', 'Mohammadpur', 'Motijheel', 'Old Dhaka', 'Paltan', 'Rampura', 'Savar', 'Shahbagh', 'Tejgaon', 'Uttara', 'Wari'],
+  Dhaka: ['Adabor', 'Aftab Nagar', 'Aftab Nagar - Block A', 'Aftab Nagar - Block B', 'Aftab Nagar - Block C', 'Aftab Nagar - Block D', 'Aftab Nagar - Block E', 'Aftab Nagar - Block F', 'Agargaon', 'Ati Bazar', 'Azimpur', 'Badda', 'Bangla Bazar', 'Bangshal', 'Banani', 'Banani 11', 'Banani - Block A to Block I', 'Banani - Road 1 to Road 27', 'Banani DOHS', 'Banasree', 'Baridhara', 'Basabo', 'Bashundhara', 'Beraid', 'Bhashantek', 'Cantonment', 'Chawkbazar', 'Dakshinkhan', 'Darus Salam', 'Demra', 'Dhanmondi', 'Dhanmondi - Road 1 to Road 32', 'Farmgate', 'Gabtoli', 'Gulistan', 'Gulshan', 'Gulshan 1', 'Gulshan 2', 'Gulshan Avenue', 'Hazaribagh', 'Islampur', 'Jatrabari', 'Jigatola', 'Joar Sahara', 'Kafrul', 'Kakrail', 'Kalyanpur', 'Kamal Ataturk Avenue', 'Kamalapur', 'Kamrangirchar', 'Karwan Bazar', 'Kazipara', 'Keraniganj', 'Khilgaon', 'Khilkhet', 'Kotwali', 'Kuratoli', 'Kuril', 'Lalbagh', 'Lalmatia', 'Lalmatia - Block A', 'Lalmatia - Block B', 'Lalmatia - Block C', 'Lalmatia - Block D', 'Lalmatia - Block E', 'Lalmatia - Block F', 'Lalmatia - Block G', 'Lalmatia - Block H', 'Laxmibazar', 'Madani Avenue', 'Malibagh', 'Mirpur', 'Mirpur Road', 'Moghbazar', 'Mohakhali', 'Mohammadpur', 'Motijheel', 'Mouchak', 'Nakhalpara', 'Nawabpur', 'Niketan', 'Nikunja', 'Old Dhaka', 'Pallabi', 'Paltan', 'Purana Paltan', 'Ramna', 'Rampura', 'Rupnagar', 'Sadarghat', 'Satarkul', 'Satmasjid Road', 'Savar', 'Sayedabad', 'Shahbagh', 'Shahjadpur', 'Shankharibazar', 'Shantinagar', 'Shewrapara', 'Shyamoli', 'Sutrapur', 'Tantibazar', 'Tejgaon', 'Tongi', 'Turag', 'Uttara', 'Uttara DOHS', 'Uttarkhan', 'Vatara', 'Wari'],
   Khulna: ['Boyra', 'Daulatpur', 'Gollamari', 'Khalishpur', 'Rupsha', 'Sonadanga'],
   Mymensingh: ['Charpara', 'Ganginar Par', 'Kewatkhali', 'Sadar', 'Valuka'],
   Rajshahi: ['Boalia', 'Kazihata', 'Motihar', 'Rajshahi University', 'Shaheb Bazar', 'Sopura', 'Talaimari'],
@@ -17,7 +17,16 @@ const LOCATIONS_BY_CITY = {
   Sylhet: ['Amberkhana', 'Kumarpara', 'Pathantula', 'Shibgonj', 'Sylhet Sadar', 'Uposahar', 'Zindabazar']
 };
 
-const PRESET_COURSES = ['Play', 'Nursery', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'SSC', 'HSC', 'Class 11', 'Class 12', 'O Level', 'A Level', 'Admission Test'];
+const CATEGORIES = ['Bangla Medium', 'English Medium', 'English Version', 'Madrasah Medium', 'Cambridge Curriculum', 'Edexcel Curriculum'];
+
+const CLASSES_BY_CATEGORY = {
+  'Bangla Medium': ['Play', 'Nursery', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'SSC', 'Class 11', 'Class 12', 'HSC', 'Admission Test'],
+  'English Version': ['Play', 'Nursery', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'SSC', 'Class 11', 'Class 12', 'HSC', 'Admission Test'],
+  'Madrasah Medium': ['Play', 'Nursery', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Dakhil', 'Alim', 'Admission Test'],
+  'English Medium': ['Play', 'Nursery', 'KG', 'Standard 1', 'Standard 2', 'Standard 3', 'Standard 4', 'Standard 5', 'Standard 6', 'Standard 7', 'Standard 8', 'O Level', 'A Level', 'Admission Test'],
+  'Cambridge Curriculum': ['Play', 'Nursery', 'KG', 'Standard 1', 'Standard 2', 'Standard 3', 'Standard 4', 'Standard 5', 'Standard 6', 'Standard 7', 'Standard 8', 'O Level', 'A Level', 'Admission Test'],
+  'Edexcel Curriculum': ['Play', 'Nursery', 'KG', 'Standard 1', 'Standard 2', 'Standard 3', 'Standard 4', 'Standard 5', 'Standard 6', 'Standard 7', 'Standard 8', 'O Level', 'A Level', 'Admission Test'],
+};
 const SALARY_RANGES = ['Negotiable', '2000 - 4000 BDT', '4000 - 6000 BDT', '6000 - 8000 BDT', '8000 - 10000 BDT', '10000 - 15000 BDT', '15000+ BDT'];
 
 const GROUPS = ['Science', 'Business Studies', 'Humanities'];
@@ -60,16 +69,17 @@ const PostRequest = () => {
   // Single child states (legacy)
   const [studentClass, setStudentClass] = useState('');
   const [studentGroup, setStudentGroup] = useState('');
-  const [studentGender, setStudentGender] = useState('Any');
+  const [studentGender, setStudentGender] = useState('Male');
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [subjectInput, setSubjectInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [preferredCategory, setPreferredCategory] = useState('Bangla Medium');
   
   // Multi-children states
   const [isMultiChild, setIsMultiChild] = useState(false);
   const [childrenList, setChildrenList] = useState([
-    { id: 1, studentClass: '', studentGroup: '', studentGender: 'Any', selectedSubjects: [], subjectInput: '', showSuggestions: false },
-    { id: 2, studentClass: '', studentGroup: '', studentGender: 'Any', selectedSubjects: [], subjectInput: '', showSuggestions: false }
+    { id: 1, studentClass: '', studentGroup: '', studentGender: 'Male', selectedSubjects: [], subjectInput: '', showSuggestions: false, preferredCategory: 'Bangla Medium' },
+    { id: 2, studentClass: '', studentGroup: '', studentGender: 'Male', selectedSubjects: [], subjectInput: '', showSuggestions: false, preferredCategory: 'Bangla Medium' }
   ]);
 
   // Location details
@@ -208,10 +218,11 @@ const PostRequest = () => {
       id: Date.now(),
       studentClass: '',
       studentGroup: '',
-      studentGender: 'Any',
+      studentGender: 'Male',
       selectedSubjects: [],
       subjectInput: '',
-      showSuggestions: false
+      showSuggestions: false,
+      preferredCategory: preferredCategory
     }]);
   };
 
@@ -233,24 +244,27 @@ const PostRequest = () => {
           studentGender: studentGender,
           selectedSubjects: [...selectedSubjects],
           subjectInput: '',
-          showSuggestions: false
+          showSuggestions: false,
+          preferredCategory: preferredCategory
         },
         {
           id: Date.now() + 1,
           studentClass: '',
           studentGroup: '',
-          studentGender: 'Any',
+          studentGender: 'Male',
           selectedSubjects: [],
           subjectInput: '',
-          showSuggestions: false
+          showSuggestions: false,
+          preferredCategory: preferredCategory
         }
       ]);
     } else {
       // restore single child states from first child
       if (childrenList.length > 0) {
+        setPreferredCategory(childrenList[0].preferredCategory || preferredCategory);
         setStudentClass(childrenList[0].studentClass);
         setStudentGroup(childrenList[0].studentGroup);
-        setStudentGender(childrenList[0].studentGender || 'Any');
+        setStudentGender(childrenList[0].studentGender || 'Male');
         setSelectedSubjects(childrenList[0].selectedSubjects);
       }
     }
@@ -424,7 +438,7 @@ const PostRequest = () => {
         guardian_id: profile.id,
         student_class: classStr,
         subject: combinedSubjects,
-        student_gender: isMultiChild ? childrenList.map(c => c.studentGender || 'Any').join(', ') : studentGender,
+        student_gender: isMultiChild ? childrenList.map(c => c.studentGender || 'Male').join(', ') : studentGender,
         location: locationStr,
         full_address: fullAddress || null,
         guardian_whatsapp: guardianWhatsapp,
@@ -439,12 +453,14 @@ const PostRequest = () => {
         has_custom_institution: hasCustomInstitution,
         tutoring_mode: tutoringMode,
         tutoring_time: finalTutoringTime,
+        preferred_category: isMultiChild ? childrenList.map(c => c.preferredCategory || preferredCategory).join(', ') : preferredCategory,
         duration: duration,
         other_requirement: otherRequirement,
         children: isMultiChild ? childrenList.map(c => ({
+          preferred_category: c.preferredCategory || preferredCategory,
           student_class: c.studentClass,
           student_group: c.studentGroup || null,
-          student_gender: c.studentGender || 'Any',
+          student_gender: c.studentGender || 'Male',
           subject: c.selectedSubjects
         })) : null
       }]);
@@ -475,6 +491,38 @@ const PostRequest = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+
+        {/* Preferred Category */}
+        {!isMultiChild && (
+          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+            <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3">
+              <BookOpen className="w-4 h-4 text-[#86c240]" />
+              Tutoring Category / Medium <span className="text-red-500">*</span>
+            </label>
+            <select
+              className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium"
+              value={preferredCategory}
+              onChange={(e) => {
+                 setPreferredCategory(e.target.value);
+                 setStudentClass('');
+                 setStudentGroup('');
+                 setSelectedSubjects([]);
+                 setChildrenList(prev => prev.map(c => ({
+                   ...c,
+                   preferredCategory: e.target.value,
+                   studentClass: '',
+                   studentGroup: '',
+                   selectedSubjects: []
+                 })));
+              }}
+              required
+            >
+              {CATEGORIES.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+        )}
         
         {/* Toggle option for multiple children */}
         <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -534,7 +582,28 @@ const PostRequest = () => {
                     )}
                   </div>
 
-                  <div className={`grid gap-4 ${childRequiresGroup ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
+                  <div className={`grid gap-4 ${childRequiresGroup ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-655 mb-1.5">Category *</label>
+                      <select
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] text-xs font-medium"
+                        value={child.preferredCategory || 'Bangla Medium'}
+                        onChange={(e) => {
+                          updateChild(child.id, { 
+                            preferredCategory: e.target.value,
+                            studentClass: '',
+                            studentGroup: '',
+                            selectedSubjects: []
+                          });
+                        }}
+                        required
+                      >
+                        {CATEGORIES.map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    </div>
+
                     <div>
                       <label className="block text-xs font-bold text-slate-655 mb-1.5">Student Class *</label>
                       <select
@@ -544,7 +613,7 @@ const PostRequest = () => {
                         required
                       >
                         <option value="">Select Class</option>
-                        {PRESET_COURSES.map(c => (
+                        {(CLASSES_BY_CATEGORY[child.preferredCategory || 'Bangla Medium'] || CLASSES_BY_CATEGORY['Bangla Medium']).map(c => (
                           <option key={c} value={c}>{c}</option>
                         ))}
                       </select>
@@ -571,11 +640,10 @@ const PostRequest = () => {
                       <label className="block text-xs font-bold text-slate-655 mb-1.5">Student Gender *</label>
                       <select
                         className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] text-xs font-medium"
-                        value={child.studentGender || 'Any'}
+                        value={child.studentGender || 'Male'}
                         onChange={(e) => updateChild(child.id, { studentGender: e.target.value })}
                         required
                       >
-                        <option value="Any">Any</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
                       </select>
@@ -723,7 +791,7 @@ const PostRequest = () => {
                   required
                 >
                   <option value="">Select a Class / Level</option>
-                  {PRESET_COURSES.map(course => (
+                  {(CLASSES_BY_CATEGORY[preferredCategory] || CLASSES_BY_CATEGORY['Bangla Medium']).map(course => (
                     <option key={course} value={course}>{course}</option>
                   ))}
                 </select>
@@ -760,7 +828,6 @@ const PostRequest = () => {
                   onChange={(e) => setStudentGender(e.target.value)}
                   required
                 >
-                  <option value="Any">Any</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                 </select>

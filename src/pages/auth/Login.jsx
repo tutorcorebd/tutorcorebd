@@ -117,6 +117,12 @@ const Login = () => {
         }
       }
 
+      // 4. Update last login timestamp
+      await supabase
+        .from('users')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', sessionData.user.id);
+
       // 5. Navigate to the dashboard
       if (redirectTo) {
         navigate(redirectTo, { replace: true });

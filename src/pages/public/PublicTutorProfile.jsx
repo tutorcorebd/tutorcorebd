@@ -64,6 +64,7 @@ const PublicTutorProfile = () => {
             full_name,
             phone_number,
             created_at,
+            last_login,
             tutor_profiles (*)
           `)
           .eq('id', id)
@@ -531,7 +532,7 @@ const PublicTutorProfile = () => {
           Educational Information
           <span className="flex-1 h-px bg-slate-100 ml-3"></span>
         </h2>
-        <p className="text-sm font-semibold text-slate-400 mb-4">Undergraduate Info :</p>
+        <p className="text-sm font-semibold text-slate-400 mb-4">School & College Info :</p>
 
         <div className="overflow-x-auto rounded-xl border border-slate-200/80">
           <table className="w-full text-left text-[15px] border-collapse min-w-[600px]">
@@ -585,7 +586,7 @@ const PublicTutorProfile = () => {
           Educational Information
           <span className="flex-1 h-px bg-slate-100 ml-3"></span>
         </h2>
-        <p className="text-sm font-semibold text-slate-400 mb-4">Graduation Info :</p>
+        <p className="text-sm font-semibold text-slate-400 mb-4">University Info :</p>
 
         <div className="overflow-x-auto rounded-xl border border-slate-200/80">
           <table className="w-full text-left text-[15px] border-collapse min-w-[600px]">
@@ -631,34 +632,78 @@ const PublicTutorProfile = () => {
 
       {/* =================== PERSONAL INFORMATION =================== */}
       <div className="animate-fade-in-up stagger-6 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 mb-6 card-lift">
-        <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-          Personal Information
-          <span className="flex-1 h-px bg-slate-100 ml-3"></span>
-        </h2>
+        <div className="flex items-center gap-4 mb-6">
+          <h2 className="text-xl md:text-2xl font-bold text-slate-800 whitespace-nowrap">
+            Personal Information
+          </h2>
+          <div className="flex-1 h-px bg-slate-200"></div>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10">
+        <div className="flex flex-col">
+          {/* Group 1 */}
+          <div className="py-2">
+            <div className="grid grid-cols-[150px_1fr] md:grid-cols-[250px_1fr] gap-4 py-2.5">
+              <span className="font-bold text-slate-500 text-[15px]">Gender :</span>
+              <span className="font-semibold text-slate-800 text-[15px]">{profile.gender || 'N/A'}</span>
+            </div>
+            <div className="grid grid-cols-[150px_1fr] md:grid-cols-[250px_1fr] gap-4 py-2.5">
+              <span className="font-bold text-slate-500 text-[15px]">Blood Group :</span>
+              <span className="font-semibold text-slate-800 text-[15px]">{profile.blood_group || 'N/A'}</span>
+            </div>
+            <div className="grid grid-cols-[150px_1fr] md:grid-cols-[250px_1fr] gap-4 py-2.5">
+              <span className="font-bold text-slate-500 text-[15px]">Religion :</span>
+              <span className="font-semibold text-slate-800 text-[15px]">{profile.religion || 'N/A'}</span>
+            </div>
+          </div>
+
+          <div className="w-full h-px bg-slate-100 my-2"></div>
+
+          {/* Group 2 */}
+          <div className="py-2">
+            <div className="grid grid-cols-[150px_1fr] md:grid-cols-[250px_1fr] gap-4 py-2.5">
+              <span className="font-bold text-slate-500 text-[15px]">Nationality :</span>
+              <span className="font-semibold text-slate-800 text-[15px]">{profile.nationality || 'Bangladeshi'}</span>
+            </div>
+            <div className="grid grid-cols-[150px_1fr] md:grid-cols-[250px_1fr] gap-4 py-2.5">
+              <span className="font-bold text-slate-500 text-[15px]">Date of Birth :</span>
+              <span className="font-semibold text-slate-800 text-[15px]">{formatDate(profile.dob)}</span>
+            </div>
+          </div>
+
+          <div className="w-full h-px bg-slate-100 my-2"></div>
+
+          {/* Group 3 */}
+          <div className="py-2">
+            <div className="grid grid-cols-[150px_1fr] md:grid-cols-[250px_1fr] gap-4 py-2.5">
+              <span className="font-bold text-slate-500 text-[15px]">Member Since :</span>
+              <span className="font-semibold text-slate-800 text-[15px]">
+                {new Date(tutorData?.created_at || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </span>
+            </div>
+            <div className="grid grid-cols-[150px_1fr] md:grid-cols-[250px_1fr] gap-4 py-2.5">
+              <span className="font-bold text-slate-500 text-[15px]">Last Active :</span>
+              <span className="font-semibold text-slate-800 text-[15px]">
+                {new Date(tutorData?.last_login || tutorData?.created_at || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Address Card */}
+      <div className="animate-fade-in-up stagger-7 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 mb-6 card-lift">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
           <div>
-            <InfoRow label="Gender" value={profile.gender} />
-            <InfoRow label="Date of Birth" value={formatDate(profile.dob)} />
-            <InfoRow label="Blood Group" value={profile.blood_group} />
-            <InfoRow label="Religion" value={profile.religion} />
-            <InfoRow label="Father's Name" value={profile.fathers_name} />
-            <InfoRow label="Mother's Name" value={profile.mothers_name} />
+            <h3 className="font-bold text-slate-800 text-[15px] mb-3">Present Full Address :</h3>
+            <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm min-h-[80px]">
+              <p className="text-slate-600 text-[14px] font-medium leading-relaxed">{profile.address || 'N/A'}</p>
+            </div>
           </div>
           <div>
-            <InfoRow 
-              label="Emergency Contact" 
-              value={profile.emergency_contact 
-                ? `${profile.emergency_contact.substring(0, 5)}*****` 
-                : 'N/A'} 
-            />
-            <InfoRow 
-              label="National ID (NID)" 
-              value={profile.nid 
-                ? `${profile.nid.substring(0, 4)}*****` 
-                : 'N/A'} 
-            />
-            <InfoRow label="Full Address" value={profile.address} isLast />
+            <h3 className="font-bold text-slate-800 text-[15px] mb-3">Permanent Full Address :</h3>
+            <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm min-h-[80px]">
+              <p className="text-slate-600 text-[14px] font-medium leading-relaxed">{profile.permanent_address || 'N/A'}</p>
+            </div>
           </div>
         </div>
       </div>

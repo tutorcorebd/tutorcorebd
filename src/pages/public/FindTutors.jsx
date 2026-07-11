@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Search, Filter, MapPin, Users, User, CheckCircle, Award, Compass, Sparkles, Clock, ChevronRight, ChevronLeft, Star, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import VerifiedBadge from '../../components/common/VerifiedBadge';
 import PremiumBadge from '../../components/common/PremiumBadge';
 
@@ -12,7 +13,7 @@ const cities = [
 const LOCATIONS_BY_CITY = {
   Barishal: ['BM College', 'C&B Road', 'Natullabad', 'Rupatali', 'Sadar Road'],
   Chittagong: ['Agrabad', 'Chandgaon', 'Chawkbazar', 'Double Mooring', 'GEC Circle', 'Halishahar', 'Khulshi', 'Lalkhan Bazar', 'Nasirabad', 'Patenga'],
-  Dhaka: ['Aftabnagar', 'Ati Bazar', 'Badda', 'Banasree', 'Banani', 'Basabo', 'Bashundhara', 'Demra', 'Dhanmondi', 'Farmgate', 'Gulshan', 'Hazaribagh', 'Jatrabari', 'Jigatola', 'Kalyanpur', 'Keraniganj', 'Khilgaon', 'Lalbagh', 'Malibagh', 'Mirpur', 'Mogbazar', 'Mohakhali', 'Mohammadpur', 'Motijheel', 'Old Dhaka', 'Paltan', 'Rampura', 'Savar', 'Shahbagh', 'Tejgaon', 'Uttara', 'Wari'],
+  Dhaka: ['Adabor', 'Aftab Nagar', 'Aftab Nagar - Block A', 'Aftab Nagar - Block B', 'Aftab Nagar - Block C', 'Aftab Nagar - Block D', 'Aftab Nagar - Block E', 'Aftab Nagar - Block F', 'Agargaon', 'Ati Bazar', 'Azimpur', 'Badda', 'Bangla Bazar', 'Bangshal', 'Banani', 'Banani 11', 'Banani - Block A to Block I', 'Banani - Road 1 to Road 27', 'Banani DOHS', 'Banasree', 'Baridhara', 'Basabo', 'Bashundhara', 'Beraid', 'Bhashantek', 'Cantonment', 'Chawkbazar', 'Dakshinkhan', 'Darus Salam', 'Demra', 'Dhanmondi', 'Dhanmondi - Road 1 to Road 32', 'Farmgate', 'Gabtoli', 'Gulistan', 'Gulshan', 'Gulshan 1', 'Gulshan 2', 'Gulshan Avenue', 'Hazaribagh', 'Islampur', 'Jatrabari', 'Jigatola', 'Joar Sahara', 'Kafrul', 'Kakrail', 'Kalyanpur', 'Kamal Ataturk Avenue', 'Kamalapur', 'Kamrangirchar', 'Karwan Bazar', 'Kazipara', 'Keraniganj', 'Khilgaon', 'Khilkhet', 'Kotwali', 'Kuratoli', 'Kuril', 'Lalbagh', 'Lalmatia', 'Lalmatia - Block A', 'Lalmatia - Block B', 'Lalmatia - Block C', 'Lalmatia - Block D', 'Lalmatia - Block E', 'Lalmatia - Block F', 'Lalmatia - Block G', 'Lalmatia - Block H', 'Laxmibazar', 'Madani Avenue', 'Malibagh', 'Mirpur', 'Mirpur Road', 'Moghbazar', 'Mohakhali', 'Mohammadpur', 'Motijheel', 'Mouchak', 'Nakhalpara', 'Nawabpur', 'Niketan', 'Nikunja', 'Old Dhaka', 'Pallabi', 'Paltan', 'Purana Paltan', 'Ramna', 'Rampura', 'Rupnagar', 'Sadarghat', 'Satarkul', 'Satmasjid Road', 'Savar', 'Sayedabad', 'Shahbagh', 'Shahjadpur', 'Shankharibazar', 'Shantinagar', 'Shewrapara', 'Shyamoli', 'Sutrapur', 'Tantibazar', 'Tejgaon', 'Tongi', 'Turag', 'Uttara', 'Uttara DOHS', 'Uttarkhan', 'Vatara', 'Wari'],
   Khulna: ['Boyra', 'Daulatpur', 'Gollamari', 'Khalishpur', 'Rupsha', 'Sonadanga'],
   Mymensingh: ['Charpara', 'Ganginar Par', 'Kewatkhali', 'Sadar', 'Valuka'],
   Rajshahi: ['Boalia', 'Kazihata', 'Motihar', 'Rajshahi University', 'Shaheb Bazar', 'Sopura', 'Talaimari'],
@@ -30,11 +31,25 @@ const getTutorProfile = (tutor) => {
   return Array.isArray(tp) ? (tp[0] || {}) : tp;
 };
 
+const getTutorCategory = (tutor) => {
+  const tp = getTutorProfile(tutor);
+  if (tp.tutor_category && tp.tutor_category !== 'New Tutors' && tp.tutor_category !== 'None') {
+    return tp.tutor_category;
+  }
+  
+  const createdAt = new Date(tutor.created_at || Date.now());
+  const diffTime = Math.abs(Date.now() - createdAt);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays <= 10) {
+    return 'New Tutors';
+  }
+  
+  return tp.tutor_category || 'None';
+};
+
 const FindTutors = () => {
   const navigate = useNavigate();
-  const [tutors, setTutors] = useState([]);
   const [filteredTutors, setFilteredTutors] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   // Filter Modal & Search results states
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -49,10 +64,11 @@ const FindTutors = () => {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedTutorStatus, setSelectedTutorStatus] = useState('');
 
-  const fetchTutors = async () => {
-    setLoading(true);
-    try {
+  const { data: tutors = [], isLoading: loading } = useQuery({
+    queryKey: ['tutors'],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('users')
         .select(`
@@ -65,17 +81,9 @@ const FindTutors = () => {
         .eq('role', 'tutor');
 
       if (error) throw error;
-      setTutors(data || []);
-    } catch (err) {
-      console.error('Error fetching tutors:', err);
-    } finally {
-      setLoading(false);
+      return data || [];
     }
-  };
-
-  useEffect(() => {
-    fetchTutors();
-  }, []);
+  });
 
   const hasActiveFilters = 
     showAllTutors ||
@@ -86,7 +94,8 @@ const FindTutors = () => {
     selectedUni.trim() !== '' ||
     selectedSubject.trim() !== '' ||
     selectedCategory !== '' ||
-    selectedCourse !== '';
+    selectedCourse !== '' ||
+    selectedTutorStatus !== '';
 
   const activeFiltersCount = [
     selectedCity,
@@ -95,7 +104,8 @@ const FindTutors = () => {
     selectedUni,
     selectedSubject,
     selectedCategory,
-    selectedCourse
+    selectedCourse,
+    selectedTutorStatus
   ].filter(val => val && val.trim() !== '').length;
 
   useEffect(() => {
@@ -164,24 +174,20 @@ const FindTutors = () => {
       });
     }
 
-    setFilteredTutors(result);
-  }, [tutors, searchTerm, selectedCity, selectedArea, selectedGender, selectedUni, selectedSubject, selectedCategory, selectedCourse]);
+    if (selectedTutorStatus) {
+      if (selectedTutorStatus === 'Premium Tutors') {
+        result = result.filter(t => getTutorProfile(t).is_premium);
+      } else if (selectedTutorStatus === 'Verified Tutors') {
+        result = result.filter(t => getTutorProfile(t).is_verified);
+      } else if (selectedTutorStatus === 'New Tutors') {
+        result = result.filter(t => getTutorCategory(t) === 'New Tutors');
+      } else if (selectedTutorStatus === 'Exclusive Tutors') {
+        result = result.filter(t => getTutorCategory(t) === 'Exclusive Tutors');
+      }
+    }
 
-  const getTutorCategory = (tutor) => {
-    const tp = getTutorProfile(tutor);
-    if (tp.tutor_category && tp.tutor_category !== 'New Tutors' && tp.tutor_category !== 'None') {
-      return tp.tutor_category;
-    }
-    
-    const createdAt = new Date(tutor.created_at || Date.now());
-    const diffTime = Math.abs(Date.now() - createdAt);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays <= 10) {
-      return 'New Tutors';
-    }
-    
-    return tp.tutor_category || 'None';
-  };
+    setFilteredTutors(result);
+  }, [tutors, searchTerm, selectedCity, selectedArea, selectedGender, selectedUni, selectedSubject, selectedCategory, selectedCourse, selectedTutorStatus]);
 
   const exclusiveTutors = tutors.filter(t => getTutorCategory(t) === 'Exclusive Tutors');
   const premiumTutors = tutors.filter(t => getTutorProfile(t).is_premium);
@@ -215,6 +221,7 @@ const FindTutors = () => {
     setSelectedSubject('');
     setSelectedCategory('');
     setSelectedCourse('');
+    setSelectedTutorStatus('');
     setShowAllTutors(false);
     setIsFilterModalOpen(false);
   };
@@ -309,7 +316,7 @@ const FindTutors = () => {
     );
   };
 
-  const TutorRowCarousel = ({ title, list }) => {
+  const TutorRowCarousel = ({ title, list, filterType }) => {
     const internalRef = useRef(null);
     if (list.length === 0) return null;
     
@@ -329,7 +336,12 @@ const FindTutors = () => {
         <div className="flex items-center justify-between">
           <h3 className="text-3xl font-black text-slate-800 tracking-tight">{title}</h3>
           <button 
-            onClick={() => setShowAllTutors(true)}
+            onClick={() => {
+              if (filterType && filterType !== 'All Tutors') {
+                setSelectedTutorStatus(filterType);
+              }
+              setShowAllTutors(true);
+            }}
             className="flex items-center gap-1.5 bg-[#86c240] hover:bg-[#6a9c31] text-white text-sm font-bold px-4 py-2 rounded-full transition-colors shadow-sm"
           >
             See all <ChevronRight className="w-4 h-4" />
@@ -584,6 +596,12 @@ const FindTutors = () => {
                   <button onClick={() => setSelectedCourse('')} className="hover:text-rose-500 font-bold ml-1 text-base">×</button>
                 </span>
               )}
+              {selectedTutorStatus && (
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#86c240]/10 text-[#86c240] text-sm font-semibold border border-[#86c240]/20">
+                  Status: {selectedTutorStatus}
+                  <button onClick={() => setSelectedTutorStatus('')} className="hover:text-rose-500 font-bold ml-1 text-base">×</button>
+                </span>
+              )}
             </div>
 
             {filteredTutors.length === 0 ? (
@@ -615,11 +633,11 @@ const FindTutors = () => {
           
           /* HUB CATEGORIES VIEW */
           <div className="space-y-16 pb-16 max-w-6xl mx-auto">
-            <TutorRowCarousel title="Premium Tutors" list={premiumTutors} />
-            <TutorRowCarousel title="Verified Tutors" list={verifiedTutors} />
-            <TutorRowCarousel title="New Tutors" list={newTutors} />
-            <TutorRowCarousel title="All Tutors" list={tutors} />
-            {exclusiveTutors.length > 0 && <TutorRowCarousel title="Exclusive Tutors" list={exclusiveTutors} />}
+            <TutorRowCarousel title="Premium Tutors" list={premiumTutors} filterType="Premium Tutors" />
+            <TutorRowCarousel title="Verified Tutors" list={verifiedTutors} filterType="Verified Tutors" />
+            <TutorRowCarousel title="New Tutors" list={newTutors} filterType="New Tutors" />
+            <TutorRowCarousel title="All Tutors" list={tutors} filterType="All Tutors" />
+            {exclusiveTutors.length > 0 && <TutorRowCarousel title="Exclusive Tutors" list={exclusiveTutors} filterType="Exclusive Tutors" />}
           </div>
         )}
       </div>

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import CustomAlert from '../../components/layout/CustomAlert';
 
 const cities = [
@@ -17,7 +18,7 @@ const cities = [
 const LOCATIONS_BY_CITY = {
   Barishal: ['BM College', 'C&B Road', 'Natullabad', 'Rupatali', 'Sadar Road'],
   Chittagong: ['Agrabad', 'Chandgaon', 'Chawkbazar', 'Double Mooring', 'GEC Circle', 'Halishahar', 'Khulshi', 'Lalkhan Bazar', 'Nasirabad', 'Patenga'],
-  Dhaka: ['Aftabnagar', 'Ati Bazar', 'Badda', 'Banasree', 'Banani', 'Basabo', 'Bashundhara', 'Demra', 'Dhanmondi', 'Farmgate', 'Gulshan', 'Hazaribagh', 'Jatrabari', 'Jigatola', 'Kalyanpur', 'Keraniganj', 'Khilgaon', 'Lalbagh', 'Malibagh', 'Mirpur', 'Mogbazar', 'Mohakhali', 'Mohammadpur', 'Motijheel', 'Old Dhaka', 'Paltan', 'Rampura', 'Savar', 'Shahbagh', 'Tejgaon', 'Uttara', 'Wari'],
+  Dhaka: ['Adabor', 'Aftab Nagar', 'Aftab Nagar - Block A', 'Aftab Nagar - Block B', 'Aftab Nagar - Block C', 'Aftab Nagar - Block D', 'Aftab Nagar - Block E', 'Aftab Nagar - Block F', 'Agargaon', 'Ati Bazar', 'Azimpur', 'Badda', 'Bangla Bazar', 'Bangshal', 'Banani', 'Banani 11', 'Banani - Block A to Block I', 'Banani - Road 1 to Road 27', 'Banani DOHS', 'Banasree', 'Baridhara', 'Basabo', 'Bashundhara', 'Beraid', 'Bhashantek', 'Cantonment', 'Chawkbazar', 'Dakshinkhan', 'Darus Salam', 'Demra', 'Dhanmondi', 'Dhanmondi - Road 1 to Road 32', 'Farmgate', 'Gabtoli', 'Gulistan', 'Gulshan', 'Gulshan 1', 'Gulshan 2', 'Gulshan Avenue', 'Hazaribagh', 'Islampur', 'Jatrabari', 'Jigatola', 'Joar Sahara', 'Kafrul', 'Kakrail', 'Kalyanpur', 'Kamal Ataturk Avenue', 'Kamalapur', 'Kamrangirchar', 'Karwan Bazar', 'Kazipara', 'Keraniganj', 'Khilgaon', 'Khilkhet', 'Kotwali', 'Kuratoli', 'Kuril', 'Lalbagh', 'Lalmatia', 'Lalmatia - Block A', 'Lalmatia - Block B', 'Lalmatia - Block C', 'Lalmatia - Block D', 'Lalmatia - Block E', 'Lalmatia - Block F', 'Lalmatia - Block G', 'Lalmatia - Block H', 'Laxmibazar', 'Madani Avenue', 'Malibagh', 'Mirpur', 'Mirpur Road', 'Moghbazar', 'Mohakhali', 'Mohammadpur', 'Motijheel', 'Mouchak', 'Nakhalpara', 'Nawabpur', 'Niketan', 'Nikunja', 'Old Dhaka', 'Pallabi', 'Paltan', 'Purana Paltan', 'Ramna', 'Rampura', 'Rupnagar', 'Sadarghat', 'Satarkul', 'Satmasjid Road', 'Savar', 'Sayedabad', 'Shahbagh', 'Shahjadpur', 'Shankharibazar', 'Shantinagar', 'Shewrapara', 'Shyamoli', 'Sutrapur', 'Tantibazar', 'Tejgaon', 'Tongi', 'Turag', 'Uttara', 'Uttara DOHS', 'Uttarkhan', 'Vatara', 'Wari'],
   Khulna: ['Boyra', 'Daulatpur', 'Gollamari', 'Khalishpur', 'Rupsha', 'Sonadanga'],
   Mymensingh: ['Charpara', 'Ganginar Par', 'Kewatkhali', 'Sadar', 'Valuka'],
   Rajshahi: ['Boalia', 'Kazihata', 'Motihar', 'Rajshahi University', 'Shaheb Bazar', 'Sopura', 'Talaimari'],
@@ -32,9 +33,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
   const navigate = useNavigate();
   const locationState = useLocation();
 
-  const [allTuitions, setAllTuitions] = useState([]);
   const [filteredTuitions, setFilteredTuitions] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   // Search
   const [searchTerm, setSearchTerm] = useState('');
@@ -64,7 +63,6 @@ const TuitionJobsBoard = ({ isPublic }) => {
   const itemsPerPage = 6;
 
   // Watch Tutorial
-  const [tutorialVideo, setTutorialVideo] = useState(null);
   const [isWatchModalOpen, setIsWatchModalOpen] = useState(false);
 
   // Apply Modal state (Terms of Service)
@@ -118,11 +116,10 @@ const TuitionJobsBoard = ({ isPublic }) => {
   const completeness = profile?.role === 'tutor' ? calculateCompleteness() : 0;
 
   // Fetch Data
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      // Fetch open tuitions with guardian's details
-      const { data: tuitions, error: tuitionsError } = await supabase
+  const { data: allTuitions = [], isLoading: loading, isError } = useQuery({
+    queryKey: ['tuitions'],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('tuition_requests')
         .select(`
           *,
@@ -132,37 +129,29 @@ const TuitionJobsBoard = ({ isPublic }) => {
         .eq('has_custom_institution', false)
         .order('created_at', { ascending: false });
 
-      if (tuitionsError) throw tuitionsError;
+      if (error) throw error;
+      return data.filter(job => job.guardian?.role === 'guardian' || job.guardian?.role === 'admin') || [];
+    }
+  });
 
-      // Filter only posted by guardians or admins (not dummy)
-      const validTuitions = tuitions.filter(
-        job => job.guardian?.role === 'guardian' || job.guardian?.role === 'admin'
-      );
+  useEffect(() => {
+    if (isError) {
+      showAlert('error', 'Fetch Failed', 'Failed to retrieve tuition requests.');
+    }
+  }, [isError]);
 
-      setAllTuitions(validTuitions);
-
-      // Fetch watch tutorial video
-      const { data: video } = await supabase
+  const { data: tutorialVideo } = useQuery({
+    queryKey: ['tutorialVideo'],
+    queryFn: async () => {
+      const { data } = await supabase
         .from('tutorials')
         .select('*')
         .eq('show_on_job_board', true)
         .limit(1)
         .maybeSingle();
-
-      if (video) {
-        setTutorialVideo(video);
-      }
-    } catch (err) {
-      console.error('Error fetching jobs:', err);
-      showAlert('error', 'Fetch Failed', 'Failed to retrieve tuition requests.');
-    } finally {
-      setLoading(false);
+      return data || null;
     }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  });
 
   useEffect(() => {
     const queryParams = new URLSearchParams(locationState.search);

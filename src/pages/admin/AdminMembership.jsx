@@ -91,8 +91,10 @@ const AdminMembership = () => {
         const updateData = {};
         if (request.plan_name === 'Verified') {
           updateData.is_verified = true;
+          updateData.tutor_status = 'Verified Tutor';
         } else if (request.plan_name === 'Pro' || request.plan_name === 'Premium') {
           updateData.is_premium = true;
+          updateData.tutor_status = 'Premium Tutor';
         }
 
         const { error: profileError } = await supabase

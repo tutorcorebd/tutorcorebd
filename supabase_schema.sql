@@ -85,6 +85,7 @@ CREATE TABLE public.tutor_profiles (
   hsc_cert_url text,
   ssc_cert_url text,
   rating integer DEFAULT 0 CHECK (rating >= 0 AND rating <= 5),
+  is_premium boolean DEFAULT false,
   CONSTRAINT tutor_profiles_pkey PRIMARY KEY (user_id),
   CONSTRAINT tutor_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
@@ -264,6 +265,6 @@ CREATE TABLE public.tuition_reports (
   description text,
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT tuition_reports_pkey PRIMARY KEY (id),
-  CONSTRAINT tuition_reports_reporter_id_fkey FOREIGN KEY (reporter_id) REFERENCES public.users(id) ON DELETE CASCADE,
-  CONSTRAINT tuition_reports_tuition_request_id_fkey FOREIGN KEY (tuition_request_id) REFERENCES public.tuition_requests(id) ON DELETE CASCADE
+  CONSTRAINT tuition_reports_reporter_id_fkey FOREIGN KEY (reporter_id) REFERENCES public.users(id),
+  CONSTRAINT tuition_reports_tuition_request_id_fkey FOREIGN KEY (tuition_request_id) REFERENCES public.tuition_requests(id)
 );

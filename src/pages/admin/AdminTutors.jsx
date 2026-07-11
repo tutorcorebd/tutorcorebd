@@ -43,17 +43,34 @@ const AdminTutors = () => {
   const handleToggle = async (tutorId, field, currentValue) => {
     setUpdatingId(tutorId);
     try {
+      const updateData = { [field]: !currentValue };
+      
+      if (field === 'is_premium') {
+        updateData.tutor_status = !currentValue ? 'Premium Tutor' : 'Normal Tutor';
+      } else if (field === 'is_verified' && !currentValue) {
+        // For simplicity, we just set it if verified is toggled. Real logic might check if already premium.
+      }
+
       const { error } = await supabase
         .from('tutor_profiles')
-        .update({ [field]: !currentValue })
+        .update(updateData)
         .eq('user_id', tutorId);
 
       if (error) throw error;
 
+      if (field === 'is_premium' && !currentValue) {
+        await supabase.from('membership_requests').insert({
+          user_id: tutorId,
+          plan_name: 'Premium',
+          status: 'approved',
+          payment_platform: 'Manual Admin Upgrade'
+        });
+      }
+
       setTutors(tutors.map(t => {
         if (t.id === tutorId) {
           const tp = Array.isArray(t.tutor_profiles) ? t.tutor_profiles[0] : t.tutor_profiles;
-          const updatedTp = { ...tp, [field]: !currentValue };
+          const updatedTp = { ...tp, ...updateData };
           return {
             ...t,
             tutor_profiles: Array.isArray(t.tutor_profiles) ? [updatedTp] : updatedTp

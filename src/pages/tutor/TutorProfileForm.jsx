@@ -28,7 +28,7 @@ const CITIES = ['Barishal', 'Chattogram', 'Dhaka', 'Khulna', 'Mymensingh', 'Rajs
 const LOCATIONS_BY_CITY = {
   Barishal: ['BM College', 'C&B Road', 'Natullabad', 'Rupatali', 'Sadar Road'],
   Chattogram: ['Agrabad', 'Chandgaon', 'Chawkbazar', 'Double Mooring', 'GEC Circle', 'Halishahar', 'Khulshi', 'Lalkhan Bazar', 'Nasirabad', 'Patenga'],
-  Dhaka: ['Aftabnagar', 'Ati Bazar', 'Badda', 'Banasree', 'Banani', 'Basabo', 'Bashundhara', 'Demra', 'Dhanmondi', 'Farmgate', 'Gulshan', 'Hazaribagh', 'Jatrabari', 'Jigatola', 'Kalyanpur', 'Keraniganj', 'Khilgaon', 'Lalbagh', 'Malibagh', 'Mirpur', 'Mogbazar', 'Mohakhali', 'Mohammadpur', 'Motijheel', 'Old Dhaka', 'Paltan', 'Rampura', 'Savar', 'Shahbagh', 'Tejgaon', 'Uttara', 'Wari'],
+  Dhaka: ['Adabor', 'Aftab Nagar', 'Aftab Nagar - Block A', 'Aftab Nagar - Block B', 'Aftab Nagar - Block C', 'Aftab Nagar - Block D', 'Aftab Nagar - Block E', 'Aftab Nagar - Block F', 'Agargaon', 'Ati Bazar', 'Azimpur', 'Badda', 'Bangla Bazar', 'Bangshal', 'Banani', 'Banani 11', 'Banani - Block A to Block I', 'Banani - Road 1 to Road 27', 'Banani DOHS', 'Banasree', 'Baridhara', 'Basabo', 'Bashundhara', 'Beraid', 'Bhashantek', 'Cantonment', 'Chawkbazar', 'Dakshinkhan', 'Darus Salam', 'Demra', 'Dhanmondi', 'Dhanmondi - Road 1 to Road 32', 'Farmgate', 'Gabtoli', 'Gulistan', 'Gulshan', 'Gulshan 1', 'Gulshan 2', 'Gulshan Avenue', 'Hazaribagh', 'Islampur', 'Jatrabari', 'Jigatola', 'Joar Sahara', 'Kafrul', 'Kakrail', 'Kalyanpur', 'Kamal Ataturk Avenue', 'Kamalapur', 'Kamrangirchar', 'Karwan Bazar', 'Kazipara', 'Keraniganj', 'Khilgaon', 'Khilkhet', 'Kotwali', 'Kuratoli', 'Kuril', 'Lalbagh', 'Lalmatia', 'Lalmatia - Block A', 'Lalmatia - Block B', 'Lalmatia - Block C', 'Lalmatia - Block D', 'Lalmatia - Block E', 'Lalmatia - Block F', 'Lalmatia - Block G', 'Lalmatia - Block H', 'Laxmibazar', 'Madani Avenue', 'Malibagh', 'Mirpur', 'Mirpur Road', 'Moghbazar', 'Mohakhali', 'Mohammadpur', 'Motijheel', 'Mouchak', 'Nakhalpara', 'Nawabpur', 'Niketan', 'Nikunja', 'Old Dhaka', 'Pallabi', 'Paltan', 'Purana Paltan', 'Ramna', 'Rampura', 'Rupnagar', 'Sadarghat', 'Satarkul', 'Satmasjid Road', 'Savar', 'Sayedabad', 'Shahbagh', 'Shahjadpur', 'Shankharibazar', 'Shantinagar', 'Shewrapara', 'Shyamoli', 'Sutrapur', 'Tantibazar', 'Tejgaon', 'Tongi', 'Turag', 'Uttara', 'Uttara DOHS', 'Uttarkhan', 'Vatara', 'Wari'],
   Khulna: ['Boyra', 'Daulatpur', 'Gollamari', 'Khalishpur', 'Rupsha', 'Sonadanga'],
   Mymensingh: ['Charpara', 'Ganginar Par', 'Kewatkhali', 'Sadar', 'Valuka'],
   Rajshahi: ['Boalia', 'Kazihata', 'Motihar', 'Rajshahi University', 'Shaheb Bazar', 'Sopura', 'Talaimari'],
@@ -43,7 +43,7 @@ const PRESET_EXPERIENCE = ['1 Year', '2 Year(s)', '3 Year(s)', '4 Year(s)', '5 Y
 const PRESET_DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const PRESET_METHODS = ['Home Tutoring', 'Online Tutoring', 'Group Tutoring'];
 const PRESET_GROUPS = ['Science', 'Commerce', 'Humanities', 'General'];
-const PRESET_CURRICULUMS = ['National Curriculum (Bangla)', 'National Curriculum (English)', 'Cambridge', 'Edexcel'];
+const PRESET_CURRICULUMS = ['Bangla Medium', 'English Medium', 'English Version', 'Madrasah Medium', 'Cambridge Curriculum', 'Edexcel Curriculum'];
 const PRESET_BOARDS = ['Dhaka', 'Chattogram', 'Rajshahi', 'Sylhet', 'Khulna', 'Barishal', 'Rangpur', 'Mymensingh', 'Comilla', 'Jessore', 'Dinajpur', 'Madrasah', 'Technical'];
 
 const UNIVERSITIES = [
@@ -1746,7 +1746,9 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">GPA*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">
+                          {['English Medium', 'Cambridge Curriculum', 'Edexcel Curriculum'].includes(schoolCurriculum) ? 'Grade / GPA*' : 'GPA*'}
+                        </label>
                         <input 
                           type="text" 
                           placeholder="e.g. 5.00" 
@@ -1837,7 +1839,9 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">GPA*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">
+                          {['English Medium', 'Cambridge Curriculum', 'Edexcel Curriculum'].includes(collegeCurriculum) ? 'Grade / GPA*' : 'GPA*'}
+                        </label>
                         <input 
                           type="text" 
                           placeholder="e.g. 5.00" 
@@ -1998,7 +2002,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">GPA*</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">CGPA*</label>
                         <input 
                           type="text" 
                           placeholder="e.g. 3.80" 
@@ -2135,7 +2139,7 @@ const TutorProfileForm = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">GPA</label>
+                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">CGPA</label>
                         <input 
                           type="text" 
                           placeholder="e.g. 3.80" 
