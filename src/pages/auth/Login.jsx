@@ -42,10 +42,10 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (emailError) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       let loginEmail = email.trim();
 
@@ -165,22 +165,22 @@ const Login = () => {
       {/* Left side - Illustration */}
       <div className="hidden lg:flex w-1/2 bg-slate-50/50 relative items-center justify-center p-12 overflow-hidden border-r border-slate-100">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-green-50/30 via-slate-50/30 to-white"></div>
-        
+
         <div className="relative z-10 w-full max-w-md flex flex-col items-center">
           <div className="relative w-full aspect-square max-w-xs flex items-center justify-center mb-8">
             <div className="absolute w-64 h-64 rounded-full bg-primary/5 blur-2xl top-4 left-4"></div>
             <div className="absolute w-64 h-64 rounded-full bg-primary/10 blur-3xl bottom-4 right-4"></div>
-            
+
             <svg className="w-full h-auto relative z-10" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="200" cy="200" r="160" stroke="#eaf4df" strokeWidth="2" strokeDasharray="8 8" />
               <circle cx="200" cy="200" r="130" stroke="#86c240" strokeWidth="1" opacity="0.2" />
-              
+
               <rect x="130" y="140" width="140" height="120" rx="20" fill="white" stroke="#e2e8f0" strokeWidth="2" className="shadow-lg" />
-              
+
               <rect x="160" y="170" width="80" height="8" rx="4" fill="#86c240" opacity="0.8" />
               <rect x="160" y="190" width="85" height="8" rx="4" fill="#cbd5e1" />
               <rect x="160" y="210" width="60" height="8" rx="4" fill="#cbd5e1" />
-              
+
               <g transform="translate(80, 110)">
                 <rect width="80" height="30" rx="15" fill="white" stroke="#e2e8f0" strokeWidth="1" />
                 <text x="40" y="18" fill="#475569" fontSize="10" fontWeight="600" textAnchor="middle">Education</text>
@@ -189,13 +189,14 @@ const Login = () => {
                 <rect width="80" height="30" rx="15" fill="#86c240" />
                 <text x="40" y="18" fill="white" fontSize="10" fontWeight="600" textAnchor="middle">Verified</text>
               </g>
-              
+
               <circle cx="200" cy="80" r="6" fill="#86c240" />
               <circle cx="90" cy="260" r="4" fill="#cbd5e1" />
               <circle cx="310" cy="150" r="8" fill="#86c240" opacity="0.3" />
             </svg>
           </div>
-          
+
+          <img src="/logo.svg" alt="Tutor Core Logo" className="w-16 h-16 object-contain mb-4" />
           <h3 className="text-xl font-semibold text-slate-800 text-center">Your Journey to Success Starts Here</h3>
           <p className="text-slate-500 text-sm text-center mt-2 max-w-sm font-medium">
             Connect with verified subject experts or find the best tuition jobs matching your profile.
@@ -205,7 +206,7 @@ const Login = () => {
 
       {/* Right side - Form */}
       <div className="w-full lg:w-1/2 flex flex-col p-8 sm:p-12 lg:p-16 justify-center">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -232,7 +233,7 @@ const Login = () => {
               <span className="font-semibold text-sm text-slate-850">Parents</span>
               <span className="text-xs text-slate-500 mt-1 text-center font-medium">Hire an expert tutor for home or online study</span>
             </button>
-            
+
             <button
               type="button"
               onClick={() => setRole('tutor')}
@@ -250,20 +251,20 @@ const Login = () => {
           {/* Form */}
           <div className="bg-slate-50/50 p-6 sm:p-8 rounded-3xl border border-slate-100">
             {error && <div className="bg-red-50 text-red-500 p-3 rounded-xl mb-5 text-xs font-semibold text-center border border-red-100">{error}</div>}
-            
+
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Mail className={`h-5 w-5 ${emailError ? 'text-red-400' : 'text-slate-400'}`} />
                   </div>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     className={`appearance-none block w-full pl-11 pr-4 py-3 bg-white border ${emailError ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-primary'} rounded-xl shadow-sm placeholder-slate-400 focus:outline-none sm:text-sm transition-colors font-medium text-slate-700`}
                     placeholder="Email Address or Phone Number*"
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    required 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                   />
                 </div>
                 {emailError && <p className="mt-1.5 text-xs text-red-500 font-medium pl-1">Please enter a valid email address or phone number.</p>}
@@ -274,13 +275,13 @@ const Login = () => {
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-slate-400" />
                   </div>
-                  <input 
-                    type={showPassword ? 'text' : 'password'} 
+                  <input
+                    type={showPassword ? 'text' : 'password'}
                     className="appearance-none block w-full pl-11 pr-11 py-3 bg-white border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:border-primary sm:text-sm transition-colors font-medium text-slate-700"
                     placeholder="Password*"
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    required 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
                   />
                   <button
                     type="button"
@@ -299,8 +300,8 @@ const Login = () => {
               </div>
 
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-primary hover:bg-[#75ad36] focus:outline-none transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-md shadow-primary/25"
                 disabled={loading || emailError}
               >
@@ -316,8 +317,8 @@ const Login = () => {
                 </div>
               </div>
 
-              <Link 
-                to="/register" 
+              <Link
+                to="/register"
                 className="w-full flex justify-center py-3.5 px-4 border border-slate-200 text-sm font-semibold rounded-xl text-slate-700 bg-white hover:bg-slate-50 focus:outline-none transition-all shadow-sm border border-slate-200"
               >
                 Create an Account

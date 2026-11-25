@@ -644,17 +644,24 @@ const Home = () => {
                 Download the Tutor Core app to manage your tuitions, apply for jobs, and connect on the go.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                <button className="bg-slate-900 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-neutral-800 transition-colors">
-                  <PlayCircle className="w-6 h-6" />
-                  <div className="text-left">
-                    <div className="text-[10px]">GET IT ON</div>
+                <button className="bg-slate-900 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-neutral-800 transition-colors shadow-md">
+                  <svg className="w-7 h-7 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="#4285F4" d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92z" />
+                    <path fill="#34A853" d="M16.296 14.504l-2.504-2.504L3.609 22.186c.381.19.845.18 1.24-.048l11.447-7.634z" />
+                    <path fill="#FBBC05" d="M20.692 10.757l-3.047-1.758-3.853 3.001 3.853 3.001 3.047-1.758c.81-.468.81-2.018 0-2.486z" />
+                    <path fill="#EA4335" d="M4.85 1.862a1.26 1.26 0 0 0-1.24-.048L13.792 12l2.504-2.504L4.85 1.862z" />
+                  </svg>
+                  <div className="text-left leading-tight">
+                    <div className="text-[10px] uppercase tracking-wider text-slate-300">GET IT ON</div>
                     <div className="text-base font-semibold">Google Play</div>
                   </div>
                 </button>
-                <button className="bg-slate-900 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-neutral-800 transition-colors">
-                  <Globe className="w-6 h-6" />
-                  <div className="text-left">
-                    <div className="text-[10px]">Download on the</div>
+                <button className="bg-slate-900 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-neutral-800 transition-colors shadow-md">
+                  <svg className="w-7 h-7 shrink-0 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.96 6.33c.64-.78 1.08-1.86.96-2.94-.93.04-2.06.62-2.72 1.4-.58.68-1.1 1.79-.96 2.84 1.04.08 2.08-.52 2.72-1.3z" />
+                  </svg>
+                  <div className="text-left leading-tight">
+                    <div className="text-[10px] text-slate-300">Download on the</div>
                     <div className="text-base font-semibold">App Store</div>
                   </div>
                 </button>
@@ -665,7 +672,7 @@ const Home = () => {
               <div className="w-56 h-[420px] bg-slate-900 rounded-[36px] border-[6px] border-slate-800 shadow-xl relative overflow-hidden flex items-center justify-center">
                 <div className="absolute top-0 w-28 h-5 bg-slate-800 rounded-b-xl left-1/2 -translate-x-1/2"></div>
                 <div className="text-center p-6 text-white w-full h-full bg-slate-950 flex flex-col justify-center">
-                  <Target className="w-12 h-12 text-primary mx-auto mb-6" />
+                  <img src="/logo.svg" alt="Tutor Core Logo" className="w-16 h-16 object-contain mx-auto mb-5" />
                   <h4 className="text-xl font-semibold mb-2">Tutor Core</h4>
                   <p className="text-neutral-450 text-xs font-medium">App coming soon...</p>
                 </div>

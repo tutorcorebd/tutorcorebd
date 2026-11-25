@@ -111,6 +111,7 @@ const Register = () => {
             </svg>
           </div>
           
+          <img src="/logo.svg" alt="Tutor Core Logo" className="w-16 h-16 object-contain mb-4" />
           <h3 className="text-xl font-semibold text-slate-800 text-center">Your Journey to Success Starts Here</h3>
           <p className="text-slate-500 text-sm text-center mt-2 max-w-sm font-medium">
             Connect with verified subject experts or find the best tuition jobs matching your profile.

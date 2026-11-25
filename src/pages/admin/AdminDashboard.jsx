@@ -320,8 +320,8 @@ const AdminDashboard = () => {
               );
 
               const baseClasses = `p-5 rounded-2xl border bg-white shadow-sm flex flex-col justify-between transition-all duration-300 ${card.bg.split(' ')[1]}`;
-              
-              let animatedClasses = '';
+
+              let animatedClasses;
               if (card.isUpgrade && card.count > 0) {
                 animatedClasses = ' animate-pulse-purple border-purple-300 hover:shadow-purple-100/50 hover:shadow-md';
               } else if (card.isTicket && card.count > 0) {

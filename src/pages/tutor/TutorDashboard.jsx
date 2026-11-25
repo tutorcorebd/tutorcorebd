@@ -51,6 +51,55 @@ const TutorDashboard = () => {
     setAlertOpen(true);
   };
 
+  // Compute profile completeness dynamically
+  const calculateCompleteness = () => {
+    const tp = profile?.tutor_profile;
+    if (!tp) return 20; // base profile setup complete
+
+    // If database already has completeness calculated and saved, use it
+    if (tp.profile_completeness !== undefined && tp.profile_completeness !== null && tp.profile_completeness > 0) {
+      return tp.profile_completeness;
+    }
+
+    // Otherwise fallback to dynamic calculation matching the wizard rules
+    let score = 20;
+
+    // 1. Location (5%)
+    if (tp.current_city && tp.living_location && tp.preferred_locations && tp.preferred_locations.length > 0) {
+      score += 5;
+    }
+    // 2. Category (5%)
+    if (tp.preferred_category && tp.preferred_subjects && tp.preferred_subjects.length > 0 && tp.preferred_courses && tp.preferred_courses.length > 0 && tp.experience) {
+      score += 5;
+    }
+    // 3. School (5%)
+    if (tp.school_name && tp.school_group && tp.school_curriculum && tp.school_board && tp.school_gpa && tp.school_year) {
+      score += 5;
+    }
+    // 4. College (5%)
+    if (tp.college_name && tp.college_group && tp.college_curriculum && tp.college_board && tp.college_gpa && tp.college_year) {
+      score += 5;
+    }
+    // 5. Graduation (5%)
+    if (tp.is_hsc_student || (tp.university && tp.department && tp.grad_gpa && tp.grad_year)) {
+      score += 5;
+    }
+    // 6. Post Graduation (5%)
+    if (tp.is_hsc_student || (tp.post_grad_university && tp.post_grad_department && tp.post_grad_gpa && tp.post_grad_year)) {
+      score += 5;
+    }
+    // 7. Personal Information (40%)
+    if (tp.gender && tp.fathers_name && tp.mothers_name && tp.emergency_contact && tp.address && tp.nid && tp.dob) {
+      score += 40;
+    }
+    // 8. Credential (10%)
+    if (tp.cv_url) {
+      score += 10;
+    }
+
+    return score;
+  };
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       if (!profile?.id) {
@@ -136,55 +185,6 @@ const TutorDashboard = () => {
 
     fetchDashboardData();
   }, [profile]);
-
-  // Compute profile completeness dynamically
-  const calculateCompleteness = () => {
-    const tp = profile?.tutor_profile;
-    if (!tp) return 20; // base profile setup complete
-
-    // If database already has completeness calculated and saved, use it
-    if (tp.profile_completeness !== undefined && tp.profile_completeness !== null && tp.profile_completeness > 0) {
-      return tp.profile_completeness;
-    }
-
-    // Otherwise fallback to dynamic calculation matching the wizard rules
-    let score = 20;
-
-    // 1. Location (5%)
-    if (tp.current_city && tp.living_location && tp.preferred_locations && tp.preferred_locations.length > 0) {
-      score += 5;
-    }
-    // 2. Category (5%)
-    if (tp.preferred_category && tp.preferred_subjects && tp.preferred_subjects.length > 0 && tp.preferred_courses && tp.preferred_courses.length > 0 && tp.experience) {
-      score += 5;
-    }
-    // 3. School (5%)
-    if (tp.school_name && tp.school_group && tp.school_curriculum && tp.school_board && tp.school_gpa && tp.school_year) {
-      score += 5;
-    }
-    // 4. College (5%)
-    if (tp.college_name && tp.college_group && tp.college_curriculum && tp.college_board && tp.college_gpa && tp.college_year) {
-      score += 5;
-    }
-    // 5. Graduation (5%)
-    if (tp.is_hsc_student || (tp.university && tp.department && tp.grad_gpa && tp.grad_year)) {
-      score += 5;
-    }
-    // 6. Post Graduation (5%)
-    if (tp.is_hsc_student || (tp.post_grad_university && tp.post_grad_department && tp.post_grad_gpa && tp.post_grad_year)) {
-      score += 5;
-    }
-    // 7. Personal Information (40%)
-    if (tp.gender && tp.fathers_name && tp.mothers_name && tp.emergency_contact && tp.address && tp.nid && tp.dob) {
-      score += 40;
-    }
-    // 8. Credential (10%)
-    if (tp.cv_url) {
-      score += 10;
-    }
-
-    return score;
-  };
 
   const completeness = calculateCompleteness();
 

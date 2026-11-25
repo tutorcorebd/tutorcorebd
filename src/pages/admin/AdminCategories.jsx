@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
+import { DEFAULT_CATEGORIES, DEFAULT_CLASSES_BY_CATEGORY } from '../../data/categories';
 import { 
   LayoutGrid, Plus, Trash2, Edit2, Check, X, 
   Home, Globe, BookOpen, Target, Heart, Award, 
-  PlayCircle, Briefcase, Quote, Eye, EyeOff, Settings, Star
+  PlayCircle, Briefcase, Quote, Eye, EyeOff, Settings, Star, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomAlert from '../../components/layout/CustomAlert';
@@ -20,7 +22,9 @@ const iconList = [
 ];
 
 const AdminCategories = () => {
+  const queryClient = useQueryClient();
   const [categories, setCategories] = useState([]);
+  const [syncingDefaults, setSyncingDefaults] = useState(false);
   const [courses, setCourses] = useState([]);
   const [settings, setSettings] = useState({ homepage_category_mode: 'default' });
   const [loading, setLoading] = useState(true);
@@ -92,7 +96,71 @@ const AdminCategories = () => {
 
   const showToast = (msg) => {
     setActionMessage(msg);
+    queryClient.invalidateQueries({ queryKey: ['categories-and-courses'] });
     setTimeout(() => setActionMessage(''), 4000);
+  };
+
+  const handleSyncDefaults = async () => {
+    setSyncingDefaults(true);
+    try {
+      const existingNames = new Set(categories.map(c => c.name.toLowerCase()));
+      const missingCategories = DEFAULT_CATEGORIES.filter(name => !existingNames.has(name.toLowerCase()));
+
+      let currentCategories = [...categories];
+
+      if (missingCategories.length > 0) {
+        const toInsert = missingCategories.map(name => ({
+          name,
+          slug: generateSlug(name),
+          icon_name: name === 'Quran' ? 'Heart' : name === 'IELTS' ? 'Award' : name === 'Spoken' ? 'Quote' : 'BookOpen',
+          show_on_homepage: true
+        }));
+        const { data: insertedCats, error: catInsertErr } = await supabase
+          .from('categories')
+          .insert(toInsert)
+          .select();
+        if (catInsertErr) throw catInsertErr;
+        if (insertedCats) {
+          currentCategories = [...currentCategories, ...insertedCats];
+        }
+      }
+
+      // Sync missing default courses for each category
+      const existingCourseKeys = new Set(
+        courses.map(c => `${c.category_id}::${c.name.toLowerCase()}`)
+      );
+      const coursesToInsert = [];
+
+      currentCategories.forEach(cat => {
+        const defaultCourseList = DEFAULT_CLASSES_BY_CATEGORY[cat.name] || [];
+        defaultCourseList.forEach(courseName => {
+          const key = `${cat.id}::${courseName.toLowerCase()}`;
+          if (!existingCourseKeys.has(key)) {
+            coursesToInsert.push({
+              category_id: cat.id,
+              name: courseName,
+              slug: generateSlug(`${cat.name}-${courseName}`),
+              is_popular: false
+            });
+          }
+        });
+      });
+
+      if (coursesToInsert.length > 0) {
+        const { error: courseInsertErr } = await supabase
+          .from('courses')
+          .insert(coursesToInsert);
+        if (courseInsertErr) throw courseInsertErr;
+      }
+
+      await fetchAllData();
+      showToast(`Synced defaults (${missingCategories.length} categories, ${coursesToInsert.length} classes added)`);
+    } catch (err) {
+      console.error('Error syncing defaults:', err);
+      showAlert('error', 'Sync Failed', err.message || 'Could not sync default categories.');
+    } finally {
+      setSyncingDefaults(false);
+    }
   };
 
   const handleUpdateMode = async (mode) => {
@@ -310,12 +378,22 @@ const AdminCategories = () => {
           <p className="text-slate-400 text-sm font-medium mt-0.5">Manage categories, subcategories, and homepage explore configurations.</p>
         </div>
 
-        <button 
-          onClick={() => setShowAddCategory(true)}
-          className="flex items-center gap-1.5 bg-primary hover:bg-[#75ad36] text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-colors shadow-sm w-full sm:w-auto justify-center"
-        >
-          <Plus className="w-4 h-4" /> Add Category
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+          <button
+            onClick={handleSyncDefaults}
+            disabled={syncingDefaults}
+            className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-semibold text-sm transition-colors disabled:opacity-50 justify-center flex-1 sm:flex-initial"
+          >
+            <RefreshCw className={`w-4 h-4 ${syncingDefaults ? 'animate-spin' : ''}`} />
+            {syncingDefaults ? 'Syncing...' : 'Sync Defaults'}
+          </button>
+          <button 
+            onClick={() => setShowAddCategory(true)}
+            className="flex items-center gap-1.5 bg-primary hover:bg-[#75ad36] text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-colors shadow-sm flex-1 sm:flex-initial justify-center"
+          >
+            <Plus className="w-4 h-4" /> Add Category
+          </button>
+        </div>
       </div>
 
       {/* Settings Panel */}

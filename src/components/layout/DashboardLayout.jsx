@@ -301,8 +301,8 @@ const DashboardLayout = () => {
         <div className="flex-1 overflow-y-auto overflow-x-hidden pb-4">
           {/* Logo and Brand */}
           <div className="h-16 flex items-center justify-between px-6 border-b border-slate-50">
-            <Link to="/" className="text-xl font-bold text-slate-800 flex items-center gap-2">
-              <span className="bg-[#86c240] text-white p-1 rounded-lg text-sm font-black">TC</span>
+            <Link to="/" className="text-xl font-bold text-slate-800 flex items-center gap-2.5">
+              <img src="/logo.svg" alt="Tutor Core Logo" className="w-9 h-9 object-contain" />
               <span>Tutor <span className="text-[#86c240]">Core</span></span>
             </Link>
             <button

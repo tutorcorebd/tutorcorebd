@@ -3,19 +3,8 @@ import { supabase } from '../../lib/supabase';
 import useAuthStore from '../../store/useAuthStore';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Check, MapPin, BookOpen, Clock, DollarSign, Phone, GraduationCap, Users, User, X, Plus, AlertTriangle, Layers, FileText } from 'lucide-react';
-
-const CITIES = ['Barishal', 'Chattogram', 'Dhaka', 'Khulna', 'Mymensingh', 'Rajshahi', 'Rangpur', 'Sylhet'];
-
-const LOCATIONS_BY_CITY = {
-  Barishal: ['BM College', 'C&B Road', 'Natullabad', 'Rupatali', 'Sadar Road'],
-  Chattogram: ['Agrabad', 'Chandgaon', 'Chawkbazar', 'Double Mooring', 'GEC Circle', 'Halishahar', 'Khulshi', 'Lalkhan Bazar', 'Nasirabad', 'Patenga'],
-  Dhaka: ['300 Feet', 'Abdullahpur', 'Adabor', 'Adarsha Nagar', 'Aftab Nagar', 'Aftab Nagar - Block A', 'Aftab Nagar - Block B', 'Aftab Nagar - Block C', 'Aftab Nagar - Block D', 'Aftab Nagar - Block E', 'Aftab Nagar - Block F', 'Agargaon', 'Agargaon Taltola', 'Airport Area', 'Amin Bazar', 'Arambag', 'Armanitola', 'Asad Gate', 'Ashkona', 'Ati Bazar', 'Azampur', 'Azimpur', 'Babubazar', 'Badda', 'Baily Road', 'Bakshi Bazar', 'Bamnartek', 'Banagram', 'Banani', 'Banani - Block A to Block I', 'Banani - Road 1 to Road 27', 'Banani 11', 'Banani DOHS', 'Banasree', 'Bangla Bazar', 'Bangla Motor', 'Banglanagar', 'Bangshal', 'Baridhara', 'Baridhara DIT Poject', 'Baridhara DOHS', 'Basabo', 'Bashabo', 'Bashundhara', 'Bashundhara R/A', 'Baunia', 'Begun Bari', 'Benaroshi Polli', 'Beraid', 'Beribadh Mirpur', 'Bhashantek', 'Bijoy Sarani', 'Bijoynagar', 'Bosila', 'Buddho Mondir', 'BUET Area', 'Cantonment', 'Central Road', 'Chankharpul', 'Chawk Bazar', 'Chawkbazar', 'Chittagong Road', 'Chunkutia', 'College Gate', 'Dainik Bangla Mor', 'Dakshin Khan', 'Dakshinkhan', 'Darus Salam', 'Darussalam', 'Dayaganj', 'Demra', 'Dhaka Cantonment', 'Dhaka Uddan', 'Dhaka University Area', 'Dhamrai (Upazila City)', 'Dhanmondi', 'Dhanmondi - Road 1 to Road 32', 'Dholaikhal', 'Dhupkhola', 'Dilu Road', 'Dohar (Upazila City)', 'Dolaipar', 'Donia', 'Doyagonj', 'East Rampura', 'Eastern Housing', 'ECB Chattar', 'Elephant Road', 'Eskaton', 'Faidabad', 'Fakirapool', 'Faridabad', 'Farmgate', 'Gabtoli', 'Gendaria', 'Ghatarchar', 'Golapbag', 'Gopibagh', 'Goran', 'Green Road', 'Gudaraghat', 'Gulistan', 'Gulshan', 'Gulshan 1', 'Gulshan 2', 'Gulshan Avenue', 'Gulshan-1', 'Gulshan-2', 'Hatirjheel', 'Hatirpool', 'Hazaribag', 'Hazaribagh', 'Hazi Camp', 'Hazipara', 'Ibrahimpur', 'Indira Road', 'Islambag', 'Islampur', 'Jamuna Future Park Area', 'Jatrabari', 'Jigatola', 'Joar Sahara', 'Jurain', 'Kadamtoli', 'Kafrul', 'Kakrail', 'Kalabagan', 'Kalachandpur', 'Kalshi', 'Kalyanpur', 'Kamal Ataturk Avenue', 'Kamalapur', 'kamarpara', 'Kamrangichor', 'Kamrangirchar', 'Kanchon Bridge', 'Karwan Bazar', 'Katabon', 'Katasur', 'Kathal Bagan', 'Kawla', 'Kazipara', 'Kazla', 'Keraniganj', 'Keraniganj (Upazila City)', 'Khilbarirtek', 'Khilgaon', 'khilgaon Taltola', 'Khilkhet', 'Kochukhet', 'Kollanpur', 'Konapara', 'Kotwali', 'Kuratoli', 'Kuril', 'Kurmitola', 'Lake Circus Road', 'Lakshmibazar', 'Lalbag', 'Lalbagh', 'Lalmatia', 'Lalmatia - Block A', 'Lalmatia - Block B', 'Lalmatia - Block C', 'Lalmatia - Block D', 'Lalmatia - Block E', 'Lalmatia - Block F', 'Lalmatia - Block G', 'Lalmatia - Block H', 'Laxmibazar', 'Madani Avenue', 'Madartek', 'Malibagh', 'Manda', 'Manikdi', 'Maniknagar', 'Matikata', 'Matuail', 'Mazar Road', 'Meradia', 'Merul Badda', 'Middle Badda', 'Middle Bashabo', 'Mirbagh', 'Mirpur', 'Mirpur 1', 'Mirpur 10', 'Mirpur 11', 'Mirpur 12', 'Mirpur 13', 'Mirpur 14', 'Mirpur 2', 'Mirpur 6', 'Mirpur 60 Feet', 'Mirpur 7', 'Mirpur Cantonment', 'Mirpur DOHS', 'Mirpur Road', 'Modhubagh', 'Mogbazar', 'Mogbazar Wireless', 'Moghbazar', 'Mohakhali', 'Mohakhali DOHS', 'Mohammadpur', 'Mollartek', 'Monipur', 'Monipuri para', 'Monsurabad', 'Motijheel', 'Mouchak', 'Mugda', 'Nakhalpara', 'Nandipara', 'Narinda', 'Natun Bazar', 'Nawabganj (Upazila City)', 'Nawabpur', 'Naya Paltan', 'Nayanagar', 'New Eskaton Road', 'New Market', 'Niketan', 'Niketon', 'Nikunja', 'Nikunja 1', 'Nikunja 2', 'Nilkhet', 'Nimtola', 'Norda', 'North Badda', 'North Kafrul', 'Nurer Chala', 'Old Dhaka', 'Online', 'Paikpara', 'Pallabi', 'Pallabi Extenstion', 'Paltan', 'Panthapath', 'Paribag', 'Pilkhana', 'Pink City Model Town', 'Pirerbag', 'Poribag', 'Postogola', 'Priyanka Runway City', 'Puran Dhaka', 'Purana Paltan', 'Purbacahal', 'Ramna', 'Rampura', 'Rayer Bazar', 'Rayerbag', 'Raza Bazar', 'Razarbagh', 'Rupnagar', 'Sabujbag', 'Sadarghat', 'Saidabad', 'Sanarpar', 'Sankar', 'Sankharia Bazar', 'Sarulia', 'Satarkul', 'Satmasjid Road', 'Savar', 'Sayedabad', 'Seghunbagicha', 'Senpara', 'Shagufta', 'Shah Ali Bag', 'Shahbag', 'Shahbagh', 'Shahidbag', 'Shahinbag', 'Shahjadpur', 'Shahjahanpur', 'Shankharibazar', 'Shantibag', 'Shantinagar', 'Shekhertek', 'Sher-E-Bangla Nagar', 'Shewra', 'Shewrapara', 'Shyamoli', 'Shyampur', 'Siddheswari', 'Siddique Bazar', 'Sign Board', 'Sobhanbag', 'Sonir Akra', 'South Badda', 'South Banasree', 'South Baridhara', 'South Keraniganj', 'South Monipur', 'Sukrabad', 'Sutrapur', 'Swamibagh', 'Tallabag', 'Tannery More', 'Tantibazar', 'Tatibazar', 'Tejgaon', 'Tejgaon Industrial Area', 'Tejkunipara', 'Tikatuli', 'Tilpa Para', 'Tongi', 'TT Para', 'Turag', 'Uttar khan', 'Uttara', 'Uttara Dia Bari', 'Uttara DOHS', 'Uttara Sector 1', 'Uttara Sector 10', 'Uttara Sector 11', 'Uttara Sector 12', 'Uttara Sector 13', 'Uttara Sector 14', 'Uttara Sector 15', 'Uttara Sector 16', 'Uttara Sector 17', 'Uttara Sector 18', 'Uttara Sector 2', 'Uttara Sector 3', 'Uttara Sector 4', 'Uttara Sector 5', 'Uttara Sector 6', 'Uttara Sector 7', 'Uttara Sector 8', 'Uttara Sector 9', 'Uttarkhan', 'Vashantek', 'Vatara', 'Vuter Goli', 'Wari', 'West Dhanmondi', 'West Rampura', 'Zigatola', 'Zoo Road'],
-  Khulna: ['Boyra', 'Daulatpur', 'Gollamari', 'Khalishpur', 'Rupsha', 'Sonadanga'],
-  Mymensingh: ['Charpara', 'Ganginar Par', 'Kewatkhali', 'Sadar', 'Valuka'],
-  Rajshahi: ['Boalia', 'Kazihata', 'Motihar', 'Rajshahi University', 'Shaheb Bazar', 'Sopura', 'Talaimari'],
-  Rangpur: ['Dhap', 'Jahaz Mor', 'Lalbagh', 'Medical Mor', 'Modern Mor'],
-  Sylhet: ['Amberkhana', 'Kumarpara', 'Pathantula', 'Shibgonj', 'Sylhet Sadar', 'Uposahar', 'Zindabazar']
-};
+import { CITIES, normalizeCityName, getAreasForCity } from '../../data/locations';
+import { useCategoriesAndCourses, CUSTOM_OPTION } from '../../data/categories';
 
 const PRESET_COURSES = ['Play', 'Nursery', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'SSC', 'HSC', 'Class 11', 'Class 12', 'O Level', 'A Level', 'Admission Test'];
 const SALARY_RANGES = ['Negotiable', '2000 - 4000 BDT', '4000 - 6000 BDT', '6000 - 8000 BDT', '8000 - 10000 BDT', '10000 - 15000 BDT', '15000+ BDT'];
@@ -58,8 +47,13 @@ const EditRequest = () => {
   const suggestionsRef = useRef(null);
   const univRef = useRef(null);
   
+  const { categories, classesByCategory, allCourses } = useCategoriesAndCourses();
+
   // Single child states (legacy)
+  const [preferredCategory, setPreferredCategory] = useState('Bangla Medium');
+  const [customCategory, setCustomCategory] = useState('');
   const [studentClass, setStudentClass] = useState('');
+  const [customClass, setCustomClass] = useState('');
   const [studentGroup, setStudentGroup] = useState('');
   const [studentGender, setStudentGender] = useState('Any');
   const [selectedSubjects, setSelectedSubjects] = useState([]);
@@ -155,7 +149,16 @@ const EditRequest = () => {
         if (data.location) {
           const locParts = data.location.split(', ');
           setSelectedArea(locParts[0] || '');
-          setSelectedCity(locParts[1] || '');
+          setSelectedCity(normalizeCityName(locParts[1] || ''));
+        }
+        if (data.preferred_category) {
+          const catVal = data.preferred_category.trim();
+          if (categories.includes(catVal)) {
+            setPreferredCategory(catVal);
+          } else {
+            setPreferredCategory(CUSTOM_OPTION);
+            setCustomCategory(catVal);
+          }
         }
         setFullAddress(data.full_address || '');
         setGuardianWhatsapp(data.guardian_whatsapp || '');
@@ -437,7 +440,7 @@ const EditRequest = () => {
     const locationStr = `${selectedArea}, ${selectedCity}`;
 
     // University auditing / custom flag verification
-    let finalUniv = preferredUniversity;
+    let finalUniv;
     let hasCustomInstitution = false;
 
     if (univSearch.trim() !== '' && univSearch.trim().toLowerCase() !== 'any') {
@@ -472,7 +475,7 @@ const EditRequest = () => {
     }
 
     // Salary formatting
-    let salaryRangeStr = '';
+    let salaryRangeStr;
     if (salaryType === 'fixed') {
       salaryRangeStr = `${salaryAmount} BDT / ${salaryFrequency} (${daysCount} Days)`;
     } else {
@@ -487,9 +490,12 @@ const EditRequest = () => {
       return;
     }
 
+    const resolvedCategory = preferredCategory === CUSTOM_OPTION ? customCategory.trim() : preferredCategory;
+    const resolvedSingleClass = studentClass === CUSTOM_OPTION ? customClass.trim() : studentClass;
+
     // Class string construction & Subject combination mapping (legacy)
-    let classStr = '';
-    let combinedSubjects = [];
+    let classStr;
+    let combinedSubjects;
     if (isMultiChild) {
       classStr = childrenList.map(c => {
         const reqGroup = ['Class 9', 'Class 10', 'SSC', 'Class 11', 'Class 12', 'HSC'].includes(c.studentClass);
@@ -497,7 +503,7 @@ const EditRequest = () => {
       }).join(', ');
       combinedSubjects = Array.from(new Set(childrenList.flatMap(c => c.selectedSubjects)));
     } else {
-      classStr = requiresGroup ? `${studentClass} (${studentGroup})` : studentClass;
+      classStr = requiresGroup ? `${resolvedSingleClass} (${studentGroup})` : resolvedSingleClass;
       combinedSubjects = selectedSubjects;
     }
 
@@ -505,6 +511,7 @@ const EditRequest = () => {
       let query = supabase
         .from('tuition_requests')
         .update({
+          preferred_category: resolvedCategory || 'Bangla Medium',
           student_class: classStr,
           subject: combinedSubjects,
           student_gender: isMultiChild ? childrenList.map(c => c.studentGender || 'Any').join(', ') : studentGender,
@@ -574,6 +581,38 @@ const EditRequest = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+
+        {/* Preferred Category */}
+        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+          <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3">
+            <BookOpen className="w-4 h-4 text-[#86c240]" />
+            Tutoring Category / Medium <span className="text-red-500">*</span>
+          </label>
+          <select
+            className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium"
+            value={preferredCategory}
+            onChange={(e) => {
+              setPreferredCategory(e.target.value);
+              if (e.target.value !== CUSTOM_OPTION) setCustomCategory('');
+            }}
+            required
+          >
+            {categories.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+            <option value={CUSTOM_OPTION}>Other (Custom)</option>
+          </select>
+          {preferredCategory === CUSTOM_OPTION && (
+            <input
+              type="text"
+              placeholder="Type custom category (e.g. Arabic, Coding, Drawing)..."
+              className="w-full mt-3 p-3 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium text-sm"
+              value={customCategory}
+              onChange={(e) => setCustomCategory(e.target.value)}
+              required
+            />
+          )}
+        </div>
         
         {/* Toggle option for multiple children */}
         <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -822,10 +861,24 @@ const EditRequest = () => {
                   required
                 >
                   <option value="">Select a Class / Level</option>
-                  {PRESET_COURSES.map(course => (
+                  {(classesByCategory[preferredCategory] || allCourses).map(course => (
                     <option key={course} value={course}>{course}</option>
                   ))}
+                  {studentClass && studentClass !== CUSTOM_OPTION && !(classesByCategory[preferredCategory] || allCourses).includes(studentClass) && (
+                    <option value={studentClass}>{studentClass}</option>
+                  )}
+                  <option value={CUSTOM_OPTION}>Other (Custom)</option>
                 </select>
+                {studentClass === CUSTOM_OPTION && (
+                  <input
+                    type="text"
+                    placeholder="Type custom class or level..."
+                    className="w-full mt-2.5 p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#86c240] focus:ring-4 focus:ring-[#86c240]/10 font-medium text-sm"
+                    value={customClass}
+                    onChange={(e) => setCustomClass(e.target.value)}
+                    required
+                  />
+                )}
               </div>
 
               {requiresGroup && (
@@ -989,7 +1042,7 @@ const EditRequest = () => {
               required
             >
               <option value="">Select Area</option>
-              {selectedCity && LOCATIONS_BY_CITY[selectedCity]?.map(area => (
+              {selectedCity && getAreasForCity(selectedCity, selectedArea).map(area => (
                 <option key={area} value={area}>{area}</option>
               ))}
             </select>

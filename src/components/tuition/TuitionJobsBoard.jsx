@@ -10,28 +10,16 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import CustomAlert from '../../components/layout/CustomAlert';
+import { CITIES, getCitySearchVariants, getAreasForCity } from '../../data/locations';
+import { useCategoriesAndCourses } from '../../data/categories';
 
-const cities = [
-  'All', 'Barishal', 'Chittagong', 'Cumilla', 'Dhaka', 'Gazipur', 'Khulna', 'Mymensingh', 'Narayanganj', 'Rajshahi', 'Rangpur', 'Sylhet'
-];
-
-const LOCATIONS_BY_CITY = {
-  Barishal: ['BM College', 'C&B Road', 'Natullabad', 'Rupatali', 'Sadar Road'],
-  Chittagong: ['Agrabad', 'Chandgaon', 'Chawkbazar', 'Double Mooring', 'GEC Circle', 'Halishahar', 'Khulshi', 'Lalkhan Bazar', 'Nasirabad', 'Patenga'],
-  Dhaka: ['300 Feet', 'Abdullahpur', 'Adabor', 'Adarsha Nagar', 'Aftab Nagar', 'Aftab Nagar - Block A', 'Aftab Nagar - Block B', 'Aftab Nagar - Block C', 'Aftab Nagar - Block D', 'Aftab Nagar - Block E', 'Aftab Nagar - Block F', 'Agargaon', 'Agargaon Taltola', 'Airport Area', 'Amin Bazar', 'Arambag', 'Armanitola', 'Asad Gate', 'Ashkona', 'Ati Bazar', 'Azampur', 'Azimpur', 'Babubazar', 'Badda', 'Baily Road', 'Bakshi Bazar', 'Bamnartek', 'Banagram', 'Banani', 'Banani - Block A to Block I', 'Banani - Road 1 to Road 27', 'Banani 11', 'Banani DOHS', 'Banasree', 'Bangla Bazar', 'Bangla Motor', 'Banglanagar', 'Bangshal', 'Baridhara', 'Baridhara DIT Poject', 'Baridhara DOHS', 'Basabo', 'Bashabo', 'Bashundhara', 'Bashundhara R/A', 'Baunia', 'Begun Bari', 'Benaroshi Polli', 'Beraid', 'Beribadh Mirpur', 'Bhashantek', 'Bijoy Sarani', 'Bijoynagar', 'Bosila', 'Buddho Mondir', 'BUET Area', 'Cantonment', 'Central Road', 'Chankharpul', 'Chawk Bazar', 'Chawkbazar', 'Chittagong Road', 'Chunkutia', 'College Gate', 'Dainik Bangla Mor', 'Dakshin Khan', 'Dakshinkhan', 'Darus Salam', 'Darussalam', 'Dayaganj', 'Demra', 'Dhaka Cantonment', 'Dhaka Uddan', 'Dhaka University Area', 'Dhamrai (Upazila City)', 'Dhanmondi', 'Dhanmondi - Road 1 to Road 32', 'Dholaikhal', 'Dhupkhola', 'Dilu Road', 'Dohar (Upazila City)', 'Dolaipar', 'Donia', 'Doyagonj', 'East Rampura', 'Eastern Housing', 'ECB Chattar', 'Elephant Road', 'Eskaton', 'Faidabad', 'Fakirapool', 'Faridabad', 'Farmgate', 'Gabtoli', 'Gendaria', 'Ghatarchar', 'Golapbag', 'Gopibagh', 'Goran', 'Green Road', 'Gudaraghat', 'Gulistan', 'Gulshan', 'Gulshan 1', 'Gulshan 2', 'Gulshan Avenue', 'Gulshan-1', 'Gulshan-2', 'Hatirjheel', 'Hatirpool', 'Hazaribag', 'Hazaribagh', 'Hazi Camp', 'Hazipara', 'Ibrahimpur', 'Indira Road', 'Islambag', 'Islampur', 'Jamuna Future Park Area', 'Jatrabari', 'Jigatola', 'Joar Sahara', 'Jurain', 'Kadamtoli', 'Kafrul', 'Kakrail', 'Kalabagan', 'Kalachandpur', 'Kalshi', 'Kalyanpur', 'Kamal Ataturk Avenue', 'Kamalapur', 'kamarpara', 'Kamrangichor', 'Kamrangirchar', 'Kanchon Bridge', 'Karwan Bazar', 'Katabon', 'Katasur', 'Kathal Bagan', 'Kawla', 'Kazipara', 'Kazla', 'Keraniganj', 'Keraniganj (Upazila City)', 'Khilbarirtek', 'Khilgaon', 'khilgaon Taltola', 'Khilkhet', 'Kochukhet', 'Kollanpur', 'Konapara', 'Kotwali', 'Kuratoli', 'Kuril', 'Kurmitola', 'Lake Circus Road', 'Lakshmibazar', 'Lalbag', 'Lalbagh', 'Lalmatia', 'Lalmatia - Block A', 'Lalmatia - Block B', 'Lalmatia - Block C', 'Lalmatia - Block D', 'Lalmatia - Block E', 'Lalmatia - Block F', 'Lalmatia - Block G', 'Lalmatia - Block H', 'Laxmibazar', 'Madani Avenue', 'Madartek', 'Malibagh', 'Manda', 'Manikdi', 'Maniknagar', 'Matikata', 'Matuail', 'Mazar Road', 'Meradia', 'Merul Badda', 'Middle Badda', 'Middle Bashabo', 'Mirbagh', 'Mirpur', 'Mirpur 1', 'Mirpur 10', 'Mirpur 11', 'Mirpur 12', 'Mirpur 13', 'Mirpur 14', 'Mirpur 2', 'Mirpur 6', 'Mirpur 60 Feet', 'Mirpur 7', 'Mirpur Cantonment', 'Mirpur DOHS', 'Mirpur Road', 'Modhubagh', 'Mogbazar', 'Mogbazar Wireless', 'Moghbazar', 'Mohakhali', 'Mohakhali DOHS', 'Mohammadpur', 'Mollartek', 'Monipur', 'Monipuri para', 'Monsurabad', 'Motijheel', 'Mouchak', 'Mugda', 'Nakhalpara', 'Nandipara', 'Narinda', 'Natun Bazar', 'Nawabganj (Upazila City)', 'Nawabpur', 'Naya Paltan', 'Nayanagar', 'New Eskaton Road', 'New Market', 'Niketan', 'Niketon', 'Nikunja', 'Nikunja 1', 'Nikunja 2', 'Nilkhet', 'Nimtola', 'Norda', 'North Badda', 'North Kafrul', 'Nurer Chala', 'Old Dhaka', 'Online', 'Paikpara', 'Pallabi', 'Pallabi Extenstion', 'Paltan', 'Panthapath', 'Paribag', 'Pilkhana', 'Pink City Model Town', 'Pirerbag', 'Poribag', 'Postogola', 'Priyanka Runway City', 'Puran Dhaka', 'Purana Paltan', 'Purbacahal', 'Ramna', 'Rampura', 'Rayer Bazar', 'Rayerbag', 'Raza Bazar', 'Razarbagh', 'Rupnagar', 'Sabujbag', 'Sadarghat', 'Saidabad', 'Sanarpar', 'Sankar', 'Sankharia Bazar', 'Sarulia', 'Satarkul', 'Satmasjid Road', 'Savar', 'Sayedabad', 'Seghunbagicha', 'Senpara', 'Shagufta', 'Shah Ali Bag', 'Shahbag', 'Shahbagh', 'Shahidbag', 'Shahinbag', 'Shahjadpur', 'Shahjahanpur', 'Shankharibazar', 'Shantibag', 'Shantinagar', 'Shekhertek', 'Sher-E-Bangla Nagar', 'Shewra', 'Shewrapara', 'Shyamoli', 'Shyampur', 'Siddheswari', 'Siddique Bazar', 'Sign Board', 'Sobhanbag', 'Sonir Akra', 'South Badda', 'South Banasree', 'South Baridhara', 'South Keraniganj', 'South Monipur', 'Sukrabad', 'Sutrapur', 'Swamibagh', 'Tallabag', 'Tannery More', 'Tantibazar', 'Tatibazar', 'Tejgaon', 'Tejgaon Industrial Area', 'Tejkunipara', 'Tikatuli', 'Tilpa Para', 'Tongi', 'TT Para', 'Turag', 'Uttar khan', 'Uttara', 'Uttara Dia Bari', 'Uttara DOHS', 'Uttara Sector 1', 'Uttara Sector 10', 'Uttara Sector 11', 'Uttara Sector 12', 'Uttara Sector 13', 'Uttara Sector 14', 'Uttara Sector 15', 'Uttara Sector 16', 'Uttara Sector 17', 'Uttara Sector 18', 'Uttara Sector 2', 'Uttara Sector 3', 'Uttara Sector 4', 'Uttara Sector 5', 'Uttara Sector 6', 'Uttara Sector 7', 'Uttara Sector 8', 'Uttara Sector 9', 'Uttarkhan', 'Vashantek', 'Vatara', 'Vuter Goli', 'Wari', 'West Dhanmondi', 'West Rampura', 'Zigatola', 'Zoo Road'],
-  Khulna: ['Boyra', 'Daulatpur', 'Gollamari', 'Khalishpur', 'Rupsha', 'Sonadanga'],
-  Mymensingh: ['Charpara', 'Ganginar Par', 'Kewatkhali', 'Sadar', 'Valuka'],
-  Rajshahi: ['Boalia', 'Kazihata', 'Motihar', 'Rajshahi University', 'Shaheb Bazar', 'Sopura', 'Talaimari'],
-  Rangpur: ['Dhap', 'Jahaz Mor', 'Lalbagh', 'Medical Mor', 'Modern Mor'],
-  Sylhet: ['Amberkhana', 'Kumarpara', 'Pathantula', 'Shibgonj', 'Sylhet Sadar', 'Uposahar', 'Zindabazar']
-};
-
-const PRESET_COURSES = ['Play', 'Nursery', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'SSC', 'HSC', 'Class 11', 'Class 12', 'O Level', 'A Level', 'Admission Test'];
+const cities = ['All', ...CITIES];
 
 const TuitionJobsBoard = ({ isPublic }) => {
   const { profile } = useAuthStore();
   const navigate = useNavigate();
   const locationState = useLocation();
+  const { categories: dynamicCategories, allCourses: dynamicCourses } = useCategoriesAndCourses();
 
   const [filteredTuitions, setFilteredTuitions] = useState([]);
 
@@ -197,8 +185,12 @@ const TuitionJobsBoard = ({ isPublic }) => {
 
     // 2. City Quick Filter
     if (!selectedCities.includes('All') && selectedCities.length > 0) {
-      result = result.filter(job => 
-        selectedCities.some(city => job.location && job.location.toLowerCase().includes(city.toLowerCase()))
+      result = result.filter(job =>
+        selectedCities.some(city => {
+          const variants = getCitySearchVariants(city);
+          const jobLoc = job.location?.toLowerCase() || '';
+          return variants.some(v => jobLoc.includes(v));
+        })
       );
     }
 
@@ -216,14 +208,18 @@ const TuitionJobsBoard = ({ isPublic }) => {
         result = result.filter(job => new Date(job.created_at) <= endOfDay);
       }
       if (city) {
-        result = result.filter(job => job.location && job.location.toLowerCase().includes(city.toLowerCase()));
+        const variants = getCitySearchVariants(city);
+        result = result.filter(job => {
+          const jobLoc = job.location?.toLowerCase() || '';
+          return variants.some(v => jobLoc.includes(v));
+        });
       }
       if (location) {
         result = result.filter(job => job.location && job.location.toLowerCase().includes(location.toLowerCase()));
       }
       if (category) {
         // preferred_category mapping
-        result = result.filter(job => job.preferred_category && job.preferred_category.toLowerCase() === category.toLowerCase());
+        result = result.filter(job => job.preferred_category && job.preferred_category.toLowerCase().includes(category.toLowerCase()));
       }
       if (courseClass) {
         result = result.filter(job => job.student_class && job.student_class.toLowerCase().includes(courseClass.toLowerCase()));
@@ -381,7 +377,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
   const getEmbedUrl = (url) => {
     if (!url) return '';
     let videoId = '';
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     if (match && match[2].length === 11) {
       videoId = match[2];
@@ -452,7 +448,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
 
       {/* City Checkboxes */}
       {showCityFilter && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 max-h-56 overflow-y-auto pr-1">
           {cities.map(city => (
             <label 
               key={city}
@@ -724,10 +720,12 @@ const TuitionJobsBoard = ({ isPublic }) => {
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#86c240]"
                 >
                   <option value="">Select Category</option>
-                  <option value="Bangla Medium">Bangla Medium</option>
-                  <option value="English Medium">English Medium</option>
-                  <option value="Admission Test">Admission Test</option>
-                  <option value="Religious Studies">Religious Studies</option>
+                  {Array.from(new Set([
+                    ...dynamicCategories,
+                    ...allTuitions.flatMap(j => (j.preferred_category || '').split(',').map(s => s.trim()).filter(Boolean))
+                  ])).map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
                 </select>
               </div>
 
@@ -739,7 +737,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#86c240]"
                 >
                   <option value="">Select Class</option>
-                  {PRESET_COURSES.map(c => (
+                  {dynamicCourses.map(c => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
@@ -754,7 +752,7 @@ const TuitionJobsBoard = ({ isPublic }) => {
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#86c240] disabled:opacity-50"
                 >
                   <option value="">Select Location</option>
-                  {advFilters.city && LOCATIONS_BY_CITY[advFilters.city]?.map(loc => (
+                  {advFilters.city && getAreasForCity(advFilters.city).map(loc => (
                     <option key={loc} value={loc}>{loc}</option>
                   ))}
                 </select>

@@ -102,9 +102,7 @@ const AdminLogin = () => {
           transition={{ duration: 0.8, delay: 0.1 }}
           className="relative z-10 max-w-xl"
         >
-          <div className="w-14 h-14 bg-white/15 border border-white/25 rounded-2xl flex items-center justify-center backdrop-blur-md mb-8">
-            <Shield className="w-7 h-7 text-white" />
-          </div>
+          <img src="/logo.svg" alt="Tutor Core Logo" className="w-16 h-16 object-contain drop-shadow-lg mb-8" />
           <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight mb-5">
             Tutor Core<br />
             <span className="text-green-100 font-medium text-3xl md:text-4xl block mt-2">
@@ -145,9 +143,7 @@ const AdminLogin = () => {
           className="w-full max-w-md bg-white border border-slate-100 rounded-3xl p-6 sm:p-10 shadow-xl shadow-slate-200/50"
         >
           <div className="text-center sm:text-left mb-8">
-            <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center md:hidden mx-auto mb-5">
-              <Shield className="w-6 h-6 text-[#86c240]" />
-            </div>
+            <img src="/logo.svg" alt="Tutor Core Logo" className="w-14 h-14 object-contain md:hidden mx-auto mb-5" />
             <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">Admin sign in</h2>
             <p className="text-slate-500 mt-2.5 text-sm font-medium leading-relaxed">
               Please enter your admin credentials to log in.

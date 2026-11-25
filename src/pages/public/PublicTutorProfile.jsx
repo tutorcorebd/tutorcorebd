@@ -28,6 +28,28 @@ import { motion } from 'framer-motion';
 import VerifiedBadge from '../../components/common/VerifiedBadge';
 import PremiumBadge from '../../components/common/PremiumBadge';
 
+const TagPill = ({ children, color = 'green' }) => {
+  const colorMap = {
+    green: 'border-[#86c240]/40 text-slate-700 bg-[#86c240]/5 hover:border-[#86c240]/70 hover:bg-[#86c240]/10',
+    blue: 'border-blue-300/50 text-slate-700 bg-blue-50/50 hover:border-blue-400/70 hover:bg-blue-50',
+    amber: 'border-amber-300/50 text-slate-700 bg-amber-50/50 hover:border-amber-400/70 hover:bg-amber-50',
+    purple: 'border-purple-300/50 text-slate-700 bg-purple-50/50 hover:border-purple-400/70 hover:bg-purple-50',
+    slate: 'border-slate-200 text-slate-600 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50',
+  };
+  return (
+    <span className={`inline-block text-sm font-semibold px-3.5 py-1.5 rounded-full border tag-hover cursor-default ${colorMap[color] || colorMap.green}`}>
+      {children}
+    </span>
+  );
+};
+
+const InfoRow = ({ label, value, isLast = false }) => (
+  <div className={`flex flex-col sm:flex-row sm:items-center justify-between py-4 ${!isLast ? 'border-b border-slate-100/80' : ''} gap-1`}>
+    <span className="font-bold text-slate-500 text-[15px]">{label} :</span>
+    <span className="font-semibold text-slate-800 text-[15px]">{value || 'N/A'}</span>
+  </div>
+);
+
 const PublicTutorProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -195,30 +217,6 @@ const PublicTutorProfile = () => {
     }
   };
 
-  // Render a tag pill with green border (matching reference)
-  const TagPill = ({ children, color = 'green' }) => {
-    const colorMap = {
-      green: 'border-[#86c240]/40 text-slate-700 bg-[#86c240]/5 hover:border-[#86c240]/70 hover:bg-[#86c240]/10',
-      blue: 'border-blue-300/50 text-slate-700 bg-blue-50/50 hover:border-blue-400/70 hover:bg-blue-50',
-      amber: 'border-amber-300/50 text-slate-700 bg-amber-50/50 hover:border-amber-400/70 hover:bg-amber-50',
-      purple: 'border-purple-300/50 text-slate-700 bg-purple-50/50 hover:border-purple-400/70 hover:bg-purple-50',
-      slate: 'border-slate-200 text-slate-600 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50',
-    };
-    return (
-      <span className={`inline-block text-sm font-semibold px-3.5 py-1.5 rounded-full border tag-hover cursor-default ${colorMap[color] || colorMap.green}`}>
-        {children}
-      </span>
-    );
-  };
-
-  // Info row component for tutoring information
-  const InfoRow = ({ label, value, isLast = false }) => (
-    <div className={`flex flex-col sm:flex-row sm:items-center justify-between py-4 ${!isLast ? 'border-b border-slate-100/80' : ''} gap-1`}>
-      <span className="font-bold text-slate-500 text-[15px]">{label} :</span>
-      <span className="font-semibold text-slate-800 text-[15px]">{value || 'N/A'}</span>
-    </div>
-  );
-
   return (
     <div className="max-w-[1400px] w-full mx-auto px-4 md:px-8 py-6 md:py-10 min-h-screen">
       
@@ -310,7 +308,7 @@ const PublicTutorProfile = () => {
                 <p className="text-sm font-bold text-slate-400 mb-0.5">Member Since :</p>
                 <p className="text-base font-semibold text-slate-700 flex items-center justify-center gap-1">
                   <Calendar className="w-4 h-4 text-slate-400" />
-                  {new Date(tutorData.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                  {tutorData?.created_at ? new Date(tutorData.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A'}
                 </p>
               </div>
             </div>
@@ -677,13 +675,13 @@ const PublicTutorProfile = () => {
             <div className="grid grid-cols-[150px_1fr] md:grid-cols-[250px_1fr] gap-4 py-2.5">
               <span className="font-bold text-slate-500 text-[15px]">Member Since :</span>
               <span className="font-semibold text-slate-800 text-[15px]">
-                {new Date(tutorData?.created_at || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                {tutorData?.created_at ? new Date(tutorData.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
               </span>
             </div>
             <div className="grid grid-cols-[150px_1fr] md:grid-cols-[250px_1fr] gap-4 py-2.5">
               <span className="font-bold text-slate-500 text-[15px]">Last Active :</span>
               <span className="font-semibold text-slate-800 text-[15px]">
-                {new Date(tutorData?.last_login || tutorData?.created_at || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                {(tutorData?.last_login || tutorData?.created_at) ? new Date(tutorData.last_login || tutorData.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
               </span>
             </div>
           </div>

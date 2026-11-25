@@ -100,8 +100,9 @@ const Layout = () => {
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
-              <Link to="/" className="text-2xl font-bold text-primary flex items-center gap-2">
-                <span className="bg-primary text-white p-1 rounded-md">TC</span> Tutor Core
+              <Link to="/" className="text-2xl font-bold text-primary flex items-center gap-2.5">
+                <img src="/logo.svg" alt="Tutor Core Logo" className="w-9 h-9 object-contain" />
+                <span>Tutor Core</span>
               </Link>
             </div>
 
@@ -203,8 +204,8 @@ const Layout = () => {
             
             {/* Column 1: Brand Info (4 cols) */}
             <div className="lg:col-span-4 space-y-6">
-              <Link to="/" className="text-2xl font-black text-white flex items-center gap-2 group w-fit">
-                <span className="bg-[#86c240] text-white w-9 h-9 rounded-xl flex items-center justify-center text-sm font-black shadow-lg shadow-[#86c240]/25 group-hover:scale-105 transition-transform duration-300">TC</span>
+              <Link to="/" className="text-2xl font-black text-white flex items-center gap-2.5 group w-fit">
+                <img src="/logo.svg" alt="Tutor Core Logo" className="w-10 h-10 object-contain group-hover:scale-105 transition-transform duration-300" />
                 <span className="tracking-tight text-white font-extrabold">Tutor <span className="text-[#86c240]">Core</span></span>
               </Link>
               <p className="text-sm text-slate-400 leading-relaxed font-medium">

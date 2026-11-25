@@ -1,0 +1,271 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.users (
+  id uuid NOT NULL,
+  role USER-DEFINED NOT NULL,
+  full_name text NOT NULL,
+  phone_number text,
+  created_at timestamp with time zone DEFAULT now(),
+  status text NOT NULL DEFAULT 'active'::text,
+  email_notifications boolean DEFAULT true,
+  sms_notifications boolean DEFAULT false,
+  deactivation_reason text,
+  deletion_reason text,
+  deletion_requested_at timestamp with time zone,
+  email text,
+  last_login timestamp with time zone,
+  CONSTRAINT users_pkey PRIMARY KEY (id),
+  CONSTRAINT users_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.tutor_profiles (
+  user_id uuid NOT NULL,
+  education_status text,
+  preferred_subjects ARRAY,
+  cv_url text,
+  profile_completeness integer DEFAULT 0,
+  is_verified boolean DEFAULT false,
+  bio text,
+  current_city text,
+  preferred_locations ARRAY,
+  university text,
+  department text,
+  is_hsc_student boolean DEFAULT false,
+  living_location text,
+  preferred_category text,
+  preferred_courses ARRAY,
+  experience text,
+  available_days ARRAY,
+  teaching_method text,
+  available_from text,
+  available_to text,
+  expected_salary text,
+  school_name text,
+  school_group text,
+  school_curriculum text,
+  school_board text,
+  school_gpa text,
+  school_year text,
+  college_name text,
+  college_group text,
+  college_curriculum text,
+  college_board text,
+  college_gpa text,
+  college_year text,
+  grad_gpa text,
+  grad_year text,
+  post_grad_university text,
+  post_grad_department text,
+  post_grad_gpa text,
+  post_grad_year text,
+  gender text,
+  fathers_name text,
+  mothers_name text,
+  emergency_contact text,
+  address text,
+  nid text,
+  dob text,
+  photo_url text,
+  tutor_category text DEFAULT 'New Tutors'::text,
+  tutor_status text DEFAULT 'Normal Tutor'::text CHECK (tutor_status = ANY (ARRAY['Normal Tutor'::text, 'Verified Tutor'::text, 'Premium Tutor'::text])),
+  emergency_contact_name text,
+  emergency_contact_relationship text,
+  emergency_contact_phone text,
+  emergency_contact_additional text,
+  facebook_link text,
+  linkedin_link text,
+  whatsapp_number text,
+  about_yourself text,
+  reasons_for_hiring text,
+  tuition_experience_details text,
+  personal_motivation text,
+  blood_group text,
+  religion text,
+  nid_url text,
+  varsity_id_url text,
+  hsc_cert_url text,
+  ssc_cert_url text,
+  rating integer DEFAULT 0 CHECK (rating >= 0 AND rating <= 5),
+  is_premium boolean DEFAULT false,
+  CONSTRAINT tutor_profiles_pkey PRIMARY KEY (user_id),
+  CONSTRAINT tutor_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.tuition_requests (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  guardian_id uuid NOT NULL,
+  student_class text NOT NULL,
+  subject ARRAY NOT NULL,
+  location text NOT NULL,
+  guardian_whatsapp text NOT NULL,
+  salary_range text,
+  days_per_week integer,
+  status text DEFAULT 'open'::text CHECK (status = ANY (ARRAY['open'::text, 'assigned'::text, 'closed'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  preferred_gender text DEFAULT 'Any'::text,
+  preferred_university text DEFAULT 'Any'::text,
+  tutoring_mode text DEFAULT 'Home Tutoring'::text,
+  tutoring_time text DEFAULT 'Negotiable'::text,
+  preferred_category text DEFAULT 'Bangla Medium'::text,
+  duration text DEFAULT '1.5 Hour'::text,
+  number_of_students text DEFAULT 'One'::text,
+  hiring_from text,
+  other_requirement text,
+  full_address text,
+  views integer DEFAULT 0,
+  children jsonb,
+  salary_type text DEFAULT 'range'::text CHECK (salary_type = ANY (ARRAY['range'::text, 'fixed'::text])),
+  salary_amount numeric,
+  salary_frequency text,
+  days_count integer,
+  has_custom_institution boolean DEFAULT false,
+  student_gender text DEFAULT 'Any'::text,
+  CONSTRAINT tuition_requests_pkey PRIMARY KEY (id),
+  CONSTRAINT tuition_requests_guardian_id_fkey FOREIGN KEY (guardian_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.job_applications (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  tutor_id uuid NOT NULL,
+  tuition_request_id uuid NOT NULL,
+  status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'reviewed'::text, 'selected'::text, 'rejected'::text])),
+  applied_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT job_applications_pkey PRIMARY KEY (id),
+  CONSTRAINT job_applications_tutor_id_fkey FOREIGN KEY (tutor_id) REFERENCES public.users(id),
+  CONSTRAINT job_applications_tuition_request_id_fkey FOREIGN KEY (tuition_request_id) REFERENCES public.tuition_requests(id)
+);
+CREATE TABLE public.tutorials (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  video_url text NOT NULL,
+  thumbnail_url text,
+  description text,
+  target_role text DEFAULT 'all'::text,
+  created_at timestamp with time zone DEFAULT now(),
+  show_on_job_board boolean DEFAULT false,
+  CONSTRAINT tutorials_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.guardian_profiles (
+  user_id uuid NOT NULL,
+  alternative_phone text,
+  profession text,
+  address text,
+  city text,
+  number_of_children text,
+  profile_photo_url text,
+  profile_completeness integer DEFAULT 0,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT guardian_profiles_pkey PRIMARY KEY (user_id),
+  CONSTRAINT guardian_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.bookmarks (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  tutor_id uuid NOT NULL,
+  tuition_request_id uuid NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT bookmarks_pkey PRIMARY KEY (id),
+  CONSTRAINT bookmarks_tutor_id_fkey FOREIGN KEY (tutor_id) REFERENCES auth.users(id),
+  CONSTRAINT bookmarks_tuition_request_id_fkey FOREIGN KEY (tuition_request_id) REFERENCES public.tuition_requests(id)
+);
+CREATE TABLE public.notices (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  message text NOT NULL,
+  target_audience text NOT NULL CHECK (target_audience = ANY (ARRAY['all'::text, 'tutor'::text, 'guardian'::text, 'specific'::text])),
+  specific_user_ids ARRAY DEFAULT '{}'::uuid[],
+  expires_at timestamp with time zone NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT notices_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.membership_requests (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  user_id uuid NOT NULL,
+  plan_name text NOT NULL CHECK (plan_name = ANY (ARRAY['Basic'::text, 'Pro'::text, 'Premium'::text, 'Verified'::text])),
+  status text NOT NULL DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  payment_platform text,
+  transaction_id text,
+  phone_number text,
+  CONSTRAINT membership_requests_pkey PRIMARY KEY (id),
+  CONSTRAINT membership_requests_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.support_tickets (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  category text NOT NULL CHECK (category = ANY (ARRAY['Verified Tutors/Guardians'::text, 'Premium Tutors/Guardians'::text, 'Others'::text])),
+  subject text NOT NULL,
+  message text NOT NULL,
+  status text NOT NULL DEFAULT 'open'::text CHECK (status = ANY (ARRAY['open'::text, 'in-progress'::text, 'resolved'::text, 'closed'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  ticket_no text,
+  CONSTRAINT support_tickets_pkey PRIMARY KEY (id),
+  CONSTRAINT support_tickets_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.categories (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL UNIQUE,
+  slug text NOT NULL UNIQUE,
+  icon_name text DEFAULT 'BookOpen'::text,
+  show_on_homepage boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT categories_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.courses (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  category_id uuid,
+  name text NOT NULL,
+  slug text NOT NULL,
+  is_popular boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT courses_pkey PRIMARY KEY (id),
+  CONSTRAINT courses_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id)
+);
+CREATE TABLE public.platform_settings (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  homepage_category_mode text DEFAULT 'default'::text CHECK (homepage_category_mode = ANY (ARRAY['default'::text, 'custom'::text, 'active_tuitions'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT platform_settings_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.support_messages (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  ticket_id uuid NOT NULL,
+  sender_id uuid NOT NULL,
+  sender_name text NOT NULL,
+  sender_role text NOT NULL,
+  message text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT support_messages_pkey PRIMARY KEY (id),
+  CONSTRAINT support_messages_ticket_id_fkey FOREIGN KEY (ticket_id) REFERENCES public.support_tickets(id),
+  CONSTRAINT support_messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.institutions (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL UNIQUE,
+  status text NOT NULL DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT institutions_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.feedbacks (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid,
+  name text NOT NULL,
+  rating integer NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comment text NOT NULL,
+  status text NOT NULL DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])),
+  is_published boolean NOT NULL DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT feedbacks_pkey PRIMARY KEY (id),
+  CONSTRAINT feedbacks_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.tuition_reports (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  reporter_id uuid NOT NULL,
+  tuition_request_id uuid NOT NULL,
+  issue_category text NOT NULL,
+  description text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT tuition_reports_pkey PRIMARY KEY (id),
+  CONSTRAINT tuition_reports_reporter_id_fkey FOREIGN KEY (reporter_id) REFERENCES public.users(id),
+  CONSTRAINT tuition_reports_tuition_request_id_fkey FOREIGN KEY (tuition_request_id) REFERENCES public.tuition_requests(id)
+);

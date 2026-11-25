@@ -15,8 +15,7 @@ import {
   Home,
   X
 } from 'lucide-react';
-
-const CITIES = ['Barishal', 'Chattogram', 'Dhaka', 'Khulna', 'Mymensingh', 'Rajshahi', 'Rangpur', 'Sylhet'];
+import { CITIES } from '../../data/locations';
 
 const GuardianProfileForm = () => {
   const { user, profile, fetchProfile } = useAuthStore();

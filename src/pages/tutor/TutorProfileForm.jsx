@@ -22,19 +22,8 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import ImageCropperModal from '../../components/common/ImageCropperModal';
-
-const CITIES = ['Barishal', 'Chattogram', 'Dhaka', 'Khulna', 'Mymensingh', 'Rajshahi', 'Rangpur', 'Sylhet'];
-
-const LOCATIONS_BY_CITY = {
-  Barishal: ['BM College', 'C&B Road', 'Natullabad', 'Rupatali', 'Sadar Road'],
-  Chattogram: ['Agrabad', 'Chandgaon', 'Chawkbazar', 'Double Mooring', 'GEC Circle', 'Halishahar', 'Khulshi', 'Lalkhan Bazar', 'Nasirabad', 'Patenga'],
-  Dhaka: ['300 Feet', 'Abdullahpur', 'Adabor', 'Adarsha Nagar', 'Aftab Nagar', 'Aftab Nagar - Block A', 'Aftab Nagar - Block B', 'Aftab Nagar - Block C', 'Aftab Nagar - Block D', 'Aftab Nagar - Block E', 'Aftab Nagar - Block F', 'Agargaon', 'Agargaon Taltola', 'Airport Area', 'Amin Bazar', 'Arambag', 'Armanitola', 'Asad Gate', 'Ashkona', 'Ati Bazar', 'Azampur', 'Azimpur', 'Babubazar', 'Badda', 'Baily Road', 'Bakshi Bazar', 'Bamnartek', 'Banagram', 'Banani', 'Banani - Block A to Block I', 'Banani - Road 1 to Road 27', 'Banani 11', 'Banani DOHS', 'Banasree', 'Bangla Bazar', 'Bangla Motor', 'Banglanagar', 'Bangshal', 'Baridhara', 'Baridhara DIT Poject', 'Baridhara DOHS', 'Basabo', 'Bashabo', 'Bashundhara', 'Bashundhara R/A', 'Baunia', 'Begun Bari', 'Benaroshi Polli', 'Beraid', 'Beribadh Mirpur', 'Bhashantek', 'Bijoy Sarani', 'Bijoynagar', 'Bosila', 'Buddho Mondir', 'BUET Area', 'Cantonment', 'Central Road', 'Chankharpul', 'Chawk Bazar', 'Chawkbazar', 'Chittagong Road', 'Chunkutia', 'College Gate', 'Dainik Bangla Mor', 'Dakshin Khan', 'Dakshinkhan', 'Darus Salam', 'Darussalam', 'Dayaganj', 'Demra', 'Dhaka Cantonment', 'Dhaka Uddan', 'Dhaka University Area', 'Dhamrai (Upazila City)', 'Dhanmondi', 'Dhanmondi - Road 1 to Road 32', 'Dholaikhal', 'Dhupkhola', 'Dilu Road', 'Dohar (Upazila City)', 'Dolaipar', 'Donia', 'Doyagonj', 'East Rampura', 'Eastern Housing', 'ECB Chattar', 'Elephant Road', 'Eskaton', 'Faidabad', 'Fakirapool', 'Faridabad', 'Farmgate', 'Gabtoli', 'Gendaria', 'Ghatarchar', 'Golapbag', 'Gopibagh', 'Goran', 'Green Road', 'Gudaraghat', 'Gulistan', 'Gulshan', 'Gulshan 1', 'Gulshan 2', 'Gulshan Avenue', 'Gulshan-1', 'Gulshan-2', 'Hatirjheel', 'Hatirpool', 'Hazaribag', 'Hazaribagh', 'Hazi Camp', 'Hazipara', 'Ibrahimpur', 'Indira Road', 'Islambag', 'Islampur', 'Jamuna Future Park Area', 'Jatrabari', 'Jigatola', 'Joar Sahara', 'Jurain', 'Kadamtoli', 'Kafrul', 'Kakrail', 'Kalabagan', 'Kalachandpur', 'Kalshi', 'Kalyanpur', 'Kamal Ataturk Avenue', 'Kamalapur', 'kamarpara', 'Kamrangichor', 'Kamrangirchar', 'Kanchon Bridge', 'Karwan Bazar', 'Katabon', 'Katasur', 'Kathal Bagan', 'Kawla', 'Kazipara', 'Kazla', 'Keraniganj', 'Keraniganj (Upazila City)', 'Khilbarirtek', 'Khilgaon', 'khilgaon Taltola', 'Khilkhet', 'Kochukhet', 'Kollanpur', 'Konapara', 'Kotwali', 'Kuratoli', 'Kuril', 'Kurmitola', 'Lake Circus Road', 'Lakshmibazar', 'Lalbag', 'Lalbagh', 'Lalmatia', 'Lalmatia - Block A', 'Lalmatia - Block B', 'Lalmatia - Block C', 'Lalmatia - Block D', 'Lalmatia - Block E', 'Lalmatia - Block F', 'Lalmatia - Block G', 'Lalmatia - Block H', 'Laxmibazar', 'Madani Avenue', 'Madartek', 'Malibagh', 'Manda', 'Manikdi', 'Maniknagar', 'Matikata', 'Matuail', 'Mazar Road', 'Meradia', 'Merul Badda', 'Middle Badda', 'Middle Bashabo', 'Mirbagh', 'Mirpur', 'Mirpur 1', 'Mirpur 10', 'Mirpur 11', 'Mirpur 12', 'Mirpur 13', 'Mirpur 14', 'Mirpur 2', 'Mirpur 6', 'Mirpur 60 Feet', 'Mirpur 7', 'Mirpur Cantonment', 'Mirpur DOHS', 'Mirpur Road', 'Modhubagh', 'Mogbazar', 'Mogbazar Wireless', 'Moghbazar', 'Mohakhali', 'Mohakhali DOHS', 'Mohammadpur', 'Mollartek', 'Monipur', 'Monipuri para', 'Monsurabad', 'Motijheel', 'Mouchak', 'Mugda', 'Nakhalpara', 'Nandipara', 'Narinda', 'Natun Bazar', 'Nawabganj (Upazila City)', 'Nawabpur', 'Naya Paltan', 'Nayanagar', 'New Eskaton Road', 'New Market', 'Niketan', 'Niketon', 'Nikunja', 'Nikunja 1', 'Nikunja 2', 'Nilkhet', 'Nimtola', 'Norda', 'North Badda', 'North Kafrul', 'Nurer Chala', 'Old Dhaka', 'Online', 'Paikpara', 'Pallabi', 'Pallabi Extenstion', 'Paltan', 'Panthapath', 'Paribag', 'Pilkhana', 'Pink City Model Town', 'Pirerbag', 'Poribag', 'Postogola', 'Priyanka Runway City', 'Puran Dhaka', 'Purana Paltan', 'Purbacahal', 'Ramna', 'Rampura', 'Rayer Bazar', 'Rayerbag', 'Raza Bazar', 'Razarbagh', 'Rupnagar', 'Sabujbag', 'Sadarghat', 'Saidabad', 'Sanarpar', 'Sankar', 'Sankharia Bazar', 'Sarulia', 'Satarkul', 'Satmasjid Road', 'Savar', 'Sayedabad', 'Seghunbagicha', 'Senpara', 'Shagufta', 'Shah Ali Bag', 'Shahbag', 'Shahbagh', 'Shahidbag', 'Shahinbag', 'Shahjadpur', 'Shahjahanpur', 'Shankharibazar', 'Shantibag', 'Shantinagar', 'Shekhertek', 'Sher-E-Bangla Nagar', 'Shewra', 'Shewrapara', 'Shyamoli', 'Shyampur', 'Siddheswari', 'Siddique Bazar', 'Sign Board', 'Sobhanbag', 'Sonir Akra', 'South Badda', 'South Banasree', 'South Baridhara', 'South Keraniganj', 'South Monipur', 'Sukrabad', 'Sutrapur', 'Swamibagh', 'Tallabag', 'Tannery More', 'Tantibazar', 'Tatibazar', 'Tejgaon', 'Tejgaon Industrial Area', 'Tejkunipara', 'Tikatuli', 'Tilpa Para', 'Tongi', 'TT Para', 'Turag', 'Uttar khan', 'Uttara', 'Uttara Dia Bari', 'Uttara DOHS', 'Uttara Sector 1', 'Uttara Sector 10', 'Uttara Sector 11', 'Uttara Sector 12', 'Uttara Sector 13', 'Uttara Sector 14', 'Uttara Sector 15', 'Uttara Sector 16', 'Uttara Sector 17', 'Uttara Sector 18', 'Uttara Sector 2', 'Uttara Sector 3', 'Uttara Sector 4', 'Uttara Sector 5', 'Uttara Sector 6', 'Uttara Sector 7', 'Uttara Sector 8', 'Uttara Sector 9', 'Uttarkhan', 'Vashantek', 'Vatara', 'Vuter Goli', 'Wari', 'West Dhanmondi', 'West Rampura', 'Zigatola', 'Zoo Road'],
-  Khulna: ['Boyra', 'Daulatpur', 'Gollamari', 'Khalishpur', 'Rupsha', 'Sonadanga'],
-  Mymensingh: ['Charpara', 'Ganginar Par', 'Kewatkhali', 'Sadar', 'Valuka'],
-  Rajshahi: ['Boalia', 'Kazihata', 'Motihar', 'Rajshahi University', 'Shaheb Bazar', 'Sopura', 'Talaimari'],
-  Rangpur: ['Dhap', 'Jahaz Mor', 'Lalbagh', 'Medical Mor', 'Modern Mor'],
-  Sylhet: ['Amberkhana', 'Kumarpara', 'Pathantula', 'Shibgonj', 'Sylhet Sadar', 'Uposahar', 'Zindabazar']
-};
+import { CITIES, normalizeCityName, getAreasForCity } from '../../data/locations';
+import { useCategoriesAndCourses } from '../../data/categories';
 
 const PRESET_SUBJECTS = ['Math', 'Physics', 'Chemistry', 'Biology', 'English', 'Bangla', 'ICT', 'General Science', 'Accounting', 'Finance', 'General Math', 'Higher Math', 'Management', 'Economics', 'Sociology', 'Civics', 'History', 'Geography', 'Religion', 'Agriculture', 'Statistics'];
 const PRESET_COURSES = ['Play', 'Nursery', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'SSC', 'HSC', 'O Level', 'A Level', 'Admission Test'];
@@ -105,6 +94,9 @@ const DEPARTMENTS = [
 const TutorProfileForm = () => {
   const { user, profile, fetchProfile } = useAuthStore();
   const navigate = useNavigate();
+  const { categories: dynamicCategories, allCourses: dynamicCourses } = useCategoriesAndCourses();
+  const [customCategoryInput, setCustomCategoryInput] = useState('');
+  const [customCourseInput, setCustomCourseInput] = useState('');
 
   // Active step coordinates
   const [activeMainStep, setActiveMainStep] = useState(1);
@@ -395,8 +387,9 @@ const TutorProfileForm = () => {
     if (profile && !isInitializedRef.current) {
       const tp = profile.tutor_profile;
       if (tp) {
-        setCity(tp.current_city || '');
-        setCityInput(tp.current_city || '');
+        const normalizedCity = normalizeCityName(tp.current_city || '');
+        setCity(normalizedCity);
+        setCityInput(normalizedCity);
         setPreferredLocations(tp.preferred_locations || []);
         setLivingLocation(tp.living_location || '');
 
@@ -867,7 +860,7 @@ const TutorProfileForm = () => {
 
   // Helper selectors
   const filteredCities = CITIES.filter(c => c.toLowerCase().includes(cityInput.toLowerCase()));
-  const cityLocations = LOCATIONS_BY_CITY[city] || [];
+  const cityLocations = getAreasForCity(city);
   const filteredLocations = cityLocations.filter(loc =>
     loc.toLowerCase().includes(locationInput.toLowerCase()) && !preferredLocations.includes(loc)
   );
@@ -1399,8 +1392,8 @@ const TutorProfileForm = () => {
                           <span className="text-slate-400 text-xs">▼</span>
                         </div>
                         {showCategoryDropdown && (
-                          <div className="absolute z-30 w-full bg-white border border-slate-100 rounded-xl shadow-xl mt-1 max-h-48 overflow-y-auto p-2 space-y-1">
-                            {PRESET_CATEGORIES.map((cat) => {
+                          <div className="absolute z-30 w-full bg-white border border-slate-100 rounded-xl shadow-xl mt-1 max-h-60 overflow-y-auto p-2 space-y-1">
+                            {dynamicCategories.map((cat) => {
                               const checked = preferredCategory.includes(cat);
                               return (
                                 <button
@@ -1414,6 +1407,38 @@ const TutorProfileForm = () => {
                                 </button>
                               );
                             })}
+                            <div className="pt-1.5 mt-1.5 border-t border-slate-100 flex gap-1.5">
+                              <input
+                                type="text"
+                                placeholder="Add custom category..."
+                                value={customCategoryInput}
+                                onChange={(e) => setCustomCategoryInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const val = customCategoryInput.trim();
+                                    if (val && !preferredCategory.includes(val)) {
+                                      setPreferredCategory([...preferredCategory, val]);
+                                    }
+                                    setCustomCategoryInput('');
+                                  }
+                                }}
+                                className="flex-1 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:outline-none focus:border-[#86c240]"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const val = customCategoryInput.trim();
+                                  if (val && !preferredCategory.includes(val)) {
+                                    setPreferredCategory([...preferredCategory, val]);
+                                  }
+                                  setCustomCategoryInput('');
+                                }}
+                                className="px-2.5 py-1.5 bg-[#86c240] text-white rounded-lg text-xs font-bold hover:bg-[#75ad36]"
+                              >
+                                Add
+                              </button>
+                            </div>
                           </div>
                         )}
 
@@ -1489,8 +1514,8 @@ const TutorProfileForm = () => {
                           <span className="text-slate-400 text-xs">▼</span>
                         </div>
                         {showCoursesDropdown && (
-                          <div className="absolute z-30 w-full bg-white border border-slate-100 rounded-xl shadow-xl mt-1 max-h-48 overflow-y-auto p-2 space-y-1">
-                            {PRESET_COURSES.map((course) => {
+                          <div className="absolute z-30 w-full bg-white border border-slate-100 rounded-xl shadow-xl mt-1 max-h-60 overflow-y-auto p-2 space-y-1">
+                            {dynamicCourses.map((course) => {
                               const checked = preferredCourses.includes(course);
                               return (
                                 <button
@@ -1504,6 +1529,38 @@ const TutorProfileForm = () => {
                                 </button>
                               );
                             })}
+                            <div className="pt-1.5 mt-1.5 border-t border-slate-100 flex gap-1.5">
+                              <input
+                                type="text"
+                                placeholder="Add custom course/level..."
+                                value={customCourseInput}
+                                onChange={(e) => setCustomCourseInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const val = customCourseInput.trim();
+                                    if (val && !preferredCourses.includes(val)) {
+                                      setPreferredCourses([...preferredCourses, val]);
+                                    }
+                                    setCustomCourseInput('');
+                                  }
+                                }}
+                                className="flex-1 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:outline-none focus:border-[#86c240]"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const val = customCourseInput.trim();
+                                  if (val && !preferredCourses.includes(val)) {
+                                    setPreferredCourses([...preferredCourses, val]);
+                                  }
+                                  setCustomCourseInput('');
+                                }}
+                                className="px-2.5 py-1.5 bg-[#86c240] text-white rounded-lg text-xs font-bold hover:bg-[#75ad36]"
+                              >
+                                Add
+                              </button>
+                            </div>
                           </div>
                         )}
 

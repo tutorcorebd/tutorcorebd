@@ -102,9 +102,12 @@ const ConfirmationLetter = () => {
                 </div>
 
                 {/* Letter Header */}
-                <div className="border-b border-slate-100 pb-6 mb-6">
-                  <h4 className="text-lg font-black text-slate-800 tracking-tight">Tutor Core assignment confirmation letter</h4>
-                  <p className="text-slate-400 text-xs font-semibold mt-1">Date Issued: {assignDate}</p>
+                <div className="border-b border-slate-100 pb-6 mb-6 flex items-center gap-3.5">
+                  <img src="/logo.svg" alt="Tutor Core Logo" className="w-11 h-11 object-contain shrink-0" />
+                  <div>
+                    <h4 className="text-lg font-black text-slate-800 tracking-tight">Tutor Core assignment confirmation letter</h4>
+                    <p className="text-slate-400 text-xs font-semibold mt-1">Date Issued: {assignDate}</p>
+                  </div>
                 </div>
 
                 {/* Letter Body */}
