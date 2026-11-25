@@ -18,6 +18,7 @@ const TuitionDetails = () => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isSelectedTutor, setIsSelectedTutor] = useState(false);
   const [applicationCount, setApplicationCount] = useState(0);
   
   // Apply logic states
@@ -75,7 +76,34 @@ const TuitionDetails = () => {
     try {
       const { data, error } = await supabase
         .from('tuition_requests')
-        .select('*')
+        .select(`
+          id,
+          guardian_id,
+          student_class,
+          subject,
+          location,
+          salary_range,
+          days_per_week,
+          status,
+          created_at,
+          preferred_gender,
+          preferred_university,
+          tutoring_mode,
+          tutoring_time,
+          preferred_category,
+          duration,
+          number_of_students,
+          hiring_from,
+          other_requirement,
+          views,
+          children,
+          salary_type,
+          salary_amount,
+          salary_frequency,
+          days_count,
+          has_custom_institution,
+          student_gender
+        `)
         .eq('id', id)
         .single();
 
@@ -83,18 +111,58 @@ const TuitionDetails = () => {
         throw new Error('Tuition request not found.');
       }
 
-      setJob(data);
+      let selectedForThisJob = false;
 
-      // Fetch bookmarks status if tutor logged in
+      // Fetch bookmarks & assignment status if tutor logged in
       if (profile && profile.role === 'tutor') {
-        const { data: bookmark } = await supabase
-          .from('bookmarks')
-          .select('id')
-          .eq('tutor_id', profile.id)
-          .eq('tuition_request_id', id)
-          .maybeSingle();
+        const [{ data: bookmark }, { data: selectedApp }] = await Promise.all([
+          supabase
+            .from('bookmarks')
+            .select('id')
+            .eq('tutor_id', profile.id)
+            .eq('tuition_request_id', id)
+            .maybeSingle(),
+          supabase
+            .from('job_applications')
+            .select('id')
+            .eq('tutor_id', profile.id)
+            .eq('tuition_request_id', id)
+            .eq('status', 'selected')
+            .maybeSingle()
+        ]);
         setIsBookmarked(!!bookmark);
+        selectedForThisJob = !!selectedApp;
       }
+      setIsSelectedTutor(selectedForThisJob);
+
+      const canViewContact =
+        profile?.role === 'admin' ||
+        profile?.id === data.guardian_id ||
+        selectedForThisJob;
+
+      if (canViewContact) {
+        const { data: contactRows, error: rpcErr } = await supabase.rpc(
+          'get_authorized_tuition_contact',
+          { p_tuition_id: id }
+        );
+        if (!rpcErr && contactRows && contactRows.length > 0) {
+          data.guardian_whatsapp = contactRows[0].guardian_whatsapp;
+          data.full_address = contactRows[0].full_address;
+        } else if (rpcErr) {
+          // Fallback only if RPC is not deployed yet
+          const { data: privData } = await supabase
+            .from('tuition_requests')
+            .select('guardian_whatsapp, full_address')
+            .eq('id', id)
+            .single();
+          if (privData) {
+            data.guardian_whatsapp = privData.guardian_whatsapp;
+            data.full_address = privData.full_address;
+          }
+        }
+      }
+
+      setJob(data);
 
       // Fetch applications count
       const { count } = await supabase
@@ -319,7 +387,10 @@ const TuitionDetails = () => {
   const postedDate = format(new Date(job.created_at), 'dd MMM yyyy');
 
   // Verify authorization to see guardian details
-  const isAuthorized = profile?.role === 'admin' || (profile?.role === 'tutor' && job.status === 'assigned');
+  const isAuthorized =
+    profile?.role === 'admin' ||
+    profile?.id === job.guardian_id ||
+    isSelectedTutor;
 
   return (
     <div className="w-full px-4 sm:px-8 py-8 font-sans animate-in fade-in duration-500">
@@ -621,14 +692,18 @@ const TuitionDetails = () => {
                 </div>
                 <div>
                   <span className="text-slate-400 block text-xs font-bold">Guardian whatsapp</span>
-                  <a 
-                    href={`https://wa.me/${job.guardian_whatsapp.replace(/[^0-9]/g, '')}`} 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="text-slate-800 font-black text-sm hover:underline hover:text-[#86c240] transition-all"
-                  >
-                    {job.guardian_whatsapp}
-                  </a>
+                  {job.guardian_whatsapp ? (
+                    <a 
+                      href={`https://wa.me/${job.guardian_whatsapp.replace(/[^0-9]/g, '')}`} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="text-slate-800 font-black text-sm hover:underline hover:text-[#86c240] transition-all"
+                    >
+                      {job.guardian_whatsapp}
+                    </a>
+                  ) : (
+                    <span className="text-slate-500 font-bold text-sm">Not provided</span>
+                  )}
                 </div>
               </div>
             ) : (

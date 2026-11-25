@@ -110,7 +110,32 @@ const TuitionJobsBoard = ({ isPublic }) => {
       const { data, error } = await supabase
         .from('tuition_requests')
         .select(`
-          *,
+          id,
+          guardian_id,
+          student_class,
+          subject,
+          location,
+          salary_range,
+          days_per_week,
+          status,
+          created_at,
+          preferred_gender,
+          preferred_university,
+          tutoring_mode,
+          tutoring_time,
+          preferred_category,
+          duration,
+          number_of_students,
+          hiring_from,
+          other_requirement,
+          views,
+          children,
+          salary_type,
+          salary_amount,
+          salary_frequency,
+          days_count,
+          has_custom_institution,
+          student_gender,
           guardian:users(full_name, role)
         `)
         .eq('status', 'open')

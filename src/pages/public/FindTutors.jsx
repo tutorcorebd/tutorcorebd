@@ -121,7 +121,30 @@ const FindTutors = () => {
           full_name,
           role,
           created_at,
-          tutor_profiles (*)
+          tutor_profiles (
+            user_id,
+            bio,
+            current_city,
+            living_location,
+            preferred_locations,
+            preferred_category,
+            preferred_courses,
+            preferred_subjects,
+            university,
+            department,
+            is_hsc_student,
+            experience,
+            available_days,
+            teaching_method,
+            expected_salary,
+            gender,
+            photo_url,
+            tutor_category,
+            tutor_status,
+            is_verified,
+            is_premium,
+            rating
+          )
         `)
         .eq('role', 'tutor');
 

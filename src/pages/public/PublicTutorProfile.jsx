@@ -78,16 +78,69 @@ const PublicTutorProfile = () => {
     const fetchTutorProfile = async () => {
       setLoading(true);
       try {
-        // Fetch tutor data
+        // Fetch tutor data (public-safe columns only; excludes phone, NID, DOB, emergency contacts, full address)
         const { data: user, error: userError } = await supabase
           .from('users')
           .select(`
             id,
             full_name,
-            phone_number,
             created_at,
             last_login,
-            tutor_profiles (*)
+            tutor_profiles (
+              user_id,
+              education_status,
+              preferred_subjects,
+              cv_url,
+              profile_completeness,
+              is_verified,
+              bio,
+              current_city,
+              preferred_locations,
+              university,
+              department,
+              is_hsc_student,
+              living_location,
+              preferred_category,
+              preferred_courses,
+              experience,
+              available_days,
+              teaching_method,
+              available_from,
+              available_to,
+              expected_salary,
+              school_name,
+              school_group,
+              school_curriculum,
+              school_board,
+              school_gpa,
+              school_year,
+              college_name,
+              college_group,
+              college_curriculum,
+              college_board,
+              college_gpa,
+              college_year,
+              grad_gpa,
+              grad_year,
+              post_grad_university,
+              post_grad_department,
+              post_grad_gpa,
+              post_grad_year,
+              gender,
+              photo_url,
+              tutor_category,
+              tutor_status,
+              facebook_link,
+              linkedin_link,
+              about_yourself,
+              reasons_for_hiring,
+              tuition_experience_details,
+              personal_motivation,
+              blood_group,
+              religion,
+              rating,
+              is_premium
+            )
           `)
           .eq('id', id)
           .single();
@@ -664,7 +717,7 @@ const PublicTutorProfile = () => {
             </div>
             <div className="grid grid-cols-[150px_1fr] md:grid-cols-[250px_1fr] gap-4 py-2.5">
               <span className="font-bold text-slate-500 text-[15px]">Date of Birth :</span>
-              <span className="font-semibold text-slate-800 text-[15px]">{formatDate(profile.dob)}</span>
+              <span className="font-semibold text-slate-800 text-[15px]">Protected</span>
             </div>
           </div>
 
@@ -692,15 +745,19 @@ const PublicTutorProfile = () => {
       <div className="animate-fade-in-up stagger-7 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 mb-6 card-lift">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
           <div>
-            <h3 className="font-bold text-slate-800 text-[15px] mb-3">Present Full Address :</h3>
+            <h3 className="font-bold text-slate-800 text-[15px] mb-3">Living Area & City :</h3>
             <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm min-h-[80px]">
-              <p className="text-slate-600 text-[14px] font-medium leading-relaxed">{profile.address || 'N/A'}</p>
+              <p className="text-slate-600 text-[14px] font-medium leading-relaxed">
+                {[profile.living_location, profile.current_city].filter(Boolean).join(', ') || 'N/A'}
+              </p>
             </div>
           </div>
           <div>
-            <h3 className="font-bold text-slate-800 text-[15px] mb-3">Permanent Full Address :</h3>
+            <h3 className="font-bold text-slate-800 text-[15px] mb-3">Contact & Verification :</h3>
             <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm min-h-[80px]">
-              <p className="text-slate-600 text-[14px] font-medium leading-relaxed">{profile.permanent_address || 'N/A'}</p>
+              <p className="text-slate-500 text-[14px] font-medium leading-relaxed">
+                Private contact details & documents are protected by Tutor Core.
+              </p>
             </div>
           </div>
         </div>

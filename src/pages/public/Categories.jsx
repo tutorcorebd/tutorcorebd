@@ -3,7 +3,8 @@ import { supabase } from '../../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   BookOpen, Globe, Target, Heart, Award, 
-  PlayCircle, Briefcase, Quote, ChevronRight, Star, Grid
+  PlayCircle, Briefcase, Quote, ChevronRight, Star,
+  GraduationCap, Code, Stethoscope, Languages, Sparkles, Compass
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -21,6 +22,19 @@ const iconList = [
 const getIconComponent = (iconName) => {
   const matched = iconList.find(i => i.name === iconName);
   return matched ? matched.icon : BookOpen;
+};
+
+const getCourseIcon = (courseName = '', parentCategory = null) => {
+  const name = courseName.toLowerCase();
+  if (name.includes('program') || name.includes('web') || name.includes('coding') || name.includes('software')) return Code;
+  if (name.includes('medical')) return Stethoscope;
+  if (name.includes('buet') || name.includes('engineering')) return Compass;
+  if (name.includes('ielts') || name.includes('english') || name.includes('spoken')) return Languages;
+  if (name.includes('quran') || name.includes('arabic') || name.includes('islamic')) return Heart;
+  if (name.includes('bcs') || name.includes('job')) return Briefcase;
+  if (name.includes('pre-school') || name.includes('nursery') || name.includes('play')) return Sparkles;
+  if (name.includes('admission') || name.includes('level') || name.includes('ssc') || name.includes('hsc') || name.includes('ba') || name.includes('university')) return GraduationCap;
+  return parentCategory ? getIconComponent(parentCategory.icon_name) : BookOpen;
 };
 
 const Categories = () => {
@@ -99,34 +113,52 @@ const Categories = () => {
               <motion.section 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm"
+                className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm"
               >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-amber-50 rounded-xl text-amber-500">
-                    <Star className="w-5 h-5 fill-current" />
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-5 border-b border-slate-100">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 bg-amber-50 border border-amber-100 rounded-2xl flex items-center justify-center text-amber-500 shrink-0">
+                      <Star className="w-5 h-5 fill-current" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-800 leading-tight">Popular Tuition Classes</h2>
+                      <p className="text-slate-400 text-xs font-medium mt-0.5">Most in-demand class levels currently active across Bangladesh.</p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-slate-800 leading-tight">Popular Tuition Classes</h2>
-                    <p className="text-slate-400 text-xs font-semibold mt-0.5">Most in-demand class levels currently active.</p>
-                  </div>
+                  <span className="inline-flex items-center gap-1.5 self-start sm:self-center px-3 py-1.5 rounded-full bg-[#86c240]/10 text-[#6a9c31] text-xs font-bold">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {popularCourses.length} Trending
+                  </span>
                 </div>
 
-                <div className="flex flex-wrap gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
                   {popularCourses.map(course => {
                     const parentCat = categories.find(c => c.id === course.category_id);
+                    const CourseIcon = getCourseIcon(course.name, parentCat);
                     return (
                       <button
                         key={course.id}
                         onClick={() => handleCourseClick(course.name)}
-                        className="bg-slate-50 hover:bg-primary/10 hover:text-primary-dark border border-slate-200 hover:border-primary/30 px-5 py-3 rounded-2xl text-sm font-semibold text-slate-700 transition-all flex items-center gap-2"
+                        className="group bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-[#86c240]/50 p-3.5 rounded-2xl transition-all duration-200 flex items-center justify-between gap-3 text-left hover:shadow-md hover:-translate-y-0.5"
                       >
-                        <span>{course.name}</span>
-                        {parentCat && (
-                          <span className="text-[10px] bg-slate-200/60 text-slate-500 font-semibold px-2 py-0.5 rounded-md">
-                            {parentCat.name}
-                          </span>
-                        )}
-                        <ChevronRight className="w-3.5 h-3.5" />
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/70 group-hover:bg-[#86c240]/10 group-hover:border-[#86c240]/30 flex items-center justify-center text-slate-600 group-hover:text-[#6a9c31] transition-colors shrink-0 shadow-xs">
+                            <CourseIcon className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-sm font-bold text-slate-800 group-hover:text-[#5c8a28] truncate transition-colors">
+                              {course.name}
+                            </div>
+                            {parentCat && (
+                              <div className="text-[11px] font-medium text-slate-400 truncate mt-0.5">
+                                {parentCat.name}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="w-7 h-7 rounded-full bg-white border border-slate-200/70 group-hover:bg-[#86c240] group-hover:border-[#86c240] flex items-center justify-center text-slate-400 group-hover:text-white transition-all shrink-0">
+                          <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                        </div>
                       </button>
                     );
                   })}
