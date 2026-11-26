@@ -142,7 +142,7 @@ const Register = () => {
       </div>
 
       {/* Right side - Form */}
-      <div className="w-full lg:w-1/2 flex flex-col p-8 sm:p-12 lg:px-16 justify-center max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div className="w-full lg:w-1/2 flex flex-col p-8 sm:p-12 lg:px-16 justify-center">
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -157,44 +157,31 @@ const Register = () => {
           </div>
 
           {/* Role Selection Toggle */}
-          <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="flex gap-4 mb-6">
             <button
               type="button"
               onClick={() => setRole('parents')}
-              className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all duration-300 ${role === 'parents' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 hover:border-slate-350 hover:bg-slate-50/50'}`}
+              className={`flex-1 flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-300 ${role === 'parents' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 hover:border-slate-350 hover:bg-slate-50/50'}`}
             >
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mb-2 text-slate-700 relative border border-slate-100">
-                <Users size={18} className={role === 'parents' ? 'text-primary' : 'text-slate-500'} />
+              <div className="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm mb-2 text-slate-700 relative border border-slate-100">
+                <Users size={20} className={role === 'parents' ? 'text-primary' : 'text-slate-500'} />
                 {role === 'parents' && <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-primary rounded-full border-2 border-white"></div>}
               </div>
-              <span className="font-semibold text-xs text-slate-850">Parents</span>
-              <span className="text-[10px] text-slate-500 mt-0.5 text-center font-medium">Hire a tutor</span>
+              <span className="font-semibold text-sm text-slate-850">Parents</span>
+              <span className="text-xs text-slate-500 mt-1 text-center font-medium">Hire an expert tutor for home or online study</span>
             </button>
             
             <button
               type="button"
               onClick={() => setRole('tutor')}
-              className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all duration-300 ${role === 'tutor' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 hover:border-slate-350 hover:bg-slate-50/50'}`}
+              className={`flex-1 flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-300 ${role === 'tutor' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 hover:border-slate-350 hover:bg-slate-50/50'}`}
             >
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mb-2 text-slate-700 relative border border-slate-100">
-                <User size={18} className={role === 'tutor' ? 'text-primary' : 'text-slate-500'} />
+              <div className="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm mb-2 text-slate-700 relative border border-slate-100">
+                <User size={20} className={role === 'tutor' ? 'text-primary' : 'text-slate-500'} />
                 {role === 'tutor' && <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-primary rounded-full border-2 border-white"></div>}
               </div>
-              <span className="font-semibold text-xs text-slate-855">Tutor</span>
-              <span className="text-[10px] text-slate-500 mt-0.5 text-center font-medium">Find tuitions</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setRole('affiliate')}
-              className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all duration-300 ${role === 'affiliate' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 hover:border-slate-350 hover:bg-slate-50/50'}`}
-            >
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mb-2 text-slate-700 relative border border-slate-100">
-                <Share2 size={18} className={role === 'affiliate' ? 'text-primary' : 'text-slate-500'} />
-                {role === 'affiliate' && <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-primary rounded-full border-2 border-white"></div>}
-              </div>
-              <span className="font-semibold text-xs text-slate-855">Affiliate</span>
-              <span className="text-[10px] text-slate-500 mt-0.5 text-center font-medium">Refer & Earn</span>
+              <span className="font-semibold text-sm text-slate-855">Tutor</span>
+              <span className="text-xs text-slate-500 mt-1 text-center font-medium">Find professional tuition jobs near you</span>
             </button>
           </div>
 
@@ -216,20 +203,6 @@ const Register = () => {
                   value={fullName} 
                   onChange={(e) => setFullName(e.target.value)} 
                   required 
-                />
-              </div>
-
-              {/* Referral Code (Optional) */}
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Share2 className="h-4 w-4 text-slate-400" />
-                </div>
-                <input
-                  type="text"
-                  className="appearance-none block w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:border-primary sm:text-sm transition-colors font-medium text-slate-700 uppercase"
-                  placeholder="Referral Code (Optional, e.g. TC123456)"
-                  value={referralCode}
-                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                 />
               </div>
 
@@ -291,6 +264,20 @@ const Register = () => {
                     <span className="ml-2 text-sm text-slate-700 font-medium">Female</span>
                   </label>
                 </div>
+              </div>
+
+              {/* Referral Code (Optional) */}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Share2 className="h-4 w-4 text-slate-400" />
+                </div>
+                <input
+                  type="text"
+                  className="appearance-none block w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:border-primary sm:text-sm transition-colors font-medium text-slate-700 uppercase"
+                  placeholder="Referral Code (Optional, e.g. TC123456)"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                />
               </div>
 
               {/* Password */}

@@ -41,7 +41,7 @@ const AffiliateProgram = () => {
             ) : (
               <>
                 <Link
-                  to="/register?role=affiliate"
+                  to="/register?role=tutor"
                   className="px-7 py-3.5 bg-[#86c240] hover:bg-[#72ad30] text-white font-bold rounded-2xl text-sm flex items-center gap-2 shadow-lg shadow-[#86c240]/25 transition-all"
                 >
                   Join as Affiliate Partner <ArrowRight className="w-4 h-4" />

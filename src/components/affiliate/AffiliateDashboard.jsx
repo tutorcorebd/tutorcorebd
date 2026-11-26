@@ -2,17 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import useAuthStore from '../../store/useAuthStore';
-import { CITIES, getAreasForCity } from '../../data/locations';
-import { useCategoriesAndCourses } from '../../data/categories';
 import {
   DEFAULT_AFFILIATE_SETTINGS,
   generateAffiliateCode,
-  isEligibleForAffiliate,
-  normalizePhone
+  isEligibleForAffiliate
 } from '../../utils/affiliate';
 import {
   Share2, Copy, Check, Wallet, Clock, CheckCircle2, ArrowUpRight,
-  Gift, Send, ShieldAlert, Sparkles, DollarSign, CreditCard, RefreshCw, X
+  Gift, ShieldAlert, Sparkles, DollarSign, CreditCard, RefreshCw, X
 } from 'lucide-react';
 import CustomAlert from '../layout/CustomAlert';
 
@@ -31,7 +28,6 @@ const STATUS_BADGES = {
 const AffiliateDashboard = () => {
   const { profile } = useAuthStore();
   const navigate = useNavigate();
-  const { categories, allCourses } = useCategoriesAndCourses();
 
   const [settings, setSettings] = useState(DEFAULT_AFFILIATE_SETTINGS);
   const [affProfile, setAffProfile] = useState(null);
@@ -40,18 +36,6 @@ const AffiliateDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
-
-  // Lead Submission Form
-  const [leadName, setLeadName] = useState('');
-  const [leadPhone, setLeadPhone] = useState('');
-  const [leadEmail, setLeadEmail] = useState('');
-  const [leadCity, setLeadCity] = useState('');
-  const [leadArea, setLeadArea] = useState('');
-  const [leadCategory, setLeadCategory] = useState('Bangla Medium');
-  const [leadClass, setLeadClass] = useState('');
-  const [leadSalary, setLeadSalary] = useState('');
-  const [leadNotes, setLeadNotes] = useState('');
-  const [submittingLead, setSubmittingLead] = useState(false);
 
   // Withdraw / Redeem Modal
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
@@ -183,74 +167,6 @@ const AffiliateDashboard = () => {
       }
     } catch {
       showAlert('error', 'Copy Failed', 'Could not copy to clipboard.');
-    }
-  };
-
-  const handleLeadSubmit = async (e) => {
-    e.preventDefault();
-    if (!leadName.trim() || !leadPhone.trim() || !leadCity || !leadArea || !leadClass) {
-      showAlert('error', 'Missing Information', 'Please fill out all required lead fields.');
-      return;
-    }
-
-    // Strict self-referral prevention
-    const myPhoneNorm = normalizePhone(profile?.phone_number || '');
-    const leadPhoneNorm = normalizePhone(leadPhone);
-    if (myPhoneNorm && leadPhoneNorm && myPhoneNorm === leadPhoneNorm) {
-      showAlert('error', 'Self-Referral Blocked', 'You cannot submit your own phone number as an affiliate lead.');
-      return;
-    }
-    if (leadEmail && profile?.email && leadEmail.trim().toLowerCase() === profile.email.trim().toLowerCase()) {
-      showAlert('error', 'Self-Referral Blocked', 'You cannot submit your own email address as an affiliate lead.');
-      return;
-    }
-
-    setSubmittingLead(true);
-    try {
-      const { data, error } = await supabase
-        .from('affiliate_referrals')
-        .insert([
-          {
-            affiliate_id: profile.id,
-            referral_type: 'lead_submission',
-            lead_name: leadName.trim(),
-            lead_phone: leadPhone.trim(),
-            lead_email: leadEmail.trim() || null,
-            lead_city: leadCity,
-            lead_area: leadArea,
-            lead_class: leadClass,
-            lead_category: leadCategory,
-            lead_salary: leadSalary.trim() || 'Negotiable',
-            lead_notes: leadNotes.trim() || null,
-            status: 'pending',
-            commission_pct: Number(settings.global_commission_pct || 10),
-            commission_status: 'pending'
-          }
-        ])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setReferrals((prev) => [data, ...prev]);
-      setLeadName('');
-      setLeadPhone('');
-      setLeadEmail('');
-      setLeadCity('');
-      setLeadArea('');
-      setLeadClass('');
-      setLeadSalary('');
-      setLeadNotes('');
-      showAlert(
-        'success',
-        'Tuition Lead Submitted!',
-        'Our admin team will contact the guardian shortly. Track progress in your Referrals table below.'
-      );
-    } catch (err) {
-      console.error('Lead submit error:', err);
-      showAlert('error', 'Submission Failed', err.message || 'Could not submit lead. Ensure the affiliate SQL migration is applied.');
-    } finally {
-      setSubmittingLead(false);
     }
   };
 
@@ -424,76 +340,75 @@ const AffiliateDashboard = () => {
         </div>
       </div>
 
-      {/* Referral Link + Terms & Manual Lead Submission */}
+      {/* Referral Link + Commission & Payout Rules */}
       <div className="grid lg:grid-cols-12 gap-6">
-        {/* Left: Share Link + Rules */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
-            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <Gift className="w-5 h-5 text-[#86c240]" /> Your Referral Link & Code
-            </h2>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Share your link with parents or tutors (30-day attribution). Referred tutors also get{' '}
-              <strong className="text-[#6a9c31]">{settings.referred_tutor_discount_pct}% off</strong> their first platform charge!
-            </p>
+        <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <Gift className="w-5 h-5 text-[#86c240]" /> Your Referral Link & Code
+          </h2>
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Share your link with parents or tutors (30-day attribution). Referred tutors also get{' '}
+            <strong className="text-[#6a9c31]">{settings.referred_tutor_discount_pct}% off</strong> their first platform charge!
+          </p>
 
-            <div>
-              <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Referral Code</label>
-              <div className="flex gap-2">
-                <input
-                  readOnly
-                  value={referralCode}
-                  className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-black text-slate-800 text-sm tracking-wider"
-                />
-                <button
-                  onClick={() => handleCopy(referralCode, 'code')}
-                  className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
-                >
-                  {copiedCode ? <Check className="w-4 h-4 text-[#86c240]" /> : <Copy className="w-4 h-4" />}
-                  {copiedCode ? 'Copied' : 'Copy'}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Referral Link</label>
-              <div className="flex gap-2">
-                <input
-                  readOnly
-                  value={referralLink}
-                  className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 truncate"
-                />
-                <button
-                  onClick={() => handleCopy(referralLink, 'link')}
-                  className="px-4 py-2.5 bg-[#86c240] hover:bg-[#72ad30] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
-                >
-                  {copiedLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  {copiedLink ? 'Copied' : 'Copy'}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex gap-3 pt-1">
-              <a
-                href={`https://wa.me/?text=${encodeURIComponent(`Find verified home & online tutors on Tutor Core! Join with my link (${settings.referred_tutor_discount_pct}% off first platform fee for tutors): ${referralLink}`)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex-1 py-2.5 px-3 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
+          <div>
+            <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Referral Code</label>
+            <div className="flex gap-2">
+              <input
+                readOnly
+                value={referralCode}
+                className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-black text-slate-800 text-sm tracking-wider"
+              />
+              <button
+                onClick={() => handleCopy(referralCode, 'code')}
+                className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
               >
-                Share on WhatsApp <ArrowUpRight className="w-3.5 h-3.5" />
-              </a>
-              <a
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex-1 py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
-              >
-                Share on Facebook <ArrowUpRight className="w-3.5 h-3.5" />
-              </a>
+                {copiedCode ? <Check className="w-4 h-4 text-[#86c240]" /> : <Copy className="w-4 h-4" />}
+                {copiedCode ? 'Copied' : 'Copy'}
+              </button>
             </div>
           </div>
 
-          <div className="bg-slate-900 text-white p-6 rounded-3xl space-y-3">
+          <div>
+            <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Referral Link</label>
+            <div className="flex gap-2">
+              <input
+                readOnly
+                value={referralLink}
+                className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 truncate"
+              />
+              <button
+                onClick={() => handleCopy(referralLink, 'link')}
+                className="px-4 py-2.5 bg-[#86c240] hover:bg-[#72ad30] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
+              >
+                {copiedLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copiedLink ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-1">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`Find verified home & online tutors on Tutor Core! Join with my link (${settings.referred_tutor_discount_pct}% off first platform fee for tutors): ${referralLink}`)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex-1 py-2.5 px-3 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
+            >
+              Share on WhatsApp <ArrowUpRight className="w-3.5 h-3.5" />
+            </a>
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex-1 py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
+            >
+              Share on Facebook <ArrowUpRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+
+        <div className="lg:col-span-5 bg-slate-900 text-white p-6 rounded-3xl flex flex-col justify-between space-y-4">
+          <div className="space-y-3">
             <h3 className="text-sm font-bold text-[#86c240] uppercase tracking-wider flex items-center gap-2">
               <CreditCard className="w-4 h-4" /> Commission & Payout Rules
             </h3>
@@ -501,148 +416,9 @@ const AffiliateDashboard = () => {
               {settings.payout_terms_text}
             </p>
           </div>
-        </div>
-
-        {/* Right: Manual Lead Submission Form */}
-        <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-          <div className="mb-5">
-            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <Send className="w-5 h-5 text-[#86c240]" /> Submit a Tuition Lead
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Know a parent looking for a tutor? Submit their tuition requirement directly. Our team will verify and confirm your commission.
-            </p>
+          <div className="pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+            Self-referrals using matching account, phone, or email are automatically blocked.
           </div>
-
-          <form onSubmit={handleLeadSubmit} className="space-y-4">
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Guardian / Parent Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={leadName}
-                  onChange={(e) => setLeadName(e.target.value)}
-                  placeholder="e.g. Mrs. Farhana Rahman"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#86c240]"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Guardian Phone / WhatsApp *</label>
-                <input
-                  type="tel"
-                  required
-                  value={leadPhone}
-                  onChange={(e) => setLeadPhone(e.target.value)}
-                  placeholder="e.g. 017XXXXXXXX"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#86c240]"
-                />
-              </div>
-            </div>
-
-            <div className="grid sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">District (City) *</label>
-                <select
-                  required
-                  value={leadCity}
-                  onChange={(e) => {
-                    setLeadCity(e.target.value);
-                    setLeadArea('');
-                  }}
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#86c240]"
-                >
-                  <option value="">Select District</option>
-                  {CITIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Area *</label>
-                <select
-                  required
-                  disabled={!leadCity}
-                  value={leadArea}
-                  onChange={(e) => setLeadArea(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#86c240] disabled:opacity-50"
-                >
-                  <option value="">Select Area</option>
-                  {leadCity && getAreasForCity(leadCity).map((a) => (
-                    <option key={a} value={a}>{a}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Expected Salary (BDT)</label>
-                <input
-                  type="text"
-                  value={leadSalary}
-                  onChange={(e) => setLeadSalary(e.target.value)}
-                  placeholder="e.g. 6000 BDT"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#86c240]"
-                />
-              </div>
-            </div>
-
-            <div className="grid sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Category / Medium</label>
-                <select
-                  value={leadCategory}
-                  onChange={(e) => setLeadCategory(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#86c240]"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Class / Course *</label>
-                <select
-                  required
-                  value={leadClass}
-                  onChange={(e) => setLeadClass(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#86c240]"
-                >
-                  <option value="">Select Class</option>
-                  {allCourses.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Guardian Email (Optional)</label>
-                <input
-                  type="email"
-                  value={leadEmail}
-                  onChange={(e) => setLeadEmail(e.target.value)}
-                  placeholder="parent@email.com"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#86c240]"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-600 mb-1">Subjects & Additional Notes</label>
-              <textarea
-                rows={2}
-                value={leadNotes}
-                onChange={(e) => setLeadNotes(e.target.value)}
-                placeholder="Subjects needed, days/week, preferred tutor university or gender..."
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#86c240]"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={submittingLead}
-              className="w-full sm:w-auto px-6 py-3 bg-[#86c240] hover:bg-[#72ad30] text-white font-bold rounded-xl text-sm transition-colors shadow-sm disabled:opacity-50"
-            >
-              {submittingLead ? 'Submitting Lead...' : 'Submit Tuition Lead'}
-            </button>
-          </form>
         </div>
       </div>
 
