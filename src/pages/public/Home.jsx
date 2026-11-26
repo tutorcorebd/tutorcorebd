@@ -228,7 +228,7 @@ const Home = () => {
               className="flex-1 text-center lg:text-left text-slate-800"
             >
               <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-sm font-semibold tracking-wide mb-8 text-primary border border-primary/20">
-                <Award className="w-4 h-4 text-primary" /> Country's #1 Tutor Matching Platform
+                <Award className="w-4 h-4 text-primary" /> Bangladesh's Premier Tutor &amp; Tuition Matching Platform
               </motion.div>
               <motion.h1 variants={fadeInUp} className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.15] mb-6 text-slate-850">
                 Find Your <br className="hidden md:block" /> 
@@ -240,7 +240,7 @@ const Home = () => {
               
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
                 <Link to="/find-tutors" className="bg-primary hover:bg-[#75ad36] text-white py-3.5 px-8 rounded-xl font-semibold text-base flex items-center justify-center gap-2 shadow-md hover:-translate-y-0.5 transform transition-all border border-primary">
-                  Hire a Tutor <ArrowRight className="w-5 h-5" />
+                  Find a Tutor <ArrowRight className="w-5 h-5" />
                 </Link>
                 <button 
                   onClick={handleBecomeTutorClick}

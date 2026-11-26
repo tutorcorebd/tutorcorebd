@@ -164,9 +164,10 @@ const DashboardLayout = () => {
 
   const getMenuId = () => {
     if (!profile) return 'ID: ------';
-    const prefix = profile.role === 'admin' ? 'A' : profile.role === 'guardian' ? 'G' : 'T';
+    const prefix = profile.role === 'admin' ? 'A' : profile.role === 'guardian' ? 'G' : profile.role === 'affiliate' ? 'F' : 'T';
     const shortId = profile.id ? profile.id.substring(0, 6).toUpperCase() : '------';
-    return `${profile.role === 'admin' ? 'Admin' : profile.role === 'guardian' ? 'Guardian' : 'Tutor'} ID : ${prefix}${shortId}`;
+    const label = profile.role === 'admin' ? 'Admin' : profile.role === 'guardian' ? 'Guardian' : profile.role === 'affiliate' ? 'Affiliate' : 'Tutor';
+    return `${label} ID : ${prefix}${shortId}`;
   };
 
   const menuItems = {
@@ -198,15 +199,21 @@ const DashboardLayout = () => {
       { name: 'Dashboard', path: '/guardian/dashboard', icon: LayoutDashboard },
       { name: 'Post A Tuition', path: '/guardian/post-request', icon: PlusCircle },
       { name: 'Find Tutors', path: '/find-tutors', icon: Search },
+      { name: 'Affiliate Partner', path: '/guardian/affiliate', icon: Share2 },
       { name: 'My Profile', path: '/guardian/profile', icon: User },
       { name: 'Submit Feedback', path: '/guardian/feedback', icon: MessageSquare },
       { name: 'Help & Support', path: '/guardian/support', icon: HelpCircle },
       { name: 'Settings', path: '/guardian/settings', icon: Settings },
     ],
+    affiliate: [
+      { name: 'Affiliate Dashboard', path: '/affiliate/dashboard', icon: Share2 },
+      { name: 'Program Info', path: '/affiliate-program', icon: Globe },
+    ],
     admin: [
       { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
       { name: 'Post A Tuition', path: '/guardian/post-request', icon: PlusCircle },
       { name: 'Assignment Hub', path: '/admin/requests', icon: Shield },
+      { name: 'Affiliate Management', path: '/admin/affiliates', icon: Share2 },
       { name: 'Tuition Reports', path: '/admin/reports', icon: Flag },
       { name: 'User Management', path: '/admin/users', icon: Users },
       { name: 'Membership Management', path: '/admin/membership', icon: ShieldCheck },

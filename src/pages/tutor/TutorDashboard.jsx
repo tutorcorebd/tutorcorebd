@@ -284,6 +284,14 @@ const TutorDashboard = () => {
             <p className="text-slate-500 text-sm max-w-lg leading-relaxed">
               We are so delighted about your arrival on our platform. You can apply your desired "Tuition Job" from your personalized dashboard. So, don't be late apply & enjoy your tutoring journey!!!
             </p>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => navigate('/tutor/affiliate')}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#f7fee7] hover:bg-[#ecfccb] border border-[#86c240]/30 text-[#4d7c0f] rounded-xl text-xs font-bold transition-colors"
+              >
+                🎁 Affiliate Bonus: Refer Parents or Tutors &amp; Earn 10% Commission →
+              </button>
+            </div>
           </div>
           {/* Decorative illustration placeholder */}
           <div className="hidden lg:block w-48 h-40 bg-slate-50 rounded-lg flex-shrink-0 flex items-center justify-center">

@@ -17,6 +17,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
     if (profile.role === 'admin') return <Navigate to="/admin/dashboard" replace />;
     if (profile.role === 'tutor') return <Navigate to="/tutor/dashboard" replace />;
     if (profile.role === 'guardian') return <Navigate to="/guardian/dashboard" replace />;
+    if (profile.role === 'affiliate') return <Navigate to="/affiliate/dashboard" replace />;
     return <Navigate to="/" replace />;
   }
 

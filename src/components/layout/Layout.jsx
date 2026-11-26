@@ -14,7 +14,7 @@ const Layout = () => {
 
   useEffect(() => {
     const routeTitles = {
-      '/': "Tutor Core | Country's #1 Tutor Matching Platform",
+      '/': "Tutor Core | Bangladesh's Premier Tutor & Tuition Matching Platform",
       '/find-tutors': "Find Best Tutors | Tutor Core",
       '/job-board': "Available Tuition Jobs | Tutor Core",
       '/categories': "Tutor Categories | Tutor Core",
@@ -266,6 +266,12 @@ const Layout = () => {
                   <Link to="/tutor-faq" className="text-slate-400 hover:text-[#86c240] hover:translate-x-1.5 transition-all duration-200 flex items-center gap-1.5 group">
                     <ArrowRight className="w-3 h-3 text-[#86c240] opacity-0 group-hover:opacity-100 transition-all" />
                     <span>Tutor FAQs</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/affiliate-program" className="text-slate-400 hover:text-[#86c240] hover:translate-x-1.5 transition-all duration-200 flex items-center gap-1.5 group">
+                    <ArrowRight className="w-3 h-3 text-[#86c240] opacity-0 group-hover:opacity-100 transition-all" />
+                    <span>Affiliate Program</span>
                   </Link>
                 </li>
               </ul>

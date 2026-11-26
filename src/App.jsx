@@ -5,6 +5,7 @@ import useAuthStore from './store/useAuthStore';
 import Layout from './components/layout/Layout';
 import DashboardLayout from './components/layout/DashboardLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import { saveReferralCode } from './utils/affiliate';
 
 // Public Pages (Asynchronously Loaded)
 const Home = lazy(() => import('./pages/public/Home'));
@@ -23,6 +24,7 @@ const FindTutors = lazy(() => import('./pages/public/FindTutors'));
 const PublicTutorProfile = lazy(() => import('./pages/public/PublicTutorProfile'));
 const TuitionDetails = lazy(() => import('./pages/public/TuitionDetails'));
 const Categories = lazy(() => import('./pages/public/Categories'));
+const AffiliateProgram = lazy(() => import('./pages/public/AffiliateProgram'));
 
 // Tutor Pages (Asynchronously Loaded)
 const TutorDashboard = lazy(() => import('./pages/tutor/TutorDashboard'));
@@ -58,6 +60,7 @@ const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminNotices = lazy(() => import('./pages/admin/AdminNotices'));
 const AdminMembership = lazy(() => import('./pages/admin/AdminMembership'));
 const AdminSupport = lazy(() => import('./pages/admin/AdminSupport'));
+const AdminAffiliates = lazy(() => import('./pages/admin/AdminAffiliates'));
 const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
 const AdminInstitutions = lazy(() => import('./pages/admin/AdminInstitutions'));
 const AdminFeedbacks = lazy(() => import('./pages/admin/AdminFeedbacks'));
@@ -100,7 +103,12 @@ function SessionRefresher() {
   useEffect(() => {
     // Refresh Supabase session on navigation to prevent RLS query drops
     checkAndRefreshSessionSafe();
-  }, [location.pathname]);
+    const params = new URLSearchParams(location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      saveReferralCode(ref);
+    }
+  }, [location.pathname, location.search]);
 
   return null;
 }
@@ -155,6 +163,7 @@ function App() {
             <Route path="/tutor/:id" element={<PublicTutorProfile />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/tuition/:id" element={<TuitionDetails />} />
+            <Route path="/affiliate-program" element={<AffiliateProgram />} />
           </Route>
 
           {/* Standalone Admin Login Route (No Header/Footer) */}
@@ -192,16 +201,23 @@ function App() {
             {/* Guardian Only Routes */}
             <Route element={<ProtectedRoute allowedRoles={['guardian']} />}>
               <Route path="/guardian/dashboard" element={<GuardianDashboard />} />
+              <Route path="/guardian/affiliate" element={<AffiliatePartner />} />
               <Route path="/guardian/feedback" element={<GuardianFeedback />} />
               <Route path="/guardian/profile" element={<GuardianProfileForm />} />
               <Route path="/guardian/support" element={<HelpSupport />} />
               <Route path="/guardian/settings" element={<GuardianSettings />} />
             </Route>
 
+            {/* Dedicated Affiliate Partner Routes */}
+            <Route element={<ProtectedRoute allowedRoles={['affiliate']} />}>
+              <Route path="/affiliate/dashboard" element={<AffiliatePartner />} />
+            </Route>
+
             {/* Admin Routes */}
             <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/requests" element={<AdminAssignmentHub />} />
+              <Route path="/admin/affiliates" element={<AdminAffiliates />} />
               <Route path="/admin/tutorials" element={<AdminTutorials />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/membership" element={<AdminMembership />} />

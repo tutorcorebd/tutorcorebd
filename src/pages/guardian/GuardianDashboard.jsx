@@ -232,6 +232,22 @@ const GuardianDashboard = () => {
         </div>
 
       </div>
+
+      {/* Affiliate Promo Banner */}
+      <div className="bg-gradient-to-r from-[#f7fee7] to-white border border-[#86c240]/30 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+        <div>
+          <h3 className="text-sm font-bold text-slate-800">Refer Parents or Tutors &amp; Earn Affiliate Bonuses</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Share your referral link or submit a tuition lead to earn 10% of the platform charge via bKash, Nagad, or +10% bonus Platform Credit.
+          </p>
+        </div>
+        <Link
+          to="/guardian/affiliate"
+          className="px-4 py-2.5 bg-[#86c240] hover:bg-[#72ad30] text-white text-xs font-bold rounded-xl transition-colors whitespace-nowrap text-center"
+        >
+          Open Affiliate Portal →
+        </Link>
+      </div>
       
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Left column: Tuition Requests */}
