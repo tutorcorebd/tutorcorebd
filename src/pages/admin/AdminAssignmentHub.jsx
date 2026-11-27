@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
-import { MapPin, BookOpen, Clock, Banknote, User, MessageCircle, CheckCircle, XCircle, Award, Eye, Settings, GraduationCap, AlertTriangle, Layers } from 'lucide-react';
+import { MapPin, BookOpen, Clock, Banknote, User, MessageCircle, CheckCircle, XCircle, Award, Eye, Settings, GraduationCap, AlertTriangle, Layers, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminAssignmentHub = () => {
   const [requests, setRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [mobileShowDetails, setMobileShowDetails] = useState(false);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalState, setModalState] = useState({ isOpen: false, type: '', title: '', message: '', action: null });
@@ -64,6 +65,7 @@ const AdminAssignmentHub = () => {
 
   const handleSelectRequest = (request) => {
     setSelectedRequest(request);
+    setMobileShowDetails(true);
     fetchApplications(request.id);
   };
 
@@ -126,9 +128,9 @@ const AdminAssignmentHub = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-120px)] font-sans">
+    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-145px)] lg:h-[calc(100vh-120px)] font-sans">
       {/* Left Panel: Requests List */}
-      <div className="w-full lg:w-1/3 bg-white rounded-xl shadow-sm border border-slate-200 overflow-y-auto flex flex-col">
+      <div className={`${mobileShowDetails && selectedRequest ? 'hidden lg:flex' : 'flex'} w-full lg:w-1/3 bg-white rounded-xl shadow-sm border border-slate-200 overflow-y-auto flex-col h-full`}>
         <div className="p-4 border-b border-slate-200 bg-slate-50 sticky top-0 z-10 flex justify-between items-center">
           <h2 className="text-lg font-bold text-slate-800">Tuition Requests</h2>
           <span className="bg-slate-200 text-slate-700 text-xs px-2.5 py-1 rounded-full font-bold">
@@ -169,9 +171,23 @@ const AdminAssignmentHub = () => {
       </div>
 
       {/* Right Panel: Request Details & Applications */}
-      <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-y-auto">
+      <div className={`${mobileShowDetails && selectedRequest ? 'flex' : 'hidden lg:flex'} w-full lg:w-2/3 bg-white rounded-xl shadow-sm border border-slate-200 flex-col overflow-y-auto h-full`}>
         {selectedRequest ? (
           <>
+            {/* Mobile Back Button */}
+            <div className="lg:hidden sticky top-0 z-20 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setMobileShowDetails(false)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#86c240] bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" /> Back to Tuition Requests
+              </button>
+              <span className="text-[11px] font-black text-slate-400">
+                ID: {selectedRequest.id.substring(0, 8).toUpperCase()}
+              </span>
+            </div>
+
             {/* Request Info */}
             <div className="p-6 border-b border-slate-200 bg-slate-50">
               <div className="flex justify-between items-start gap-4 flex-wrap mb-4">
@@ -211,16 +227,18 @@ const AdminAssignmentHub = () => {
                 <div className="flex items-center gap-2"><GraduationCap className="w-4 h-4 text-[#86c240]" /> <span className="text-slate-400">University:</span> {selectedRequest.preferred_university || 'Any'}</div>
               </div>
 
-              <div className="flex gap-3">
-                <a 
-                  href={`https://wa.me/${selectedRequest.guardian_whatsapp.replace(/[^0-9]/g, '')}`} 
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#25D366] text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#128C7E] transition-colors shadow-sm"
-                >
-                  <MessageCircle className="w-4 h-4" /> WhatsApp Guardian ({selectedRequest.guardian_whatsapp})
-                </a>
-              </div>
+              {selectedRequest.guardian_whatsapp && (
+                <div className="flex gap-3">
+                  <a 
+                    href={`https://wa.me/${selectedRequest.guardian_whatsapp.replace(/[^0-9]/g, '')}`} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 bg-[#25D366] text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#128C7E] transition-colors shadow-sm"
+                  >
+                    <MessageCircle className="w-4 h-4" /> WhatsApp Guardian ({selectedRequest.guardian_whatsapp})
+                  </a>
+                </div>
+              )}
 
               {selectedRequest.children && Array.isArray(selectedRequest.children) && selectedRequest.children.length > 0 && (
                 <div className="mt-5 border-t border-slate-200 pt-4">
